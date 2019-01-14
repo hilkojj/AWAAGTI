@@ -1,0 +1,22 @@
+{
+  "name": "awaagti-express",
+  "version": "1.0.0",
+  "description": "Express server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hilkojj/AWAAGTI.git"
+  },
+  "author": "hilkojj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hilkojj/AWAAGTI/issues"
+  },
+  "homepage": "https://github.com/hilkojj/AWAAGTI#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
