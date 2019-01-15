@@ -64,36 +64,41 @@ public class WorkerThread implements Runnable {
     }
 
     /*
-        Collect the data and write it to the file
+        Loop all files we need
      */
     private void collectData(BufferedWriter writer, String options) {
         try {
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
-            writer.write("DIT IS EEN TEST\n");
+            writer.write("<export>\n");
+            // TODO LOOP DATAPOINTS
+                collectDatePoint(writer, options);
 
-//<export>
-//	<datepoint date=”2019-01-01” time=”15:55:56”>
-//		<stations>
-//			<station id=32123>
-//				<temp>-60.1</temp>
-//				...
-//			</station>
-//			...
-//      </stations>
-//	</datepoint>
-//	...
-//</export>
-
-                    writer.close();
+            writer.write("</export>\n");
+            writer.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /*
+        Collect all data from a single file
+     */
+    private void collectDatePoint(BufferedWriter writer, String options) throws IOException {
+        writer.write("<datepoint date=”2019-01-01” time=”15:55:56”>\n");
+            writer.write("<stations”>\n");
+            // TODO LOOP STATIONS
+                collectStation(writer, options);
+            writer.write("</stations>\n");
+        writer.write("</datepoint>\n");
+    }
+
+    /*
+        Collect all station data we need from a row
+     */
+    private void collectStation(BufferedWriter writer, String options) throws IOException {
+        writer.write("<station id=32123>\n");
+            writer.write("<temp>-60.1</temp>\n");
+        writer.write("</station>\n");
     }
 
     /*
