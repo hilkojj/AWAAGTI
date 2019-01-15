@@ -18,10 +18,22 @@ public class NeedsABetterName
 	public void write() throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(this.makeFileName()));
 		
-		writer.write(padRight("16", 16-1) + "\n");
+		// Determine required line length
+		int highest = 0;
+		int length;
+		for (DataPoint dp : this.dataPoints) {
+			length = dp.makeDBLine().length();
+			if (length > highest) {
+				highest = length;
+			}
+		}
+		
+		writer.write(padRight(highest+1 + "", highest) + "\n");
+		// (highest+1, because the linebreak is not included in 'highest'
+		//   but is part of the line length of course)
 		
 		for (DataPoint dp : this.dataPoints) {
-			writer.write(padRight(dp.clientID + "=" + dp.temp, 16-1) + "\n");
+			writer.write(padRight(dp.makeDBLine(), highest) + "\n");
 		}
 		 
 		writer.close();
