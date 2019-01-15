@@ -7,7 +7,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class NeedsABetterName
+/**
+ * OutputWriter structures the DataPoints in the structures DB file
+ * format, and writes to file to the filesystem.
+ * 
+ * @author remi
+ *
+ */
+public class OutputWriter
 {
 	private ArrayList<DataPoint> dataPoints;
 	private LocalDateTime dateTime;
@@ -15,6 +22,11 @@ public class NeedsABetterName
 	private DateTimeFormatter dateTimeFormatter =
 			DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
+	/**
+	 * Writer formats the DataPoint data and writes the file to the filesystem.
+	 * 
+	 * @throws IOException
+	 */
 	public void write() throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(this.makeFileName()));
 		
@@ -49,11 +61,21 @@ public class NeedsABetterName
 	     return String.format("%1$-" + n + "s", s).replace(' ', '#'); 
 	}
 	
+	/**
+	 * setDataPoints
+	 * 
+	 * @param dps
+	 */
 	public void setDataPoints(ArrayList<DataPoint> dps)
 	{
 		this.dataPoints = dps;
 	}
 	
+	/**
+	 * setDateTime
+	 * 
+	 * @param dt
+	 */
 	public void setDateTime(LocalDateTime dt)
 	{
 		this.dateTime = dt;
