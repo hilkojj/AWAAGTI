@@ -8,17 +8,19 @@ public class SpeedTest {
         new SpeedTest();
     }
 
+    public static final int SKIP = 100;
+
     public SpeedTest() {
-        String url = "../db_testdata/20190114_143202.txt";
-        int MAX = 10000;
-        int MAXavg = 100;
+        String url = "../db_testdata/test.txt";
+        int MAX = 1000;
+        int MAXavg = 1000;
 
         long startTime = 0;
         long avgTime = 0;
         for(int a=0; a < MAXavg; a++) {
             startTime = System.currentTimeMillis();
             for (int i=0; i < MAX; i++)
-                test2(url);
+                test1(url);
             avgTime += System.currentTimeMillis() - startTime;
         }
         long endTime = avgTime / MAXavg;
@@ -37,7 +39,7 @@ public class SpeedTest {
 
         String line;
         try (Stream<String> lines = Files.lines(file.toPath())) {
-            line = lines.skip(1).findFirst().get();
+            line = lines.skip(SKIP).findFirst().get();
             System.out.println(line);
 
         } catch (IOException e) {
@@ -54,8 +56,8 @@ public class SpeedTest {
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             StringBuilder str = new StringBuilder();
-            br.skip(13);
-            for(int i=0; i<12; i++)
+            br.skip(SKIP*60);
+            for(int i=0; i<59; i++)
                 str.append((char)br.read());
             System.out.println(str);
 
@@ -73,7 +75,7 @@ public class SpeedTest {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
-            br.skip(13);
+            br.skip(SKIP*60);
             System.out.println(br.readLine());
 
         } catch (IOException e) {
