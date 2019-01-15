@@ -35,8 +35,12 @@ public class InputInterpreter
 	 */
 	public void interpretLine(String line)
 	{
-		if (line.contentEquals("START")) {
+		if (line.contentEquals("END")) {
+			this.stateFinish();
+		} else if (line.contentEquals("START")) {
 			if (this.state == 1) {
+				// Treat START as END when not ENDed yet, to keep it
+				// backwards compatible with Pi clients not sending an "END".
 				this.stateFinish();
 			} else {
 				this.stateInit();
