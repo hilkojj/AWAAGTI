@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class Main
@@ -60,18 +61,71 @@ public class Main
 			return false;
 		}
 		
+		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
+		
+		int[] indexes = new int[60];
+		DBFile[] files = new DBFile[60];
+		
 		for (int second = 0; second < 60; second++) {
-			Path fileName = Path.of(
-					String.format("min/minute/%d%d%d_%d%d%d.txt", year, month, day, hour, minute, second));
-			
-			String line;
+			String fileName = String.format("min/minute/%d%d%d_%d%d%d.txt", year, month, day, hour, minute, second);
+			DBFile dbFile = DBFile.read(fileName);
+			files[second] = dbFile;
 
-			try (Stream<String> lines = Files.lines(fileName)) {
-	            line = lines.skip(1).findFirst().get();
-	            System.out.println(line);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
+			if (dbFile == null) { 
+				System.out.println("Main: DBFile does not exist: " + fileName);
+			}
+		}
+		
+		while (true) {
+			int lowestClientID = -1;
+
+			boolean hasLeft = false;
+
+			for (int i = 0; i < 60; i++) {
+				DataPoint dp = files[i].getDataPoints().get(indexes[i]);
+				if (dp == null) {
+					continue;
+				}
+
+				hasLeft = true;
+
+				int cid = dp.clientID;
+				if (lowestClientID == -1 || cid < lowestClientID) {
+					lowestClientID = cid;
+				}
+			}
+			
+			if (!hasLeft) {
+				break;
+			}
+			
+			DataPoint dp = new DataPoint();
+			dp.clientID = lowestClientID;
+			
+			int max = 0;
+			
+			for (int i = 0; i < 60; i++) {
+				int cid = -1;
+				DataPoint tDP;
+				while (cid != lowestClientID) {
+					tDP = files[i].getDataPoints().get(indexes[i]);
+					indexes[i]++;
+					if (tDP == null) {
+						continue;
+					}
+
+					cid = tDP.clientID;
+
+					if (cid != lowestClientID) {
+						continue;
+					}
+					
+					// TODO: Make this max, but sum is nice for testing.
+					dp.summury += tDP.temp;
+				}
+			}
+			
+			dps.add(dp);
 		}
 		
 		return true;

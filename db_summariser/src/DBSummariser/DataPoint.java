@@ -13,6 +13,8 @@ public class DataPoint implements Comparable<DataPoint>
 {
 	public int clientID;
 	public int temp;
+	
+	public int summury;
 
 	private String dbLine;
 
@@ -39,5 +41,28 @@ public class DataPoint implements Comparable<DataPoint>
 		}
 		
 		return this.dbLine;
+	}
+	
+	public static DataPoint fromDBLine(String line)
+	{
+		DataPoint dp = new DataPoint();
+		String[] args = dp.parse(line);
+		
+		float temp =  Float.parseFloat(args[0]);
+		dp.temp = (int) (temp*10);
+		return dp;
+	}
+	
+	private String[] parse(String line)
+	{
+		String[] parts = line.split("=");
+		if (parts.length < 2) {
+			System.out.println("DataPoint: invalid datapoint line: " + line);
+			return null;
+		}
+
+		this.clientID = Integer.parseInt(parts[0]);
+		
+		return parts[1].split(",");
 	}
 }
