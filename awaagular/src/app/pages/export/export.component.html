@@ -11,7 +11,8 @@
             <div class="stations-tree">
 
 
-                <div *ngFor="let country of stations.countries">
+                <div *ngFor="let country of stations.countries"
+                    class="country">
 
                     <button mat-icon-button color="primary"
                         (click)="expanded[country] = !expanded[country]">
@@ -24,6 +25,11 @@
                     <span class="name">
                         {{country.toLowerCase()}}
                     </span>
+
+                    <mat-checkbox [indeterminate]="countrySelected(country) == 1"
+                        [checked]="countrySelected(country) == 2"
+                        (change)="countrySelect(country, $event.checked)">
+                    </mat-checkbox>
 
                     <mat-selection-list *ngIf="expanded[country]"
                         (selectionChange)="selectionChange($event.option)">

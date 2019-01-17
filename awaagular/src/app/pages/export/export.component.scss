@@ -18,6 +18,16 @@
 
     user-select: none;
 
+    .country {
+        position: relative;
+
+        mat-checkbox {
+            position: absolute;
+            right: 24px;
+            top: 17px;
+        }
+    }
+
     mat-list-option .name {
         margin-left: 27px;  
     }
