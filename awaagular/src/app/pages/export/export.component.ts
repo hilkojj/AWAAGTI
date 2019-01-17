@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
+import { Config } from 'src/app/services/configs.service';
 
 @Component({
     selector: 'app-export',
@@ -9,37 +10,48 @@ import { StationsService, Station } from 'src/app/services/stations.service';
 export class ExportComponent implements OnInit {
 
     expanded: { [country: string]: boolean } = {}
-    selectedStationIds: number[] = []
 
     searchInput = ""
+
+    config: Config
 
     constructor(
         public stations: StationsService
     ) { }
 
     ngOnInit() {
+        this.config = {
+            name: "",
+            stationIds: [],
+            what: ["temperature"],
+            timeFrame: {
+                from: Date.now() - 24 * 60 * 60 * 1000,
+                to: -1,
+                interval: 3600
+            }
+        }
     }
 
     selectionChange(option) {
         if (!option.selected)
-            this.selectedStationIds = this.selectedStationIds.filter(id => id != option.value)
-        else this.selectedStationIds.push(option.value)
+            this.config.stationIds = this.config.stationIds.filter(id => id != option.value)
+        else this.config.stationIds.push(option.value)
     }
 
     countrySelect(country: string, checkAll: boolean) {
         let stationIds = this.stationsByCountry(country).map(st => st.id)
         if (!checkAll)
-            this.selectedStationIds = this.selectedStationIds.filter(id => !stationIds.includes(id))
+            this.config.stationIds = this.config.stationIds.filter(id => !stationIds.includes(id))
         else
             stationIds
-                .filter(id => !this.selectedStationIds.includes(id))
-                .forEach(id => this.selectedStationIds.push(id))
+                .filter(id => !this.config.stationIds.includes(id))
+                .forEach(id => this.config.stationIds.push(id))
     }
 
     // returns 2 if all selected, 1 if some, 0 if none
     countrySelected(country: string) {
         let stations = this.stations.byCountry[country]
-        let selected = stations.filter(st => this.selectedStationIds.includes(st.id))
+        let selected = stations.filter(st => this.config.stationIds.includes(st.id))
         if (selected.length == stations.length)
             return 2
         return selected.length ? 1 : 0

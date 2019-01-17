@@ -1,18 +1,38 @@
 <div class="wrapper" fxLayout="row wrap">
 
+    <div fxFlex="100%" class="config-save">
+
+        <div fxLayout="row" style="max-width: 800px">
+
+
+            <mat-form-field fxFlex="auto" appearance="outline"
+                [style.width]="'100%'">
+                <mat-label>Config. name</mat-label>
+                <input matInput placeholder="untitled"
+                    [(ngModel)]="config.name">
+            </mat-form-field>
+
+            <button fxFlex="100px" mat-stroked-button color="accent">Save
+                config</button>
+        </div>
+
+    </div>
+
     <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
         <mat-card>
             <h1 class="mat-h1">Stations</h1>
 
-            {{selectedStationIds.length}}
-            {{selectedStationIds.length == 1 ? 'station' :
+            {{config.stationIds.length}}
+            {{config.stationIds.length == 1 ? 'station' :
             'stations'}} selected.
 
             <br>
 
-            <mat-form-field appearance="outline" [style.width]="'100%'">
+            <mat-form-field appearance="outline"
+                [style.width]="'100%'">
                 <mat-label>Search for places</mat-label>
-                <input matInput placeholder="e.g. Moscow or Iran" [(ngModel)]="searchInput">
+                <input matInput placeholder="e.g. Moscow or Iran"
+                    [(ngModel)]="searchInput">
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
 
@@ -42,7 +62,7 @@
                     <mat-selection-list *ngIf="expanded[country]"
                         (selectionChange)="selectionChange($event.option)">
                         <mat-list-option *ngFor="let st of stationsByCountry(country)"
-                            [value]="st.id" [selected]="selectedStationIds.indexOf(st.id) != -1">
+                            [value]="st.id" [selected]="config.stationIds.indexOf(st.id) != -1">
 
                             <span class="name">
                                 {{st.name.toLowerCase()}}
@@ -58,6 +78,9 @@
     <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
         <mat-card>
             <h1 class="mat-h1">Time period</h1>
+
+            
+
         </mat-card>
     </div>
 

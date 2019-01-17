@@ -9,6 +9,17 @@
     }
 }
 
+.config-save {
+    padding: 0 !important;
+    button {
+        margin-left: .75rem;
+    }
+    ::ng-deep .mat-form-field-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
 .stations-tree {
 
     max-height: 350px;
