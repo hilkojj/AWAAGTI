@@ -32,14 +32,25 @@
                 [style.width]="'100%'">
                 <mat-label>Search for places</mat-label>
                 <input matInput placeholder="e.g. Moscow or Iran"
-                    [(ngModel)]="searchInput">
+                    [(ngModel)]="searchInput"
+                    [matAutocomplete]="auto">
                 <mat-icon matSuffix>search</mat-icon>
+
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 8)"
+                        [value]="country.toLowerCase()">
+                        <img class="flag" [src]="'/assets/flags/4x3/' + stations.countryCode(country)?.toLowerCase() + '.svg'">
+                        <span class="name">
+                            {{country.toLowerCase()}}
+                        </span>
+                    </mat-option>
+                </mat-autocomplete>
             </mat-form-field>
 
             <div class="stations-tree">
 
 
-                <div *ngFor="let country of countries"
+                <div *ngFor="let country of countriesWithStations"
                     class="country">
 
                     <button mat-icon-button color="primary"
@@ -79,7 +90,7 @@
         <mat-card>
             <h1 class="mat-h1">Time period</h1>
 
-            
+
 
         </mat-card>
     </div>

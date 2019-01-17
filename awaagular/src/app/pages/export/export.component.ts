@@ -63,6 +63,10 @@ export class ExportComponent implements OnInit {
     }
 
     get countries(): string[] {
+        return this.stations.countries.filter(c => this.matchesFilter(c)).sort()
+    }
+
+    get countriesWithStations(): string[] {
         return this.stations.countries.filter(c => this.matchesFilter(c) || this.stationsByCountry(c).length).sort()
     }
 

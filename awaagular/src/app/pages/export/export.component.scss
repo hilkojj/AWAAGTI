@@ -20,6 +20,14 @@
     }
 }
 
+.flag {
+    height: 24px;
+    vertical-align: middle;
+    border-radius: 3px;
+    margin-right: .75rem;
+    border: 2px solid #e6e6e6;
+}
+
 .stations-tree {
 
     max-height: 350px;
@@ -47,7 +55,7 @@
         transition: transform .1s;
     }
 
-    .name {
-        text-transform: capitalize;
-    }
+}
+::ng-deep .name {
+    text-transform: capitalize;
 }

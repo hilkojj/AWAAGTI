@@ -24,7 +24,17 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/flag-icon-css/css",
+                "output": "./assets/flags"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/flag-icon-css/flags",
+                "output": "./assets/flags"
+              }
             ],
             "styles": [
               "src/styles.scss"
