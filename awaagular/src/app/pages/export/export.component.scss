@@ -1,0 +1,14 @@
+.wrapper {
+    div {
+        padding: 8px;
+        mat-card {
+            height: 350px;
+            overflow: hidden;
+        }
+    }
+
+    padding: .75rem;
+    @media only screen and (min-width: 1200px) {
+        padding: .75rem 4.5rem;
+    }
+}

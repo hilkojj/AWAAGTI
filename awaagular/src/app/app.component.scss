@@ -1,5 +1,6 @@
 
 mat-toolbar {
+    z-index: 9;
     position: sticky;
     $top-row-height: 100px;
     top: -$top-row-height;
