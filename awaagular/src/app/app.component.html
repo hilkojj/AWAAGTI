@@ -1,16 +1,21 @@
 <mat-toolbar color="primary">
     <mat-toolbar-row class="first-row">
-        
+
         <h1 style="color: black">Logo</h1>
 
     </mat-toolbar-row>
 
-    <mat-toolbar-row class="second-row" [ngClass]="atTop ? '' : 'mat-elevation-z3'">
-        <span>Second Row</span>
+    <mat-toolbar-row class="second-row" [ngClass]="atTop ? '' : 'mat-elevation-z6'">
+
+        <nav mat-tab-nav-bar backgroundColor="primary">
+            <a mat-tab-link *ngFor="let link of links"
+                [routerLink]="link.path" routerLinkActive
+                #rla="routerLinkActive" [active]="rla.isActive"
+                [routerLinkActiveOptions]="{exact: link.exact}">
+                {{link.label}}
+            </a>
+        </nav>
     </mat-toolbar-row>
 </mat-toolbar>
 
 <router-outlet></router-outlet>
-
-
-hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>hoi<br>

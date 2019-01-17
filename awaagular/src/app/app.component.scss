@@ -13,5 +13,22 @@ mat-toolbar {
         transition: box-shadow .3s;
         position: sticky;
         top: 0;
+        overflow-x: auto;
+
+        nav {
+            height: 100%;
+            a {
+                text-transform: uppercase;
+                font-size: 16px;
+                font-weight: 500;
+                height: 64px;
+                @media (max-width: 599px) {
+                    height: 56px;
+                }
+            }
+            ::ng-deep mat-ink-bar {
+                height: 2.5px;
+            }
+        }
     }
 }

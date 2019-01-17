@@ -9,6 +9,15 @@ export class AppComponent {
 
     atTop = true
 
+    links = [{
+        label: "Home",
+        path: "/",
+        exact: true
+    }, {
+        label: "Export",
+        path: "/export-data"
+    }];
+
     constructor() {
         setInterval(() => {
             this.atTop = window.scrollY < 10
