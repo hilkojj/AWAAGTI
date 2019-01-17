@@ -11,20 +11,31 @@
 #include <netdb.h>
 #include <strings.h>
 #include <time.h>
+#include <ctype.h>
 
 #define TRUE   1
 #define FALSE  0
 
+#define tempstart "<TEMP>"
+#define tempend "</TEMP>"
 #define SENSORPORT 7789
 #define DBPORT 12345
 #define DBIP "192.168.188.26"
 
 char *mock = "START\n2019-01-04,17:11:08\n748482,-3.1\n729837,12.3\n987386,-12.9\nEND\n";
-
-char bla()
+char buffer2[5000] = {0};
+void remove_spaces (char* restrict str_trimmed, const char* restrict str_untrimmed)
 {
-	srand(time(NULL));
-	return rand();
+  while (*str_untrimmed != '\0')
+  {
+    if(!isspace(*str_untrimmed))
+    {
+      *str_trimmed = *str_untrimmed;
+      str_trimmed++;
+    }
+    str_untrimmed++;
+  }
+  *str_trimmed = '\0';
 }
 
 short SocketCreate(void)
@@ -97,7 +108,7 @@ int main(int argc , char *argv[])
     int max_sd;
     struct sockaddr_in address;
 
-    char buffer[50000];
+    char buffer[500000];
 
     //set of socket descriptors
     fd_set readfds;
@@ -234,22 +245,38 @@ int main(int argc , char *argv[])
 
             if (FD_ISSET( sd , &readfds))
             {
-				if(read(sd, buffer, 50000) != 0)
+				if(read(sd, buffer, 500000) != 0)
 				{
-					/* char *copy = strdup(mock); */
-					/* lijnen[lijn] = strtok(copy, "\n"); */
-                    /*  */
-					/* while(lijnen[lijn] != NULL) */
-					/* 	lijnen[++lijn] = strtok(NULL,"\n"); */
-					printf("%s", buffer);
-					stuurMock(buffer);
+					/* buffer2 = trim(buffer); */
+					/* remove_spaces(buffer2, buffer); */
+					printf("%s\n", buffer);
+					/* stuurMock(buffer); */
+					char *start = buffer;
+					char *end = buffer;
+					char * startp[10];
+					int matchstart = 0;
+					char * endp[10];
+					int matchend = 0;
+					char temp[10][10] = {0};
+					while ( (start=strstr(start, tempstart)) != NULL )
+					{
+						startp[matchstart] = start+strlen(tempstart);
+						matchstart++;
+						start+=strlen(tempstart);
+					}
+					while ( (end=strstr(end,tempend)) != NULL )
+					{
+						endp[matchend] = end+strlen(tempend);
+						memcpy(temp[matchend], end-(int)(endp[matchend]-startp[matchend]-strlen(tempend)), (int)(endp[matchend]-startp[matchend]-strlen(tempend)));
+						matchend++;
+						end+=strlen(tempend);
+					}
+
+					for (int i = 0; i < 10; ++i) {
+						printf("%s\n", temp[i]);
+					}
 					memset(&buffer[0], 0, sizeof(buffer));
 				}
-				/* for (i = 0; i < 6; ++i) { */
-				/* 	puts(lijnen[i]); */
-				/* } */
-
-
 
                 //Check if it was for closing , and also read the
                 //incoming message
@@ -285,6 +312,7 @@ int main(int argc , char *argv[])
 
 
             }
+			sleep(0.01);
         }
 		/* sleep(0.1); */
     }
