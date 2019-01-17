@@ -82,7 +82,7 @@ public class InputInterpreter
 	{
 		System.out.println("InputInterpreter: read datapoint");
 
-		String[] parts = line.split("=");
+		String[] parts = line.split(",");
 		System.out.println("Parts:");
 		System.out.println(parts);
 		if (parts.length < 2) {
