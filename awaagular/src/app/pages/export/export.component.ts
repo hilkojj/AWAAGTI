@@ -27,7 +27,7 @@ export class ExportComponent implements OnInit {
     }
 
     countrySelect(country: string, checkAll: boolean) {
-        let stationIds = this.stations.byCountry[country].map(st => st.id)
+        let stationIds = this.stationsByCountry(country).map(st => st.id)
         if (!checkAll)
             this.selectedStationIds = this.selectedStationIds.filter(id => !stationIds.includes(id))
         else
