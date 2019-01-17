@@ -188,7 +188,7 @@ public class WorkerThread implements Runnable {
         Collect all station data we need from a row
      */
     private void collectStation(StationData station, BufferedWriter writer, Options options) throws IOException {
-        writer.write("\t\t\t<station id="+station.id+">\n");
+        writer.write("\t\t\t<station id=\""+station.id+"\">\n");
 
             if(options.inSelect("temp"))
                 writer.write("\t\t\t\t<temp>"+station.temp+"</temp>\n");
