@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { StationsService } from './services/stations.service';
 
 @Component({
     selector: 'app-root',
@@ -18,9 +19,11 @@ export class AppComponent {
         path: "/export-data"
     }];
 
-    constructor() {
+    constructor(
+        private stations: StationsService // to initialize stations
+    ) {
         setInterval(() => {
-            this.atTop = window.scrollY < 10
+            this.atTop = window.scrollY < 100
         }, 100)
     }
 

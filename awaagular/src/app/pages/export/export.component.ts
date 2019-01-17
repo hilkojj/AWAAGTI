@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { StationsService } from 'src/app/services/stations.service';
 
 @Component({
-  selector: 'app-export',
-  templateUrl: './export.component.html',
-  styleUrls: ['./export.component.scss']
+    selector: 'app-export',
+    templateUrl: './export.component.html',
+    styleUrls: ['./export.component.scss']
 })
 export class ExportComponent implements OnInit {
 
-  constructor() { }
+    constructor(
+        private stations: StationsService
+    ) { }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+    }
 
 }
