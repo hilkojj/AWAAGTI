@@ -1,6 +1,6 @@
 @import "~@angular/material/theming";
 
-$primaryPalette: mat-palette($mat-indigo);
+$primaryPalette: mat-palette($mat-light-blue);
 $accentPalette:  mat-palette($mat-amber, A200, A100, A400);
 
 // the default warn palette is red, so use that if the theme doesn't define one

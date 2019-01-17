@@ -1,0 +1,17 @@
+
+mat-toolbar {
+    position: sticky;
+    $top-row-height: 100px;
+    top: -$top-row-height;
+    
+    .first-row {
+        background: white;
+        height: $top-row-height;
+        z-index: 2;
+    }
+    .second-row {
+        transition: box-shadow .3s;
+        position: sticky;
+        top: 0;
+    }
+}
