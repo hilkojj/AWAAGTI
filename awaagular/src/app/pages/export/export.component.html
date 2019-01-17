@@ -8,10 +8,18 @@
             {{selectedStationIds.length == 1 ? 'station' :
             'stations'}} selected.
 
+            <br>
+
+            <mat-form-field appearance="outline" [style.width]="'100%'">
+                <mat-label>Search for places</mat-label>
+                <input matInput placeholder="e.g. Moscow or Iran" [(ngModel)]="searchInput">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
             <div class="stations-tree">
 
 
-                <div *ngFor="let country of stations.countries"
+                <div *ngFor="let country of countries"
                     class="country">
 
                     <button mat-icon-button color="primary"
@@ -33,7 +41,7 @@
 
                     <mat-selection-list *ngIf="expanded[country]"
                         (selectionChange)="selectionChange($event.option)">
-                        <mat-list-option *ngFor="let st of stations.byCountry[country]"
+                        <mat-list-option *ngFor="let st of stationsByCountry(country)"
                             [value]="st.id" [selected]="selectedStationIds.indexOf(st.id) != -1">
 
                             <span class="name">

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StationsService } from 'src/app/services/stations.service';
+import { StationsService, Station } from 'src/app/services/stations.service';
 
 @Component({
     selector: 'app-export',
@@ -10,6 +10,8 @@ export class ExportComponent implements OnInit {
 
     expanded: { [country: string]: boolean } = {}
     selectedStationIds: number[] = []
+
+    searchInput = ""
 
     constructor(
         public stations: StationsService
@@ -41,6 +43,21 @@ export class ExportComponent implements OnInit {
         if (selected.length == stations.length)
             return 2
         return selected.length ? 1 : 0
+    }
+
+    matchesFilter(name: string): boolean {
+        name = name.toLowerCase()
+        return this.searchInput.toLowerCase().split(" ").some(i => name.indexOf(i) != -1)
+    }
+
+    get countries(): string[] {
+        return this.stations.countries.filter(c => this.matchesFilter(c) || this.stationsByCountry(c).length).sort()
+    }
+
+    stationsByCountry(country: string): Station[] {
+        return this.stations.byCountry[country]
+            .filter(st => this.matchesFilter(st.name) || this.matchesFilter(st.country))
+            .sort((a, b) => a.name < b.name ? -1 : 1)
     }
 
 }
