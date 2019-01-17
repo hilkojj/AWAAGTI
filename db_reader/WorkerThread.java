@@ -131,7 +131,7 @@ public class WorkerThread implements Runnable {
         ArrayList<StationData> stations = getStations(file, options);
         if (stations.size() > 0) {
 
-            writer.write("\t<datepoint date=”???” time=”???”>\n");
+            writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
             writer.write("\t\t<stations>\n");
 
             for (StationData station : stations)
@@ -170,7 +170,7 @@ public class WorkerThread implements Runnable {
                 str = br.readLine();
                 if (str == null)
                     break;
-                StationData s = new StationData(br.readLine());
+                StationData s = new StationData(str);
                 if (IntStream.of(options.stations).anyMatch(x -> x == s.id))
                     list.add(s);
             }
@@ -229,7 +229,7 @@ public class WorkerThread implements Runnable {
 
         private String optionString = "";
 
-        public int[] stations = {7950, 7953, 7873};
+        public int[] stations = {50, 7950};
 
 
         public Options(String options) {

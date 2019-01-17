@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export>
+	<datepoint time="20190109_122305">
+		<stations>
+			<station id=7950>
+				<temp>83.0</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190114_143202">
+		<stations>
+			<station id=50>
+				<temp>50.7</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190115_120301">
+		<stations>
+			<station id=50>
+				<temp>89.4</temp>
+			</station>
+			<station id=7950>
+				<temp>-60.7</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="test">
+		<stations>
+			<station id=50>
+				<temp>10.4</temp>
+			</station>
+			<station id=7950>
+				<temp>-81.6</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190114_143203">
+		<stations>
+			<station id=50>
+				<temp>32.6</temp>
+			</station>
+			<station id=7950>
+				<temp>58.5</temp>
+			</station>
+		</stations>
+	</datepoint>
+</export>
