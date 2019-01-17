@@ -8,11 +8,20 @@ import { StationsService } from 'src/app/services/stations.service';
 })
 export class ExportComponent implements OnInit {
 
+    expanded: {[country: string]: boolean} = {}
+    selectedStationIds: number[] = []
+
     constructor(
-        private stations: StationsService
+        public stations: StationsService
     ) { }
 
     ngOnInit() {
+    }
+
+    selectionChange(option) {
+        if (!option.selected)
+            this.selectedStationIds = this.selectedStationIds.filter(id => id != option.value)
+        else this.selectedStationIds.push(option.value)
     }
 
 }

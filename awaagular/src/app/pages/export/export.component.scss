@@ -1,14 +1,32 @@
 .wrapper {
     div {
         padding: 8px;
-        mat-card {
-            height: 350px;
-            overflow: hidden;
-        }
     }
 
     padding: .75rem;
     @media only screen and (min-width: 1200px) {
         padding: .75rem 4.5rem;
+    }
+}
+
+.stations-tree {
+
+    max-height: 350px;
+    overflow-y: auto;
+
+    margin: 0 -16px;
+
+    user-select: none;
+
+    mat-list-option .name {
+        margin-left: 27px;  
+    }
+
+    .mat-icon {
+        transition: transform .1s;
+    }
+
+    .name {
+        text-transform: capitalize;
     }
 }

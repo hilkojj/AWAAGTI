@@ -15,7 +15,12 @@ export interface Station {
 })
 export class StationsService {
 
-    array: Station[]
+    array: Station[] = []
+    byCountry: {[country: string]: Station[]} = {}
+
+    get countries(): string[] {
+        return Object.keys(this.byCountry)
+    }
 
     constructor(
         private http: HttpClient
@@ -25,7 +30,13 @@ export class StationsService {
     }
 
     loadStations() {
-        this.http.get<Station[]>("/assets/stations.json").subscribe(s => this.array = s)
+        this.http.get<Station[]>("/assets/stations.json").subscribe(s => {
+            this.array = s
+            s.forEach(station => {
+                !this.byCountry[station.country] && [this.byCountry[station.country] = []]
+                this.byCountry[station.country].push(station)
+            })
+        })
     }
 
 }

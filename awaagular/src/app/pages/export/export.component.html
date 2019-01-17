@@ -1,26 +1,55 @@
+<div class="wrapper" fxLayout="row wrap">
 
-  <div class="wrapper" fxLayout="row wrap">
+    <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
+        <mat-card>
+            <h1 class="mat-h1">Stations</h1>
 
-      <h1 class="mat-h1" fxFlex="100%">
-          Export
-      </h1>
-  
-      <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
-          <mat-card>
-            hoi
-          </mat-card>
-      </div>
+            {{selectedStationIds.length}}
+            {{selectedStationIds.length == 1 ? 'station' :
+            'stations'}} selected.
 
-      <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
-          <mat-card>
-            hoi
-          </mat-card>
-      </div>
+            <div class="stations-tree">
 
-      <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
-          <mat-card>
-            hoi
-          </mat-card>
-      </div>
-      
-  </div>
+
+                <div *ngFor="let country of stations.countries">
+
+                    <button mat-icon-button color="primary"
+                        (click)="expanded[country] = !expanded[country]">
+
+                        <mat-icon [style.transform]="expanded[country] ? 'rotate(90deg)' : ''">
+                            keyboard_arrow_right
+                        </mat-icon>
+                    </button>
+
+                    <span class="name">
+                        {{country.toLowerCase()}}
+                    </span>
+
+                    <mat-selection-list *ngIf="expanded[country]"
+                        (selectionChange)="selectionChange($event.option)">
+                        <mat-list-option *ngFor="let st of stations.byCountry[country]"
+                            [value]="st.id" [selected]="selectedStationIds.indexOf(st.id) != -1">
+
+                            <span class="name">
+                                {{st.name.toLowerCase()}}
+                            </span>
+                        </mat-list-option>
+                    </mat-selection-list>
+                </div>
+            </div>
+
+        </mat-card>
+    </div>
+
+    <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
+        <mat-card>
+            <h1 class="mat-h1">Time period</h1>
+        </mat-card>
+    </div>
+
+    <div fxFlex.gt-sm="50%" fxFlex.gt-md="33%" fxFlex="100%">
+        <mat-card>
+        </mat-card>
+    </div>
+
+</div>
