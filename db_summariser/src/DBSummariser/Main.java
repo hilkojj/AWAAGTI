@@ -57,6 +57,8 @@ public class Main
 				summariseHour(year, month, day, hour);
 			}
 			
+			summariseDay(year, month, day);
+			
 			now = now.plusDays(1);
 		}
 
@@ -72,170 +74,54 @@ public class Main
 	
 	private static boolean summariseMinute(int year, int month, int day, int hour, int minute)
 	{
-		String sumFileName = String.format("min/minute/%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
-
-		File f = new File(sumFileName);
-		if (f.exists() && !f.isDirectory()) { 
-			System.out.println(sumFileName + ": already exists");
-			return false;
-		}
+		String sumFileName = String.format("/minute/%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+		Summariser sum = new MinuteSummariser(year, month, day, hour, minute);
 		
-		DBFile[] files = new DBFile[60];
-		
-		boolean atLeastOneExists = false;
-		
-		for (int second = 0; second < 60; second++) {
-			String fileName = String.format("%04d%02d%02d_%02d%02d%02d.txt", year, month, day, hour, minute, second);
-			DBFile dbFile = DBFile.read(fileName);
-			if (dbFile != null) {
-				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
-				atLeastOneExists = true;
-			}
-			files[second] = dbFile;
-
-			if (dbFile == null) { 
-				System.out.println("Main: DBFile does not exist: " + fileName);
-			}
-		}
-		
-		if (!atLeastOneExists) {
-			return false;
-		}
-		
-		ArrayList<DataPoint> dps = summarise(files);
-		
-		if (dps.size() == 0) {
-			return false;
-		}
-		
-		DBFile newFile = new DBFile();
-		newFile.setFileName(sumFileName);
-		newFile.setDataPoints(dps);
-		try {
-			newFile.write();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return true;
+		return summarise(sumFileName, sum);
 	}
 	
 	private static boolean summariseHour(int year, int month, int day, int hour)
 	{
-		// TODO: Make summariser an interface!
+		String sumFileName = String.format("/hour/%02d%02d%02d_%02d.txt", year, month, day, hour);
+		Summariser sum = new HourSummariser(year, month, day, hour);
 		
-		String sumFileName = String.format("min/hour/%02d%02d%02d_%02d.txt", year, month, day, hour);
-
-		File f = new File(sumFileName);
-		if (f.exists() && !f.isDirectory()) { 
-			System.out.println(sumFileName + ": already exists");
-			return false;
-		}
-		
-		DBFile[] files = new DBFile[60];
-		
-		boolean atLeastOneExists = false;
-		
-		for (int minute = 0; minute < 60; minute++) {
-			String fileName = String.format("min/minute/%04d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
-			DBFile dbFile = DBFile.readSummary(fileName, DataPoint.SummaryType.TEMP);
-			if (dbFile != null) {
-				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, 0));
-				atLeastOneExists = true;
-			}
-			files[minute] = dbFile;
-
-			if (dbFile == null) { 
-				System.out.println("Main: DBFile does not exist: " + fileName);
-			}
-		}
-		
-		if (!atLeastOneExists) {
-			return false;
-		}
-		
-		ArrayList<DataPoint> dps = summarise(files);
-		
-		if (dps.size() == 0) {
-			return false;
-		}
-		
-		DBFile newFile = new DBFile();
-		newFile.setFileName(sumFileName);
-		newFile.setDataPoints(dps);
-		try {
-			newFile.write();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return true;
+		return summarise(sumFileName, sum);
 	}
 	
-	private static ArrayList<DataPoint> summarise(DBFile[] files)
+	private static boolean summariseDay(int year, int month, int day)
 	{
-		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
+		String sumFileName = String.format("/day/%02d%02d%02d.txt", year, month, day);
+		Summariser sum = new DaySummariser(year, month, day);
 		
-		boolean going = true;
-		int dpIndex = -1;
-		while (going) {
-			dpIndex++;
+		return summarise(sumFileName, sum);
+	}
+	
+	private static boolean summarise(String fileName, Summariser sum)
+	{
+		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
+			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
+				String sumFileName = s2Type.toString().toLowerCase() + "/" + sType.toString().toLowerCase() + fileName;
 
-			DataPoint dp = new DataPoint();
-			dp.summaryType = DataPoint.SummaryType.TEMP;
-			
-			int clientID = -1;
-			
-			int max = 0;
-			LocalDateTime maxDateTime = null;
-			
-			going = false;
-			
-			for (int i = 0; i < 60; i++) {
-				DataPoint tDP = null;
-
-				if (files[i] != null && files[i].getDataPoints().size() >= dpIndex+1) {
-					tDP = files[i].getDataPoints().get(dpIndex);
-				}
-
-				if (tDP == null) {
+				File f = new File(sumFileName);
+				if (f.exists() && !f.isDirectory()) { 
+					System.out.println(sumFileName + ": already exists");
 					continue;
 				}
 				
-				if (clientID == -1) {
-					clientID = tDP.clientID;
+				DBFile dbFile = sum.summarise(sType, s2Type);
+				if (dbFile == null) {
+					continue;
 				}
-				
-				if (clientID != tDP.clientID) {
-					System.out.println("ERROR: unexpected clientID. Wants: " + clientID + ", got " + tDP.clientID);
-				}
-				
-				going = true;
 
-				if (tDP.temp > max) {
-					max = tDP.temp;
-					if (tDP.summaryDateTime != null) {
-						maxDateTime = tDP.summaryDateTime;
-					} else {
-						maxDateTime = files[i].getDateTime();
-					}
+				dbFile.setFileName(sumFileName);
+				try {
+					dbFile.write();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-			
-			if (!going) {
-				continue;
-			}
-
-			dp.clientID = clientID;
-			
-			if (maxDateTime != null) {
-				dp.temp = max;
-				dp.summaryDateTime = maxDateTime;
-			}
-			
-			dps.add(dp);
 		}
 		
-		return dps;
+		return true;
 	}
 }

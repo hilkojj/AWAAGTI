@@ -114,4 +114,14 @@ public class DataPoint implements Comparable<DataPoint>
 		
 		return parts[1].split(",");
 	}
+	
+	public int getVal(SummaryType sType)
+	{
+		switch(sType) {
+		case TEMP:
+			return this.temp;
+		default:
+			return 0;
+		}
+	}
 }
