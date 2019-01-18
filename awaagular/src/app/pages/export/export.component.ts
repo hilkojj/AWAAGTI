@@ -30,6 +30,7 @@ export class ExportComponent implements OnInit {
                 interval: 3600
             }
         }
+        window["config"] = this.config
         this.fromDate = new Date(this.config.timeFrame.from)
         this.toDate = this.config.timeFrame.to == -1 ? new Date() : new Date(this.config.timeFrame.to);
         [this.fromDate, this.toDate].forEach((d, i) => {
@@ -38,6 +39,7 @@ export class ExportComponent implements OnInit {
             d.setMinutes(0)
             d.setSeconds(0)
         })
+        this.dateChanged()
     }
 
     selectionChange(option) {
@@ -94,7 +96,7 @@ export class ExportComponent implements OnInit {
     }
 
     set toTime(str: string) {
-        this.config.timeFrame.to = this.toDate.getTime() + this.timeStrToMinutes(str) * 1000
+        this.config.timeFrame.to = this.toDate.getTime() + this.timeStrToMinutes(str) * 60000
     }
 
     get fromTime(): string {
@@ -102,7 +104,7 @@ export class ExportComponent implements OnInit {
     }
 
     set fromTime(str: string) {
-        this.config.timeFrame.from = this.fromDate.getTime() + this.timeStrToMinutes(str) * 1000
+        this.config.timeFrame.from = this.fromDate.getTime() + this.timeStrToMinutes(str) * 60000
     }
 
     timeStrToMinutes(input: string) {
@@ -121,7 +123,15 @@ export class ExportComponent implements OnInit {
     }
 
     setToTime(current: boolean) {
-        this.config.timeFrame.to = current ? -1 : 0
+        if (current)
+            this.config.timeFrame.to = -1
+        else this.dateChanged()
+    }
+
+    dateChanged() {
+        this.config.timeFrame.from = this.fromDate.getTime() + this.fromMinutes * 60000
+        if (this.config.timeFrame.to > -1)
+            this.config.timeFrame.to = this.toDate.getTime() + this.toMinutes * 60000
     }
 
 }

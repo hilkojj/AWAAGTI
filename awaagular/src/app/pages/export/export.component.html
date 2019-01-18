@@ -110,6 +110,7 @@
                         <mat-form-field>
                             <input matInput [matDatepicker]="picker"
                                 [(ngModel)]="fromDate"
+                                (dateChange)="dateChanged()"
                                 placeholder="Choose a date">
                             <mat-datepicker-toggle
                                 matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -130,7 +131,8 @@
                         <span class="label">To:</span>
                         <mat-form-field [class.disabled]="config.timeFrame.to == -1">
                             <input matInput [matDatepicker]="toPicker"
-                                [(ngModel)]="fromDate"
+                                [(ngModel)]="toDate"
+                                (dateChange)="dateChanged()"
                                 placeholder="Choose a date">
                             <mat-datepicker-toggle
                                 matSuffix [for]="toPicker"></mat-datepicker-toggle>
