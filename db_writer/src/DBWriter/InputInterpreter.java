@@ -54,7 +54,6 @@ public class InputInterpreter
 	
 	private void stateInit()
 	{
-		System.out.println("InputInterpreter: init");
 		this.list = new ArrayList<DataPoint>();
 		this.dateTime = null;
 		this.state = 0;
@@ -62,7 +61,6 @@ public class InputInterpreter
 	
 	private void stateHeader(String line)
 	{
-		System.out.println("InputInterpreter: read header");
 
 		// The header, with date and time information.
 		String[] parts = line.split(",");
@@ -73,18 +71,14 @@ public class InputInterpreter
 		
 		dateTime = LocalDateTime.parse(parts[0] + " " + parts[1],
 				dateTimeFormatter);
-		System.out.println(dateTime);
 
 		state = 1;
 	}
 	
 	private void stateDataPoint(String line)
 	{
-		System.out.println("InputInterpreter: read datapoint");
 
 		String[] parts = line.split(",");
-		System.out.println("Parts:");
-		System.out.println(parts);
 		if (parts.length < 2) {
 			System.out.println("InputInterpreter: invalid datapoint parts length");
 			return;
@@ -100,7 +94,6 @@ public class InputInterpreter
 	
 	private void stateFinish()
 	{
-		System.out.println("InputInterpreter: finish!");
 		try {
 			Collections.sort(this.list);
 			OutputWriter stuffs = new OutputWriter();
