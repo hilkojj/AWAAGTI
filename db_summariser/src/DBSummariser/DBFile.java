@@ -18,7 +18,17 @@ public class DBFile
 	
 	private LocalDateTime dateTime;
 	
+	public static DBFile readSummary(String fileName, DataPoint.SummaryType summaryType)
+	{
+		return read(fileName, summaryType);
+	}
+	
 	public static DBFile read(String fileName)
+	{
+		return read(fileName, null);
+	}
+	
+	private static DBFile read(String fileName, DataPoint.SummaryType summaryType)
 	{
 		DBFile dbFile = new DBFile();
 
@@ -27,15 +37,15 @@ public class DBFile
 		Path path = Paths.get(fileName);
 
 		try (Stream<String>  lines = Files.lines(path)) {
-	        lines.forEachOrdered(line->dbFile.interpretLine(line));
+	        lines.forEachOrdered(line->dbFile.interpretLine(line, summaryType));
 		} catch (IOException e) {
 			return null;
 		}
 		
-		return dbFile;
+		return dbFile;	
 	}
 	
-	private void interpretLine(String line)
+	private void interpretLine(String line, DataPoint.SummaryType summaryType)
 	{
 		String[] val = line.split("=");
 		if (val.length < 2) {
@@ -44,7 +54,7 @@ public class DBFile
 		
 		line = line.replace("#", "");
 		
-		DataPoint dp = DataPoint.fromDBLine(line);
+		DataPoint dp = DataPoint.fromDBLine(line, summaryType);
 		this.dataPoints.add(dp);
 	}
 	

@@ -48,8 +48,8 @@ public class Main
 			month = now.getMonthValue();
 			day = now.getDayOfMonth();
 			
-			for (int hour = 9; hour < 24; hour++) {
-				for (int minute = 0; minute < 60; minute++) {
+			for (int hour = 9; hour < 12; hour++) {
+				for (int minute = 0; minute < 8; minute++) {
 					System.out.println(minute);
 					summariseMinute(year, month, day, hour, minute);
 				}
@@ -123,79 +123,114 @@ public class Main
 	private static boolean summariseHour(int year, int month, int day, int hour)
 	{
 		// TODO: Make summariser an interface!
-		return false;
+		
+		String sumFileName = String.format("min/hour/%02d%02d%02d_%02d.txt", year, month, day, hour);
+
+		File f = new File(sumFileName);
+		if (f.exists() && !f.isDirectory()) { 
+			System.out.println(sumFileName + ": already exists");
+			return false;
+		}
+		
+		DBFile[] files = new DBFile[60];
+		
+		boolean atLeastOneExists = false;
+		
+		for (int minute = 0; minute < 60; minute++) {
+			String fileName = String.format("min/minute/%04d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+			DBFile dbFile = DBFile.readSummary(fileName, DataPoint.SummaryType.TEMP);
+			if (dbFile != null) {
+				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, 0));
+				atLeastOneExists = true;
+			}
+			files[minute] = dbFile;
+
+			if (dbFile == null) { 
+				System.out.println("Main: DBFile does not exist: " + fileName);
+			}
+		}
+		
+		if (!atLeastOneExists) {
+			return false;
+		}
+		
+		ArrayList<DataPoint> dps = summarise(files);
+		
+		if (dps.size() == 0) {
+			return false;
+		}
+		
+		DBFile newFile = new DBFile();
+		newFile.setFileName(sumFileName);
+		newFile.setDataPoints(dps);
+		try {
+			newFile.write();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return true;
 	}
 	
-	private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:MM:ss");
-
 	private static ArrayList<DataPoint> summarise(DBFile[] files)
 	{
 		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
-		int[] indexes = new int[60];
+		
+		boolean going = true;
+		int dpIndex = -1;
+		while (going) {
+			dpIndex++;
 
-		while (true) {
-			int lowestClientID = -1;
-
-			boolean hasLeft = false;
-
-			for (int i = 0; i < 60; i++) {
-				if (files[i] == null) {
-					continue;
-				}
-				
-				if (files[i].getDataPoints().size() <= indexes[i]+1) {
-					continue;
-				}
-
-				DataPoint dp = files[i].getDataPoints().get(indexes[i]);
-				if (dp == null) {
-					continue;
-				}
-
-				hasLeft = true;
-
-				int cid = dp.clientID;
-				if (lowestClientID == -1 || cid < lowestClientID) {
-					lowestClientID = cid;
-				}
-			}
-			
-			if (!hasLeft) {
-				break;
-			}
-			
 			DataPoint dp = new DataPoint();
-			dp.clientID = lowestClientID;
+			dp.summaryType = DataPoint.SummaryType.TEMP;
+			
+			int clientID = -1;
 			
 			int max = 0;
 			LocalDateTime maxDateTime = null;
 			
+			going = false;
+			
 			for (int i = 0; i < 60; i++) {
-				int cid = -1;
 				DataPoint tDP = null;
-				do {
-					if (files[i] != null) {
-						tDP = files[i].getDataPoints().get(indexes[i]);
-					}
-					indexes[i]++;
-					if (tDP == null) {
-						continue;
-					}
 
-					cid = tDP.clientID;
-				} while (cid != lowestClientID);
+				if (files[i] != null && files[i].getDataPoints().size() >= dpIndex+1) {
+					tDP = files[i].getDataPoints().get(dpIndex);
+				}
 
-				if (tDP != null) {
-					if (tDP.temp > max) {
-						max += 1;
+				if (tDP == null) {
+					continue;
+				}
+				
+				if (clientID == -1) {
+					clientID = tDP.clientID;
+				}
+				
+				if (clientID != tDP.clientID) {
+					System.out.println("ERROR: unexpected clientID. Wants: " + clientID + ", got " + tDP.clientID);
+				}
+				
+				going = true;
+
+				if (tDP.temp > max) {
+					max = tDP.temp;
+					if (tDP.summaryDateTime != null) {
+						maxDateTime = tDP.summaryDateTime;
+					} else {
 						maxDateTime = files[i].getDateTime();
 					}
 				}
 			}
 			
+			if (!going) {
+				continue;
+			}
+
+			dp.clientID = clientID;
+			
 			if (maxDateTime != null) {
-				dp.summary = new String[]{max + "", maxDateTime.format(dateFormatter), maxDateTime.format(timeFormatter)};
+				dp.temp = max;
+				dp.summaryDateTime = maxDateTime;
 			}
 			
 			dps.add(dp);
