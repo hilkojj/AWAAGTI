@@ -14,7 +14,7 @@ public class DataPoint implements Comparable<DataPoint>
 	public int clientID;
 	public int temp;
 	
-	public int summury;
+	public String[] summary;
 
 	private String dbLine;
 
@@ -37,7 +37,11 @@ public class DataPoint implements Comparable<DataPoint>
 	public String makeDBLine()
 	{
 		if (this.dbLine == null) {
-			this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
+			if (this.summary != null) {
+				this.dbLine = String.format("%d=%s", this.clientID, String.join(",", this.summary));
+			} else {
+				this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
+			}
 		}
 		
 		return this.dbLine;

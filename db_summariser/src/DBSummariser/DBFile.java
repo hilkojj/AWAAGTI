@@ -1,30 +1,35 @@
 package DBSummariser;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class DBFile
 {
 	private ArrayList<DataPoint> dataPoints;
-	private LocalDateTime dateTime;
 	
-	private DateTimeFormatter dateTimeFormatter =
-			DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+	private String fileName;
+	
+	private LocalDateTime dateTime;
 	
 	public static DBFile read(String fileName)
 	{
 		DBFile dbFile = new DBFile();
 
 		dbFile.dataPoints = new ArrayList<DataPoint>();
-		try (Stream<String> stream = Files.lines(Path.of(fileName))) {
-	        stream.forEach(dbFile::interpretLine);
+		
+		Path path = Paths.get(fileName);
+
+		try (Stream<String>  lines = Files.lines(path)) {
+	        lines.forEachOrdered(line->dbFile.interpretLine(line));
 		} catch (IOException e) {
-			e.printStackTrace();
+			return null;
 		}
 		
 		return dbFile;
@@ -37,12 +42,75 @@ public class DBFile
 			return;
 		}
 		
+		line = line.replace("#", "");
+		
 		DataPoint dp = DataPoint.fromDBLine(line);
 		this.dataPoints.add(dp);
 	}
 	
+	
+	
+	/**
+	 * Writer formats the DataPoint data and writes the file to the filesystem.
+	 * 
+	 * @throws IOException
+	 */
+	public void write() throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(this.fileName));
+		
+		// Determine required line length
+		int highest = 0;
+		int length;
+		for (DataPoint dp : this.dataPoints) {
+			length = dp.makeDBLine().length();
+			if (length > highest) {
+				highest = length;
+			}
+		}
+		
+		writer.write(padRight(highest+1 + "", highest) + "\n");
+		// (highest+1, because the linebreak is not included in 'highest'
+		//   but is part of the line length of course)
+		
+		for (DataPoint dp : this.dataPoints) {
+			writer.write(padRight(dp.makeDBLine(), highest) + "\n");
+		}
+		 
+		writer.close();
+	}
+	
+	public void setFileName(String newFileName)
+	{
+		this.fileName = newFileName;
+	}
+	
+	public String getFileName()
+	{
+		return this.fileName;
+	}
+	
+	private static String padRight(String s, int n)
+	{
+	     return String.format("%1$-" + n + "s", s).replace(' ', '#'); 
+	}
+
+	public LocalDateTime getDateTime()
+	{
+		return dateTime;
+	}
+
+	public void setDateTime(LocalDateTime dateTime)
+	{
+		this.dateTime = dateTime;
+	}	
+	
 	public ArrayList<DataPoint> getDataPoints()
 	{
 		return this.dataPoints;
+	}
+	
+	public void setDataPoints(ArrayList<DataPoint> dps)
+	{
+		this.dataPoints = dps;
 	}
 }
