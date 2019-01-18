@@ -185,6 +185,42 @@
 
     <div fxFlex.gt-sm="50%" fxFlex.gt-md="33.3%" fxFlex="100%">
         <mat-card>
+            <h1 class="mat-h1">Export</h1>
+
+            <div *ngFor="let m of configs.measurements">
+                <mat-checkbox [checked]="config.what.includes(m)"
+                    (change)="measurementSelect($event.checked, m)">
+                    {{m | decamelcase}}
+                </mat-checkbox>
+            </div>
+
+            <mat-form-field>
+                <mat-select placeholder="Sort by"
+                    [(ngModel)]="config.sortBy">
+                    <mat-option [value]="null">
+                        Don't sort
+                    </mat-option>
+                    <mat-option *ngFor="let m of configs.measurements"
+                        [value]="m">
+                        {{m | decamelcase}}
+                    </mat-option>
+
+                </mat-select>
+
+            </mat-form-field>
+            <br>
+            <mat-form-field>
+                <input matInput placeholder="Limit"
+                    [(ngModel)]="config.limit" type="number">
+            </mat-form-field>
+
+            <br>
+
+            <button mat-raised-button color="primary">
+                <mat-icon style="margin-right: 8px; vertical-align: sub">save_alt</mat-icon>
+                Get data
+            </button>
+
         </mat-card>
     </div>
 

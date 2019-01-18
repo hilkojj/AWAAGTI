@@ -6,7 +6,7 @@ export interface TimeFrame {
     interval: 3600 | 60 | 86400 | 2592000 | 1
 }
 
-type measurementType = "temperature"// | "windSpeed"
+export type measurementType = "temperature" | "windSpeed"
 
 export interface Config {
     name: string
@@ -22,6 +22,8 @@ export interface Config {
     providedIn: 'root'
 })
 export class ConfigsService {
+
+    measurements = ["temperature", "windSpeed"]
 
     constructor() { }
 

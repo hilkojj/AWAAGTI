@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
-import { Config } from 'src/app/services/configs.service';
+import { Config, ConfigsService, measurementType } from 'src/app/services/configs.service';
 
 @Component({
     selector: 'app-export',
@@ -15,8 +15,15 @@ export class ExportComponent implements OnInit {
 
     config: Config
 
+    measurementSelect(selected: boolean, name: measurementType) {
+        if (selected && !this.config.what.includes(name))
+            this.config.what.push(name)
+        else this.config.what = this.config.what.filter(n => n != name)
+    }
+
     constructor(
-        public stations: StationsService
+        public stations: StationsService,
+        public configs: ConfigsService
     ) { }
 
     ngOnInit() {
