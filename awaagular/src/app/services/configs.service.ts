@@ -15,6 +15,7 @@ export interface Config {
     what: measurementType[]
     sortBy?: measurementType
     limit?: number
+    filter?: string
 }
 
 @Injectable({

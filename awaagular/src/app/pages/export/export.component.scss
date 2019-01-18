@@ -12,7 +12,22 @@
 .config-save {
     padding: 0 !important;
     button {
-        margin-left: .75rem;
+        
+        &:not(.small) {
+            mat-icon {
+                vertical-align: text-bottom;
+            }
+            margin-left: .75rem;
+            font-size: 17px;
+            vertical-align: middle;
+
+        }
+        &.small {
+            margin-top: .75rem;
+            mat-icon {
+                vertical-align: middle;
+            }
+        }
     }
     ::ng-deep .mat-form-field-wrapper {
         margin: 0 !important;
@@ -58,4 +73,32 @@
 }
 ::ng-deep .name {
     text-transform: capitalize;
+}
+
+.section {
+    .label {
+        position: absolute;
+        top: -15px;
+        background: white;
+        color: grey;
+        padding: 4px;
+        left: 5px;
+    }
+    border: solid 1.5px lightgray;
+    border-radius: 6px;
+    padding: 16px 8px 8px !important;
+    position: relative;
+    margin: 4px;
+    box-sizing: border-box;
+    mat-form-field {
+        width: 100%;
+
+        &.disabled {
+            pointer-events: none;
+            opacity: .5;
+        }
+    }
+    &.time {
+        height: 181px;
+    }
 }

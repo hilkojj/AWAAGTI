@@ -30,6 +30,14 @@ export class ExportComponent implements OnInit {
                 interval: 3600
             }
         }
+        this.fromDate = new Date(this.config.timeFrame.from)
+        this.toDate = this.config.timeFrame.to == -1 ? new Date() : new Date(this.config.timeFrame.to);
+        [this.fromDate, this.toDate].forEach((d, i) => {
+            this[i == 0 ? 'fromMinutes' : 'toMinutes'] = d.getHours() * 60 + d.getMinutes()
+            d.setHours(0)
+            d.setMinutes(0)
+            d.setSeconds(0)
+        })
     }
 
     selectionChange(option) {
@@ -74,6 +82,46 @@ export class ExportComponent implements OnInit {
         return this.stations.byCountry[country]
             .filter(st => this.matchesFilter(st.name) || this.matchesFilter(st.country))
             .sort((a, b) => a.name < b.name ? -1 : 1)
+    }
+
+    toDate: Date
+    toMinutes: number
+    fromDate: Date
+    fromMinutes: number
+
+    get toTime(): string {
+        return this.minutesToTimeStr(this.toMinutes)
+    }
+
+    set toTime(str: string) {
+        this.config.timeFrame.to = this.toDate.getTime() + this.timeStrToMinutes(str) * 1000
+    }
+
+    get fromTime(): string {
+        return this.minutesToTimeStr(this.fromMinutes)
+    }
+
+    set fromTime(str: string) {
+        this.config.timeFrame.from = this.fromDate.getTime() + this.timeStrToMinutes(str) * 1000
+    }
+
+    timeStrToMinutes(input: string) {
+        input = input.replace(".", ":")
+        let hhmm = input.split(":")
+        if (hhmm.length < 2)
+            return 0
+        let hours = Number(hhmm[0])
+        let minutes = Number(hhmm[1])
+        return (hours * 60) + minutes
+    }
+
+    minutesToTimeStr(input: number) {
+        let minutes = input % 60
+        return (input / 60 | 0) + ":" + (minutes < 10 ? "0" : "") + minutes
+    }
+
+    setToTime(current: boolean) {
+        this.config.timeFrame.to = current ? -1 : 0
     }
 
 }
