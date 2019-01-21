@@ -29,6 +29,7 @@ public class DaySummariser extends Summariser
 			DBFile dbFile = DBFile.readSummary(fileName, this.s2Type);
 			if (dbFile != null) {
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, 0, 0));
+				exists++;
 			}
 			files[hour] = dbFile;
 		}
