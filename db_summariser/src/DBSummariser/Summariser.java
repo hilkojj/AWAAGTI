@@ -26,8 +26,8 @@ public abstract class Summariser
 		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
 		
 		boolean going = true;
-		int dpIndex = -1;
-		while (going) {
+		int dpIndex = -1; // DataPoint index.
+		while (going) { // Loop over DataPoints in files.
 			dpIndex++;
 
 			DataPoint dp = new DataPoint();
@@ -35,16 +35,16 @@ public abstract class Summariser
 			
 			int clientID = -1;
 			
-			int val = 0;
+			Integer val = null;
 			LocalDateTime maxDateTime = null;
 			
 			going = false;
 			
-			for (int i = 0; i < 60; i++) {
+			for (DBFile file : files) {
 				DataPoint tDP = null;
 
-				if (files[i] != null && files[i].getDataPoints().size() >= dpIndex+1) {
-					tDP = files[i].getDataPoints().get(dpIndex);
+				if (file != null && file.getDataPoints().size() >= dpIndex+1) {
+					tDP = file.getDataPoints().get(dpIndex);
 				}
 
 				if (tDP == null) {
@@ -61,14 +61,14 @@ public abstract class Summariser
 				
 				going = true;
 
-				int newVal = this.check(val, tDP.getVal(this.s2Type));
-				if (newVal != val) {
+				Integer newVal = this.check(val, tDP.getVal(this.s2Type));
+				if (newVal != null) {
 					val = newVal;
-
+					
 					if (tDP.summaryDateTime != null) {
 						maxDateTime = tDP.summaryDateTime;
 					} else {
-						maxDateTime = files[i].getDateTime();
+						maxDateTime = file.getDateTime();
 					}
 				}	
 	
@@ -91,20 +91,25 @@ public abstract class Summariser
 		return dps;
 	}
 	
-	private int check(int val1, int val2)
+	private Integer check(Integer val1, int val2)
 	{
+		if (val1 == null) {
+			return val2;
+		}
+
 		switch (this.sType) {
 		case MAX:
-			if (val1 > val2) {
-				return val1;
+			if (val2 > val1) {
+				return val2;
 			}
-			return val2;
+			return null;
 		case MIN:
-			if (val1 < val2) {
-				return val1;
+			if (val2 < val1) {
+				return val2;
 			}
-			return val2;
+			return null;
 		default:
+			System.out.println("ERROR: invalid sType in method check: " + this.sType);
 			return 0;
 		}
 	}

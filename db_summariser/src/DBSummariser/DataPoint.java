@@ -79,6 +79,8 @@ public class DataPoint implements Comparable<DataPoint>
 		DataPoint dp = new DataPoint();
 		String[] args = dp.parse(line);
 		
+		//System.out.println("ARGS" + String.join(", ", args) + " " + line);
+		
 		if (summaryType == null) {
 			float temp =  Float.parseFloat(args[0]);
 			dp.temp = (int) (temp*10);

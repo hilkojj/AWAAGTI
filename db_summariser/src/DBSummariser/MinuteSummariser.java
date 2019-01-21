@@ -20,23 +20,21 @@ public class MinuteSummariser extends Summariser
 	{
 		DBFile[] files = new DBFile[60];
 		
-		boolean atLeastOneExists = false;
+		int exists = 0;
 		
 		for (int second = 0; second < 60; second++) {
 			String fileName = String.format("%04d%02d%02d_%02d%02d%02d.txt", year, month, day, hour, minute, second);
 			DBFile dbFile = DBFile.read(fileName);
 			if (dbFile != null) {
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
-				atLeastOneExists = true;
+				exists++;
 			}
 			files[second] = dbFile;
-
-			if (dbFile == null) { 
-				System.out.println("Main: DBFile does not exist: " + fileName);
-			}
 		}
 		
-		if (!atLeastOneExists) {
+		System.out.println("DEBUG: Found " + exists + " DBFiles.");
+		
+		if (exists == 0) {
 			return null;
 		}
 		

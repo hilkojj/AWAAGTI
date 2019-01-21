@@ -18,23 +18,24 @@ public class DaySummariser extends Summariser
 	{
 		DBFile[] files = new DBFile[60];
 		
-		boolean atLeastOneExists = false;
+		int exists = 0;
 		
-		for (int day = 0; day < 60; day++) {
-			String fileName = String.format("min/hour/%04d%02d%02d_%02d.txt", year, month, day, hour, hour);
-			DBFile dbFile = DBFile.readSummary(fileName, DataPoint.SummaryType.TEMP);
+		for (int hour = 0; hour < 24; hour++) {
+			String fileName = String.format(
+					this.s2Type.toString().toLowerCase() + "/"
+					+ this.sType.toString().toLowerCase() +
+					"/hour/%04d%02d%02d_%02d.txt", year, month, day, hour);
+
+			DBFile dbFile = DBFile.readSummary(fileName, this.s2Type);
 			if (dbFile != null) {
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, 0, 0));
-				atLeastOneExists = true;
 			}
 			files[hour] = dbFile;
-
-			if (dbFile == null) { 
-				System.out.println("Main: DBFile does not exist: " + fileName);
-			}
 		}
 		
-		if (!atLeastOneExists) {
+		System.out.println("DEBUG: Found " + exists + " DBFiles.");
+		
+		if (exists == 0) {
 			return null;
 		}
 		
