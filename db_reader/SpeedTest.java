@@ -5,7 +5,9 @@ import java.util.stream.Stream;
 public class SpeedTest {
 
     public static void main(String[] args) {
-        new SpeedTest();
+//        new SpeedTest();
+
+        int ding = 1547814209;
     }
 
     public static final int SKIP = 100;
