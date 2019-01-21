@@ -15,7 +15,7 @@ public class Main
 		LocalDateTime from;
 		LocalDateTime to;
 		
-		if (args.length < 2) {
+		if (args.length < 1) {
 			System.out.println("Usage: db_summariser {unix time stamp: from} [unix time stamp: to, defaults to Now if not specified]");
 			System.out.println("Generates summary files for the minutes, hours and days between the given timestamps.");
 			System.out.println("ERROR: Please provide unixtimestamp of when to start making summuries.");
@@ -23,53 +23,98 @@ public class Main
 			return;
 		}
 
-		long fromUTS = Long.parseLong(args[1]);
-		from = LocalDateTime.ofEpochSecond(fromUTS, 0, ZoneOffset.UTC);
-
-		if (args.length >= 3) {
-			System.out.println("not now");
-			long toUTS = Long.parseLong(args[2]);
-			to = LocalDateTime.ofEpochSecond(toUTS, 0, ZoneOffset.UTC);
+		long fromUTS = Long.parseLong(args[0]);
+		from = LocalDateTime.ofEpochSecond(fromUTS, 0, ZoneOffset.ofHours(0));
+		
+		if (args.length >= 2) {
+			long toUTS = Long.parseLong(args[1]);
+			to = LocalDateTime.ofEpochSecond(toUTS, 0, ZoneOffset.ofHours(0));
 		} else {
-			System.out.println("now");
 			to = LocalDateTime.now();
 		}
 		
-		System.out.println(from);
+		boolean dryRun = args.length >= 3 && args[2].equalsIgnoreCase("dryrun");
+		
+		System.out.println("Start db_summariser");
+		System.out.print("Summarise from ");
+		System.out.print(from);
+		System.out.print(" to ");
 		System.out.println(to);
+		
+		if (dryRun) {
+			System.out.println("Dry run!");
+		}
 		
 		LocalDateTime now = from;
 		
 		int year = 0;
 		int month = 0;
 		int day = 0;
+		boolean firstDay = false;
+		boolean lastDay = false;
 		while (!now.isAfter(to)) {
 			year = now.getYear();
 			month = now.getMonthValue();
 			day = now.getDayOfMonth();
 			
-			for (int hour = 9; hour < 12; hour++) {
-				for (int minute = 0; minute < 8; minute++) {
-					System.out.println(minute);
-					summariseMinute(year, month, day, hour, minute);
+			firstDay = from.getYear() == year && from.getMonthValue() == month && from.getDayOfMonth() == day;
+			lastDay = to.getYear() == year && to.getMonthValue() == month && to.getDayOfMonth() == day;
+			
+			System.out.println();
+			System.out.println(" ---- " + year + " " + month + " " + day + " , is first: " + firstDay + " , is last: " + lastDay);
+			System.out.println();
+			
+			for (int hour = 0; hour < 24; hour++) {
+				if (firstDay && from.getHour() > hour) {
+					System.out.println(" - Skipping Hour: " + hour);
+					continue;
+				}
+								
+				boolean firstHour = firstDay && from.getHour() == hour;
+				boolean lastHour = lastDay && to.getHour() == hour;
+				
+				System.out.println();
+				System.out.println(" --- " + hour + " , is first: " + firstHour + " , is last: " + lastHour);
+
+				for (int minute = 0; minute < 60; minute++) {
+					if (firstHour && from.getMinute() > minute) {
+						System.out.println(" - Skipping minute: " + minute);
+						continue;
+					}
+					if (lastHour && minute >= to.getMinute()) {
+						System.out.println(" - Skipping all minutes: " + minute);
+						break;
+					}
+
+					System.out.println(" -- Summarise Minute: " + minute);
+					if (!dryRun) {
+						summariseMinute(year, month, day, hour, minute);
+					}
 				}
 				
-				summariseHour(year, month, day, hour);
+				if (lastDay && lastHour) {
+					break;
+				}
+				
+				System.out.println(" -- Summarise Hour: " + hour);
+				if (!dryRun) {
+					summariseHour(year, month, day, hour);
+				}
 			}
 			
-			summariseDay(year, month, day);
+			if (lastDay && day >= to.getDayOfMonth()) {
+				break;
+			}
+			
+			System.out.println(" -- Summarise Day: " + day);
+			
+			if (!dryRun) {
+				summariseDay(year, month, day);
+			}
 			
 			now = now.plusDays(1);
 		}
-
-		// start = new Date(start of universe)
-		// current = new Date(current)
-		// for each day from start to current
-		//    for each hour in day
-		//        for each minute in hour
-		//           check if summary exists, if not, create it
-		//        check if hour summary exists, if not, create it
-		//    check if day summary exists, if not, create it
+		
 	}
 	
 	private static boolean summariseMinute(int year, int month, int day, int hour, int minute)
@@ -108,8 +153,10 @@ public class Main
 					continue;
 				}
 				
-				DBFile dbFile = sum.summarise(sType, s2Type);
+				sum.setSummaryTypes(sType, s2Type);
+				DBFile dbFile = sum.summarise();
 				if (dbFile == null) {
+					System.out.println("No summary, nothing to save.");
 					continue;
 				}
 

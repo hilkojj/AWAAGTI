@@ -22,23 +22,25 @@ public class HourSummariser extends Summariser
 		// TODO: Make summariser an interface!
 		DBFile[] files = new DBFile[60];
 		
-		boolean atLeastOneExists = false;
+		int exists = 0;
 		
 		for (int minute = 0; minute < 60; minute++) {
-			String fileName = String.format("min/minute/%04d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
-			DBFile dbFile = DBFile.readSummary(fileName, DataPoint.SummaryType.TEMP);
+			String fileName = String.format(
+					this.s2Type.toString().toLowerCase() + "/"
+					+ this.sType.toString().toLowerCase() +
+					"/minute/%04d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+
+			DBFile dbFile = DBFile.readSummary(fileName, this.s2Type);
 			if (dbFile != null) {
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, 0));
-				atLeastOneExists = true;
+				exists++;
 			}
 			files[minute] = dbFile;
-
-			if (dbFile == null) { 
-				System.out.println("Main: DBFile does not exist: " + fileName);
-			}
 		}
 		
-		if (!atLeastOneExists) {
+		System.out.println("DEBUG: Found " + exists + " DBFiles.");
+		
+		if (exists == 0) {
 			return null;
 		}
 		
