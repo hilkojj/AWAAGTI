@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { StationsService } from './services/stations.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
     selector: 'app-root',
@@ -20,7 +21,9 @@ export class AppComponent {
     }];
 
     constructor(
-        private stations: StationsService // to initialize stations
+        private stations: StationsService, // to initialize stations
+
+        public auth: AuthService
     ) {
         setInterval(() => {
             this.atTop = window.scrollY < 100
