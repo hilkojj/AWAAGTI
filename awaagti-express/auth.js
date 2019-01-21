@@ -3,6 +3,12 @@ const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken')
 const fs = require("fs")
 const secret = fs.readFileSync("./secret.txt").toString()
+const expressJwt = require('express-jwt');
+
+module.exports.jwt = expressJwt({
+    secret: secret,
+    userProperty: 'payload'
+})
 
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
@@ -43,7 +49,7 @@ passport.use(new LocalStrategy({
 
 }))
 
-const generateJWT = username => jwt.sign(username, secret)
+const generateJWT = username => jwt.sign({ username }, secret)
 
 module.exports.login = (req, res) => {
     passport.authenticate("local", (err, user, info) => {
@@ -74,4 +80,9 @@ module.exports.register = async (req, res) => {
 
     await saveUser(username, password)
     module.exports.login(req, res)
+}
+
+module.exports.me = async (req, res) => {
+    let user = users[req.payload.username]
+    res.status(user ? 200 : 401).json(user)
 }

@@ -17,5 +17,6 @@ const passport = require('passport')
 app.use(passport.initialize())
 app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
+app.get("/api/me", auth.jwt, auth.me)
 
 app.listen(port, () => console.log("AWAAGTI-express svr running on port " + port))
