@@ -8,6 +8,11 @@ type AuthResponse = {
     token?: string
 }
 
+type User = {
+    username: string
+    registeredTimestamp: number
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -20,13 +25,30 @@ export class AuthService {
     }
 
     private _token: string
+    private _user: User
 
     get token(): string {
         return this._token ? this._token : (this._token = localStorage.getItem("JWT"))
     }
 
     set token(token: string) {
-        localStorage.setItem("JWT", this._token = token)
+        if (!token) {
+            localStorage.removeItem("JWT")
+            this._token = null
+        } else localStorage.setItem("JWT", (this._token = token))
+    }
+
+    private requestingUser = false
+
+    get user(): User {
+        if (!this._user && this.token && !this.requestingUser) {
+            this.requestingUser = true
+            this.authRequest<User>("get", "me")
+                .then(me => this._user = me)
+                .catch(e => { console.log(e); this.token = null })
+                .finally(() => this.requestingUser = false)
+        }
+        return this._user
     }
 
     async loginOrRegister(username: string, password: string, register?: boolean) {
@@ -36,7 +58,7 @@ export class AuthService {
                 { username, password }
             )
             this.token = res.token
-            
+
         } catch (res) {
             alert(res.error.message)
         }
