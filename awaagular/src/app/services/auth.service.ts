@@ -19,12 +19,14 @@ export class AuthService {
         window["auth"] = this
     }
 
+    private _token: string
+
     get token(): string {
-        return localStorage.getItem("JWT")
+        return this._token ? this._token : (this._token = localStorage.getItem("JWT"))
     }
 
     set token(token: string) {
-        localStorage.setItem("JWT", token)
+        localStorage.setItem("JWT", this._token = token)
     }
 
     async loginOrRegister(username: string, password: string, register?: boolean) {
