@@ -23,7 +23,7 @@ const saveUser = async (username, password) => {
 }
 
 const saveUsers = () =>
-    fs.writeFile(usersFile, JSON.stringify(users), console.error)
+    fs.writeFile(usersFile, JSON.stringify(users), e => e && console.error("Error writing users", e))
 
 passport.use(new LocalStrategy({
     usernameField: "username",
