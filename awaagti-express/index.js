@@ -1,8 +1,12 @@
 const express = require("express")
 const bodyParser = require("body-parser")
-
 const app = express()
 const port = 8080
+
+const http = require("http").Server(app)
+const io = require("socket.io")(http)
+
+require("./socket.js")(io)
 
 app.use(bodyParser.json())
 app.use((_req, res, next) => {
@@ -19,4 +23,4 @@ app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
 
-app.listen(port, () => console.log("AWAAGTI-express svr running on port " + port))
+http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))

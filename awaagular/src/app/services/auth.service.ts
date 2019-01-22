@@ -27,6 +27,8 @@ export class AuthService {
         window["auth"] = this
     }
 
+    onTokenChange: (() => void)[] = []
+
     private _token: string
     private _user: User
 
@@ -39,6 +41,8 @@ export class AuthService {
             localStorage.removeItem("JWT")
             this._token = null
         } else localStorage.setItem("JWT", (this._token = token))
+
+        this.onTokenChange.forEach(cb => cb())
     }
 
     private requestingUser = false

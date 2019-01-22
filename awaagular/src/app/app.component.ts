@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { StationsService } from './services/stations.service';
 import { AuthService } from './services/auth.service';
+import { SocketIoService } from './services/socket-io.service';
 
 @Component({
     selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent {
 
     constructor(
         private stations: StationsService, // to initialize stations
+        private socketIO: SocketIoService,
 
         public auth: AuthService
     ) {
