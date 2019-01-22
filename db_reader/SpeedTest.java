@@ -1,35 +1,41 @@
 import java.io.*;
 import java.nio.file.Files;
+import java.text.ParseException;
 import java.util.stream.Stream;
 
 public class SpeedTest {
 
-    public static void main(String[] args) {
-//        new SpeedTest();
-
-        int ding = 1547814209;
+    public static void main(String[] args) throws ParseException {
+        new SpeedTest();
     }
 
     public static final int SKIP = 100;
 
     public SpeedTest() {
-        String url = "../db_testdata/test.txt";
+        String url = "data/test.txt";
         int MAX = 1000;
-        int MAXavg = 1000;
 
         long startTime = 0;
-        long avgTime = 0;
-        for(int a=0; a < MAXavg; a++) {
-            startTime = System.currentTimeMillis();
-            for (int i=0; i < MAX; i++)
-                test1(url);
-            avgTime += System.currentTimeMillis() - startTime;
-        }
-        long endTime = avgTime / MAXavg;
 
-//        test2(url);
+        startTime = System.currentTimeMillis();
+        for (int i=0; i < MAX; i++)
+            test1(url);
+        System.out.println("\n\n "+ (System.currentTimeMillis() - startTime) + "\n\n");
 
-        System.out.println(endTime);
+        startTime = System.currentTimeMillis();
+        for (int i=0; i < MAX; i++)
+            test2(url);
+        System.out.println("\n\n "+ (System.currentTimeMillis() - startTime) + "\n\n");
+
+        startTime = System.currentTimeMillis();
+        for (int i=0; i < MAX; i++)
+            test3(url);
+        System.out.println("\n\n "+ (System.currentTimeMillis() - startTime) + "\n\n");
+
+        startTime = System.currentTimeMillis();
+        for (int i=0; i < MAX; i++)
+            test4(url);
+        System.out.println("\n\n "+ (System.currentTimeMillis() - startTime) + "\n\n");
     }
 
     /*
@@ -42,7 +48,9 @@ public class SpeedTest {
         String line;
         try (Stream<String> lines = Files.lines(file.toPath())) {
             line = lines.skip(SKIP).findFirst().get();
-            System.out.println(line);
+
+            if(line.equals("100=-3.4,84.3,-34.2,-61.6,-51.7,-6.3,-92.9,37.8,-74.7,58.8,##########"))
+                System.out.print(".");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,10 +66,12 @@ public class SpeedTest {
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             StringBuilder str = new StringBuilder();
-            br.skip(SKIP*60);
-            for(int i=0; i<59; i++)
+            br.skip(SKIP*71);
+            for(int i=0; i<69; i++)
                 str.append((char)br.read());
-            System.out.println(str);
+
+            if(str.toString().equals("100=-3.4,84.3,-34.2,-61.6,-51.7,-6.3,-92.9,37.8,-74.7,58.8,##########"))
+                System.out.print(".");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,8 +87,32 @@ public class SpeedTest {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
-            br.skip(SKIP*60);
-            System.out.println(br.readLine());
+            br.skip(SKIP*71);
+
+            if(br.readLine().equals("100=-3.4,84.3,-34.2,-61.6,-51.7,-6.3,-92.9,37.8,-74.7,58.8,##########"))
+                System.out.print(".");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /*
+        BufferedReader readline
+     */
+    private void test4(String url) {
+        File file = new File(url);
+
+        try {
+            FileInputStream br = new FileInputStream(file);
+            StringBuilder str = new StringBuilder();
+            br.skip(SKIP*71);
+            for(int i=0; i<69; i++)
+                str.append((char)br.read());
+
+            if(str.toString().equals("100=-3.4,84.3,-34.2,-61.6,-51.7,-6.3,-92.9,37.8,-74.7,58.8,##########"))
+                System.out.print(".");
 
         } catch (IOException e) {
             e.printStackTrace();
