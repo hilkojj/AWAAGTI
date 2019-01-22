@@ -10,6 +10,8 @@ module.exports.jwt = expressJwt({
     userProperty: 'payload'
 })
 
+module.exports.secret = secret
+
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 
@@ -17,6 +19,8 @@ const usersFile = "./users.json"
 
 // load users from .json file.
 const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile).toString()) : {}
+
+module.exports.users = users
 
 const saveUser = async (username, password) => {
     users[username.toLowerCase()] = {

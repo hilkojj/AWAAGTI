@@ -1,8 +1,12 @@
 const express = require("express")
 const bodyParser = require("body-parser")
-
 const app = express()
 const port = 8080
+
+const http = require("http").Server(app)
+const io = require("socket.io")(http)
+
+require("./socket.js")(io)
 
 app.use(bodyParser.json())
 app.use((_req, res, next) => {
@@ -19,21 +23,4 @@ app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
 
-testjson = {
-    name: "DIT IS MIJN MOOIE EXPORT",
-    stationIds: [50, 100, 7900, 7950],
-    timeFrame: {"from": 12123123123, "to": 123123123, "interval": 3600},
-    what: "temperature",
-    sortBy: "temperature",
-    limit: "100"
-}
-
-var net = require('net');
-
-var client = new net.Socket();
-client.connect(12345, '127.0.0.1', function() {
-	console.log('Connected');
-	client.write(JSON.stringify(testjson));
-});
-
-app.listen(port, () => console.log("AWAAGTI-express svr running on port " + port))
+http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))
