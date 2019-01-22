@@ -1,3 +1,4 @@
+package shared;
 
 public class Settings {
     public final static boolean SHOW_DEBUG = true;

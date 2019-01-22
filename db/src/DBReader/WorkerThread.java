@@ -1,10 +1,12 @@
+package DBReader;
 
-import data.StationData;
+import shared.DataPoint;
+import shared.Logger;
+import shared.Settings;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class WorkerThread implements Runnable {
@@ -111,7 +113,7 @@ public class WorkerThread implements Runnable {
      */
     private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException {
 
-        ArrayList<StationData> stations = query.getStations(file, query);
+        ArrayList<DataPoint> stations = query.getStations(file, query);
         if (stations.size() > 0) {
 
 
@@ -121,7 +123,7 @@ public class WorkerThread implements Runnable {
             writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
             writer.write("\t\t<stations>\n");
 
-            for (StationData station : stations)
+            for (DataPoint station : stations)
                 collectStation(station, writer, query);
 
             writer.write("\t\t</stations>\n");
@@ -132,8 +134,8 @@ public class WorkerThread implements Runnable {
     /*
     Collect all station data we need from a row
  */
-    public void collectStation(StationData station, BufferedWriter writer, Query query) throws IOException {
-        writer.write("\t\t\t<station id=\""+station.id+"\">\n");
+    public void collectStation(DataPoint station, BufferedWriter writer, Query query) throws IOException {
+        writer.write("\t\t\t<station id=\""+station.clientID+"\">\n");
 
         if(query.inSelect("temperature"))
             writer.write("\t\t\t\t<temp>"+station.temp+"</temp>\n");

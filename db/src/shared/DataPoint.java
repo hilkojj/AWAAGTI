@@ -35,6 +35,12 @@ public class DataPoint implements Comparable<DataPoint>
 		TEMP
 	}
 
+
+	public static DataPoint fromLine(String str)
+	{
+		return fromDBLine(str, null);
+	}
+
 	@Override
 	public int compareTo(DataPoint dp2) {
 		return this.clientID - dp2.clientID;

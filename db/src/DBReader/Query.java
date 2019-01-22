@@ -1,5 +1,4 @@
-
-import data.StationData;
+package DBReader;
 
 import java.io.*;
 import java.text.ParseException;
@@ -7,6 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
+
+import shared.DataPoint;
+import shared.Logger;
+import shared.Settings;
 
 public class Query {
     private final static String FILE_NAME = "export_";
@@ -72,8 +75,8 @@ public class Query {
     }
 
 
-    public ArrayList<StationData> getStations(File file, Query query) {
-        ArrayList<StationData> list = new ArrayList<>();
+    public ArrayList<DataPoint> getStations(File file, Query query) {
+        ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -99,8 +102,8 @@ public class Query {
                 str = br.readLine();
                 if (str == null)
                     break;
-                StationData s = new StationData(str);
-                if (IntStream.of(query.stations).anyMatch(x -> x == s.id))
+                DataPoint s = DataPoint.fromLine(str);
+                if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
                     list.add(s);
             }
 
