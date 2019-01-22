@@ -19,7 +19,7 @@ const usersFile = "./users.json"
 const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile).toString()) : {}
 
 const saveUser = async (username, password) => {
-    users[username] = {
+    users[username.toLowerCase()] = {
         username: username,
         password: await bcrypt.hash(password, 3),
         registeredTimestamp: Date.now()
@@ -36,7 +36,7 @@ passport.use(new LocalStrategy({
     passwordField: "password"
 }, async (username, password, done) => {
 
-    let user = users[username]
+    let user = users[username.toLowerCase()]
 
     if (!user)
         return done(null, null, { message: "Username does not exist" })
@@ -49,7 +49,7 @@ passport.use(new LocalStrategy({
 
 }))
 
-const generateJWT = username => jwt.sign({ username }, secret)
+const generateJWT = username => jwt.sign({ username: username.toLowerCase() }, secret)
 
 module.exports.login = (req, res) => {
     passport.authenticate("local", (err, user, info) => {
@@ -75,7 +75,7 @@ module.exports.register = async (req, res) => {
         return res.status(400).json({ message: "A username can only contain normal characters and numbers" })
     if (!password.length)
         return res.status(400).json({ message: "A password is required" })
-    if (users[username])
+    if (users[username.toLowerCase()])
         return res.status(400).json({ message: "Username already exists" })
 
     await saveUser(username, password)
