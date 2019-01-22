@@ -1,4 +1,4 @@
-package dbreader;
+package DBReader;
 
 import java.io.*;
 import java.text.ParseException;

@@ -1,4 +1,4 @@
-package dbreader;
+package DBReader;
 
 import shared.DataPoint;
 import shared.Logger;
