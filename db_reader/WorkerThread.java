@@ -3,6 +3,7 @@ import data.StationData;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class WorkerThread implements Runnable {
@@ -51,7 +52,7 @@ public class WorkerThread implements Runnable {
 
         if(tmpFile.exists() && Settings.CACHE == true) {
             Logger.log("Cached request: "+fileName);
-        } else { // We only create files if there is not already one
+        } else { // We only create files if there is not already one when cache is enabled
             BufferedWriter writer = createFile(query);
             collectData(writer, query);
             moveFile(query);
@@ -84,7 +85,7 @@ public class WorkerThread implements Runnable {
 
 
     /*
-        Loop all files we need
+        Loop through all files we need
      */
     private void collectData(BufferedWriter writer, Query query) {
         try {
@@ -112,14 +113,30 @@ public class WorkerThread implements Runnable {
         ArrayList<StationData> stations = query.getStations(file, query);
         if (stations.size() > 0) {
 
+
+//            new SimpleDateFormat("dd-MM-yyyy").format(date);
+//            new SimpleDateFormat("HH:mm:ss").format(date);
+
             writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
             writer.write("\t\t<stations>\n");
 
             for (StationData station : stations)
-                query.collectStation(station, writer, query);
+                collectStation(station, writer, query);
 
             writer.write("\t\t</stations>\n");
             writer.write("\t</datepoint>\n");
         }
+    }
+
+    /*
+    Collect all station data we need from a row
+ */
+    public void collectStation(StationData station, BufferedWriter writer, Query query) throws IOException {
+        writer.write("\t\t\t<station id=\""+station.id+"\">\n");
+
+        if(query.inSelect("temperature"))
+            writer.write("\t\t\t\t<temp>"+station.temp+"</temp>\n");
+
+        writer.write("\t\t\t</station>\n");
     }
 }

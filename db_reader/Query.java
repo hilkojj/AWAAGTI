@@ -1,22 +1,26 @@
 import data.StationData;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Query {
     private final static String FILE_NAME = "export_";
     private final static String FILE_EXTENSION = "xml";
+    private final static String FILE_NAME_FORMAT = "yyyyMMdd_HHmmss";
+    private final static SimpleDateFormat FILE_FORMATTER = new SimpleDateFormat(FILE_NAME_FORMAT);
+
 
     public int hash = -1;
 
-    public int[] stations = {50, 7950};
-    public long from = 0;
-    public long to = -1;
+    public int[] stations = {50, 4000, 7950};
+    public long from = 1547032000;
+    public long to = 1547033000;
     public int interval = 1;
-    public String what = "temperature";
+    public ArrayList<String> what = new ArrayList<>();
     public String sortBy = "temperature";
     public int limit = 10;
 
@@ -26,11 +30,11 @@ public class Query {
             String data = line.substring(line.indexOf("=")+1);
 
             switch (line.substring(0, line.indexOf("="))) {
-                case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
-                case "from":  from = Long.parseLong(data); break;
-                case "to": to = Long.parseLong(data); break;
+//                case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
+//                case "from":  from = Long.parseLong(data); break;
+//                case "to": to = Long.parseLong(data); break;
                 case "interval":  interval = Integer.parseInt(data); break;
-                case "what":  what = data; break;
+//                case "what":  what = data; break;
                 case "sortBy":  sortBy = data; break;
                 case "limit":  limit = Integer.parseInt(data); break;
                 default:
@@ -47,7 +51,18 @@ public class Query {
 
     public File[] getDataFiles(Query query) {   // TODO: Based on query
         File dir = new File(Settings.DATA_PATH);
-        File[] directoryListing = dir.listFiles(file -> file.getName().substring(file.getName().lastIndexOf(".")).contains(Settings.DATA_EXTENSION));
+        File[] directoryListing = dir.listFiles(file -> {
+            try {
+                long time = FILE_FORMATTER.parse(file.getName()).getTime()/1000;
+
+//                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
+//                System.out.println((from < time && time > to) == false);
+
+                return (from < time && time > to) == false;
+            } catch (ParseException e) { e.printStackTrace(); }
+
+            return file.getName().substring(file.getName().lastIndexOf(".")).contains(Settings.DATA_EXTENSION);
+        });
         if (directoryListing != null)
             return directoryListing;
 
@@ -98,19 +113,7 @@ public class Query {
     }
 
 
-    /*
-        Collect all station data we need from a row
-     */
-    public void collectStation(StationData station, BufferedWriter writer, Query query) throws IOException {
-        writer.write("\t\t\t<station id=\""+station.id+"\">\n");
-
-        if(query.inSelect("temp"))
-            writer.write("\t\t\t\t<temp>"+station.temp+"</temp>\n");
-
-        writer.write("\t\t\t</station>\n");
-    }
-
     public boolean inSelect(String temp) {
-        return true; // TODO: IMPLEMENT
+        return true;
     }
 }
