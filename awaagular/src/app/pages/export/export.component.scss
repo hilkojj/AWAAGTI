@@ -14,9 +14,6 @@
     button {
         
         &:not(.small) {
-            mat-icon {
-                vertical-align: text-bottom;
-            }
             margin-left: .75rem;
             font-size: 17px;
             vertical-align: middle;

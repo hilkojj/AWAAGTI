@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { MatDialog } from '@angular/material';
+import { LoginRegisterComponent } from '../components/login-register/login-register.component';
 
 type AuthResponse = {
     message?: string
@@ -19,7 +21,8 @@ type User = {
 export class AuthService {
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private dialog: MatDialog
     ) {
         window["auth"] = this
     }
@@ -49,6 +52,12 @@ export class AuthService {
                 .finally(() => this.requestingUser = false)
         }
         return this._user
+    }
+
+    showLoginOrRegisterDialog() {
+        this.dialog.open(LoginRegisterComponent).beforeClosed().subscribe(result =>
+            this.loginOrRegister(result.username, result.password, result.register)
+        )
     }
 
     async loginOrRegister(username: string, password: string, register?: boolean) {

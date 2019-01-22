@@ -1,1 +1,28 @@
-{{auth.user?.username}}
+<mat-card *ngIf="!auth.token">
+
+    <h2 class="mat-h2">
+        You are not signed in
+    </h2>
+
+    <button mat-raised-button color="primary" (click)="auth.showLoginOrRegisterDialog()">
+        <mat-icon>lock_open</mat-icon>
+        Sign in
+    </button>
+</mat-card>
+
+<div *ngIf="auth.token">
+    <mat-card>
+        <h1 class="mat-h1">
+            Welcome {{auth.user?.username}}
+        </h1>
+        <p>
+            Date of registration:
+            {{auth.user?.registeredTimestamp | timestamp}}
+        </p>
+
+        <button mat-raised-button (click)="auth.token = null" color="accent">
+            <mat-icon>exit_to_app</mat-icon>
+            Sign out
+        </button>
+    </mat-card>
+</div>

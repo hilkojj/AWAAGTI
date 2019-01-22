@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>Sign in</h1>
+<div mat-dialog-content>
+
+    <mat-form-field>
+        <input cdkFocusInitial matInput placeholder="Username"
+            [(ngModel)]="username">
+    </mat-form-field>
+    <br>
+    <mat-form-field>
+        <input matInput placeholder="Wachtwoord" type="password"
+            [(ngModel)]="password" (keyup.enter)="done()">
+    </mat-form-field>
+
+</div>
+
+<div mat-dialog-actions>
+    <button mat-button color="primary" (click)="done(true)">
+        Register account
+        <mat-icon>arrow_forward</mat-icon>
+    </button>
+    <button mat-raised-button color="primary" (click)="done()">
+        Sign in
+        <mat-icon>arrow_forward</mat-icon>
+    </button>
+</div>
