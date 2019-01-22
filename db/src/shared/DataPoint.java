@@ -1,4 +1,5 @@
-package DBSummariser;
+package shared;
+
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -30,7 +31,7 @@ public class DataPoint implements Comparable<DataPoint>
 			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	
-	enum SummaryType {
+	public enum SummaryType {
 		TEMP
 	}
 

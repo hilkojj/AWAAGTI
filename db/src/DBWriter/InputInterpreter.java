@@ -6,6 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import shared.DBFile;
+import shared.DataPoint;
+
 /**
  * InputInterpreter interprets the stream of data from the weather
  * station machine.

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import shared.DBFile;
+import shared.DataPoint;
+
 public class Main
 {
 	public static void main(String[] args)

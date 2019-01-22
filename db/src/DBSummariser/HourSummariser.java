@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import shared.DBFile;
+import shared.DataPoint;
+
 public class HourSummariser extends Summariser
 {
 	private int year, month, day, hour;
