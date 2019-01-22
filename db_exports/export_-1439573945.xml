@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export>
+	<datepoint time="20190109_122305">
+		<stations>
+			<station id="4000">
+				<temp>64.0</temp>
+			</station>
+			<station id="7950">
+				<temp>83.0</temp>
+			</station>
+		</stations>
+	</datepoint>
+</export>

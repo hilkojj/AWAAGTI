@@ -22,6 +22,10 @@ public class InputInterpreter
 			
 	private DateTimeFormatter dateTimeFormatter =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	private DateTimeFormatter dbFileNameFormatter =
+				DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+
 	private LocalDateTime dateTime;
 	
 	
@@ -96,10 +100,10 @@ public class InputInterpreter
 	{
 		try {
 			Collections.sort(this.list);
-			OutputWriter stuffs = new OutputWriter();
-			stuffs.setDateTime(this.dateTime);
-			stuffs.setDataPoints(this.list);
-			stuffs.write();
+			DBFile dbFile = new DBFile();
+			dbFile.setFileName(this.dateTime.format(this.dbFileNameFormatter) + ".txt");
+			dbFile.setDataPoints(this.list);
+			dbFile.write();
 		} catch (IOException e) {
 			System.out.println("ERROR: cannot write to database file");
 			System.out.println(e);
