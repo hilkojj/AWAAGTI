@@ -25,41 +25,67 @@ public abstract class Summariser
 	{
 		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
 		
+		int[] fileDPSIndexes = new int[files.length];
+		
 		boolean going = true;
-		int dpIndex = -1; // DataPoint index.
+		//int dpIndex = -1; // DataPoint index.
 		while (going) { // Loop over DataPoints in files.
-			dpIndex++;
+			//dpIndex++;
 
 			DataPoint dp = new DataPoint();
 			dp.summaryType = this.s2Type;
 			
+			// Determine next lowest clientID.
+			// (Because client can be missing from DBFiles)
 			int clientID = -1;
+			int i = -1;
+			for (DBFile file : files) {
+				i++;
+				if (file == null) {
+					continue;
+				}
+				
+				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
+					continue;
+				}
+				
+				int ourLowestClientID  = file.getDataPoints().get(fileDPSIndexes[i]).clientID;
+				if (clientID != -1 && clientID <= ourLowestClientID) {
+					continue;
+				}
+				
+				clientID = ourLowestClientID;
+			}
 			
 			Integer val = null;
 			LocalDateTime maxDateTime = null;
 			
 			going = false;
 			
+			i = -1;
 			for (DBFile file : files) {
-				DataPoint tDP = null;
-
-				if (file != null && file.getDataPoints().size() >= dpIndex+1) {
-					tDP = file.getDataPoints().get(dpIndex);
-				}
-
-				if (tDP == null) {
+				i++;
+				if (file == null) {
 					continue;
 				}
 				
-				if (clientID == -1) {
-					clientID = tDP.clientID;
+				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
+					continue;
 				}
+
+				DataPoint tDP = file.getDataPoints().get(fileDPSIndexes[i]);
 				
 				if (clientID != tDP.clientID) {
-					System.out.println("ERROR: unexpected clientID. Wants: " + clientID + ", got " + tDP.clientID);
+					// ClientID is missing from this DBFile :(, but that's okay.
+					// All DPS's are sorted, so if the clientID is not .
+					
+					System.out.println("DEBUG: missing clientID " + clientID + ", got " + tDP.clientID + " at " + i);
+					continue;
 				}
 				
 				going = true;
+				
+				fileDPSIndexes[i]++;
 
 				Integer newVal = this.check(val, tDP.getVal(this.s2Type));
 				if (newVal != null) {
