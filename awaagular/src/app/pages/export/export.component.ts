@@ -1,6 +1,7 @@
 import { Component, OnInit, DoCheck } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
 import { Config, ConfigsService, measurementType } from 'src/app/services/configs.service';
+import { ActivatedRoute } from '@angular/router';
 
 declare var L: any
 
@@ -27,11 +28,16 @@ export class ExportComponent implements OnInit, DoCheck {
 
     constructor(
         public stations: StationsService,
-        public configs: ConfigsService
-    ) { }
+        public configs: ConfigsService,
+        private route: ActivatedRoute
+    ) {
+        if (route.snapshot.params["configIndex"] && configs.array)
+            this.config = configs.array[route.snapshot.params["configIndex"]]
+    }
 
     ngOnInit() {
-        this.config = {
+        this.config = this.config || {
+            id: null,
             name: "",
             stationIds: [],
             what: ["temperature"],
@@ -106,6 +112,9 @@ export class ExportComponent implements OnInit, DoCheck {
             this.searchInput = ""
             countries.forEach(c => c && (this.searchInput += c.toLowerCase() + " "))
         })
+
+        if (this.config.stationIds.length)
+            this.focusOnStations(this.stations.array.filter(st => this.config.stationIds.includes(st.id)))
     }
 
     private markerIcon(station: Station) {
@@ -185,9 +194,14 @@ export class ExportComponent implements OnInit, DoCheck {
     private lastFocusedOn
     focusOnCountry(country: string) {
         if (this.lastFocusedOn == country) return
+        this.focusOnStations(this.stations.byCountry[country])
+        this.lastFocusedOn = country
+    }
+    
+    focusOnStations(stations: Station[]) {
         let minLat: number, maxLat: number
         let minLon: number, maxLon: number
-        this.stations.byCountry[country].forEach(st => {
+        stations.forEach(st => {
             if (st.lat < minLat || !minLat)
                 minLat = st.lat
             if (st.lat > maxLat || !maxLat)
@@ -204,7 +218,6 @@ export class ExportComponent implements OnInit, DoCheck {
             if (this.map.getZoom() > 10)
                 this.map.setZoom(10)
         })
-        this.lastFocusedOn = country
     }
 
     toDate: Date

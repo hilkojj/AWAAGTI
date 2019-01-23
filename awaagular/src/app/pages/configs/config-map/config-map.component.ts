@@ -72,8 +72,8 @@ export class ConfigMapComponent implements OnInit {
         })
         setTimeout(() => {
             this.map.fitBounds([
-                [minLat - 1, minLon - 1],
-                [maxLat + 1, maxLon + 1]
+                [minLat - .15, minLon - .15],
+                [maxLat + .15, maxLon + .15]
             ])
         }, 500)
         

@@ -1,6 +1,6 @@
 <div class="wrapper" fxLayout="row wrap">
 
-    <div class="config" *ngFor="let config of configs.array"
+    <div class="config" *ngFor="let config of configs.array; let i = index"
         fxFlex.gt-sm="33.3%" fxFlex.gt-md="25%" fxFlex.sm="50%"
         fxFlex="100%">
 
@@ -19,11 +19,11 @@
                         <mat-icon>save_alt</mat-icon>
                         Get data
                     </button>
-                    <button mat-button>
+                    <button mat-button [routerLink]="'/export-data/' + i">
                         <mat-icon>edit</mat-icon>
                         Edit
                     </button>
-                    <button mat-icon-button>
+                    <button mat-icon-button (click)="configs.deleteConfig(config)">
                         <mat-icon>delete</mat-icon>
                     </button>
                 </div>
