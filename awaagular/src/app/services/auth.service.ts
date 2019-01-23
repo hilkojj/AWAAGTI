@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MatDialog } from '@angular/material';
 import { LoginRegisterComponent } from '../components/login-register/login-register.component';
+import { Config } from './configs.service';
 
 type AuthResponse = {
     message?: string
@@ -13,6 +14,7 @@ type AuthResponse = {
 type User = {
     username: string
     registeredTimestamp: number
+    configs: Config[]
 }
 
 @Injectable({

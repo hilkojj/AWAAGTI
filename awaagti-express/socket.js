@@ -31,17 +31,36 @@ const initClient = (socket, user) => {
         exportConfig(
             config,
             progress => {
-                console.log("Export progress " + config.name, progress)
-                socket.emit("export progress " + config.name, progress)
+                console.log("Export progress " + config.id, progress)
+                socket.emit("export progress " + config.id, progress)
             },
             file => {
                 console.log("Export can be found in", file)
-                socket.emit("export done" + config.name, file)
+                socket.emit("export done" + config.id, file)
             },
             err => {
-                console.log("Export error " + config.name)
-                socket.emit("export error " + config.name, err)
+                console.log("Export error " + config.id)
+                socket.emit("export error " + config.id, err)
             }
         )
     })
+
+    socket.on("save config", config => {
+        let configs = (user.configs = user.configs || [])
+        let existingI = configs.findIndex(c => c.id == config.id)
+        if (existingI != -1)
+            configs[existingI] = config
+        else
+            configs.push(config)
+        auth.saveUsers()
+    })
+
+    socket.on("delete config", config => {
+        if (!user.configs) return
+        let i = user.configs.findIndex(c => c.id == config.id)
+        if (i != -1)
+            user.configs.splice(i, 1)
+        auth.saveUsers()
+    })
+
 }

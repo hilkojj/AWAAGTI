@@ -1,3 +1,5 @@
+@import "../../../variables.scss";
+
 .wrapper {
     div {
         padding: 8px;
@@ -40,9 +42,48 @@
     border: 2px solid #e6e6e6;
 }
 
+.map {
+    height: 490px;
+    z-index: 0;
+    #map {
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 4px;
+
+        ::ng-deep .station-icon {
+            border: solid 2px $primary;
+            background: white;
+            padding: 0 6px;
+            border-radius: 100px;
+            height: auto !important;
+            width: auto !important;
+            white-space: nowrap;
+            text-transform: capitalize;
+
+            &.selected {
+                background: $primary;
+                color: white;
+                border-color: white;
+            }
+
+            mat-icon {
+                vertical-align: middle;
+                font-size: 20px;
+                line-height: 22px;
+            }
+        }
+    }
+}
+
+.stations mat-card {
+    height: 474px;
+    box-sizing: border-box;
+}
+
 .stations-tree {
 
-    max-height: 350px;
+    box-sizing: border-box;
+    max-height: 318px;
     overflow-y: auto;
 
     margin: -16px;
@@ -51,6 +92,11 @@
 
     .country {
         position: relative;
+        padding: 0 8px;
+
+        mat-list-option {
+            height: 32px;
+        }
 
         mat-checkbox {
             position: absolute;
