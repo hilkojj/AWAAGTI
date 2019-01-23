@@ -42,6 +42,7 @@
 
 .map {
     height: 420px;
+    z-index: 0;
     #map {
         height: 100%;
         box-sizing: border-box;

@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, OnInit, DoCheck, NgZone, ChangeDetectorRef } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
 import { Config, ConfigsService, measurementType } from 'src/app/services/configs.service';
 
@@ -13,7 +13,7 @@ export class ExportComponent implements OnInit, DoCheck {
 
     expanded: { [country: string]: boolean } = {}
 
-    searchInput = ""
+    searchInput: string = ""
 
     config: Config
 
@@ -52,7 +52,8 @@ export class ExportComponent implements OnInit, DoCheck {
         })
         this.dateChanged()
 
-        this.map = new L.Map("map").setView([40, 70], 2)
+        this.map = new L.Map("map").setView([50, 50], 2)
+        window["map"] = this.map
 
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=sk.eyJ1IjoibG9zb3MiLCJhIjoiY2pueXhwZ3RvMDFzdzNrbXFicnlmY3Q1YiJ9.ixxDbuWyXhWX4PY4qt07ZA', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -60,6 +61,8 @@ export class ExportComponent implements OnInit, DoCheck {
             id: 'mapbox.streets',
             accessToken: 'your.mapbox.access.token'
         }).addTo(this.map)
+        setInterval(() => this.map.invalidateSize(), 500)
+        setTimeout(() => this.map.invalidateSize(), 100)
     }
 
     markersAdded = false
@@ -67,6 +70,9 @@ export class ExportComponent implements OnInit, DoCheck {
     ngDoCheck() {
         if (this.markersAdded || this.stations.array.length == 0)
             return
+
+        this.prevCountries = null
+        this.prevCountriesWSt = null
 
         let icon = new L.DivIcon({
             className: 'station-icon',
@@ -80,12 +86,23 @@ export class ExportComponent implements OnInit, DoCheck {
         this.stations.array.forEach(st => {
             try {
                 markerClusters.addLayer(
-                    L.marker([st.lat, st.lon], { icon: icon })
+                    L.marker([st.lat, st.lon], { icon: icon, station: st })
                 )
             } catch (e) { }
         })
         this.map.addLayer(markerClusters)
         this.markersAdded = true
+
+        markerClusters.on('clusterclick', (a) => {
+            let markers = a.layer.getAllChildMarkers()
+            let countries = new Set()
+            markers.forEach(m => countries.add(m.options.station.country))
+
+            if (countries.size > 5)
+                return
+            this.searchInput = ""
+            countries.forEach(c => c && (this.searchInput += c.toLowerCase() + " "))
+        })
     }
 
     selectionChange(option) {
@@ -114,22 +131,60 @@ export class ExportComponent implements OnInit, DoCheck {
     }
 
     matchesFilter(name: string): boolean {
+        if (!this.searchInput.length) return true
         name = name.toLowerCase()
-        return this.searchInput.toLowerCase().split(" ").some(i => name.indexOf(i) != -1)
+        return this.searchInput.toLowerCase().trim().split(" ").some(i => name.indexOf(i) != -1)
     }
 
+    private prevCountries: string[]
+    private prevCountriesFilter = ""
     get countries(): string[] {
-        return this.stations.countries.filter(c => this.matchesFilter(c)).sort()
+        if (this.prevCountries && this.prevCountriesFilter == this.searchInput)
+            return this.prevCountries
+        this.prevCountriesFilter = this.searchInput
+        return this.prevCountries = this.stations.countries.filter(c => this.matchesFilter(c)).sort()
     }
 
+    private prevCountriesWSt: string[]
+    private prevCountriesWStFilter = ""
     get countriesWithStations(): string[] {
-        return this.stations.countries.filter(c => this.matchesFilter(c) || this.stationsByCountry(c).length).sort()
+        if (this.prevCountriesWSt && this.prevCountriesWStFilter == this.searchInput)
+            return this.prevCountriesWSt
+        this.prevCountriesWStFilter = this.searchInput
+        return this.prevCountriesWSt = this.stations.countries.filter(c => this.matchesFilter(c) || this.stationsByCountry(c).length).sort()
     }
 
     stationsByCountry(country: string): Station[] {
         return this.stations.byCountry[country]
             .filter(st => this.matchesFilter(st.name) || this.matchesFilter(st.country))
             .sort((a, b) => a.name < b.name ? -1 : 1)
+    }
+
+    private lastFocusedOn
+    focusOnCountry(country: string) {
+        if (this.lastFocusedOn == country) return
+        let minLat: number, maxLat: number
+        let minLon: number, maxLon: number
+        this.stations.byCountry[country].forEach(st => {
+            if (st.lat < minLat || !minLat)
+                minLat = st.lat
+            if (st.lat > maxLat || !maxLat)
+                maxLat = st.lat
+            if (st.lon < minLon || !minLon)
+                minLon = st.lon
+            if (st.lon > maxLon || !maxLon)
+                maxLon = st.lon
+
+            this.map.fitBounds([
+                [minLat - 1, minLon - 1],
+                [maxLat + 1, maxLon + 1]
+            ])
+            console.log([minLat - 1, minLon - 1],
+                [maxLat + 1, maxLon + 1])
+            if (this.map.getZoom() > 10)
+                this.map.setZoom(10)
+        })
+        this.lastFocusedOn = country
     }
 
     toDate: Date

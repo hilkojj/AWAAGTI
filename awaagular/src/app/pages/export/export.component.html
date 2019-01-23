@@ -12,16 +12,16 @@
                     [(ngModel)]="config.name">
             </mat-form-field>
 
-            <button fxFlex="150px" mat-raised-button color="primary"
+            <button fxFlex="210px" mat-raised-button color="primary"
                 fxHide.lt-md>
                 <mat-icon>save</mat-icon>
-                Save config
+                Save configuration
             </button>
 
             <button fxFlex="100%" mat-raised-button color="primary"
                 class="small" fxHide.gt-sm>
                 <mat-icon>save</mat-icon>
-                Save config
+                Save configuration
             </button>
         </div>
 
@@ -51,7 +51,7 @@
 
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 8)"
-                        [value]="country.toLowerCase()">
+                        [value]="country.toLowerCase()" (click)="focusOnCountry(country)">
                         <img class="flag" [src]="'/assets/flags/4x3/' + stations.countryCode(country)?.toLowerCase() + '.svg'">
                         <span class="name">
                             {{country.toLowerCase()}}
@@ -67,7 +67,7 @@
                     class="country">
 
                     <button mat-icon-button color="primary"
-                        (click)="expanded[country] = !expanded[country]">
+                        (click)="expanded[country] = !expanded[country]; expanded[country] && focusOnCountry(country)">
 
                         <mat-icon [style.transform]="expanded[country] ? 'rotate(90deg)' : ''">
                             keyboard_arrow_right
