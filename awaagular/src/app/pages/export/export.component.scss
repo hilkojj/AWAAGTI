@@ -40,9 +40,24 @@
     border: 2px solid #e6e6e6;
 }
 
+.map {
+    height: 420px;
+    #map {
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+}
+
+.stations mat-card {
+    height: 404px;
+    box-sizing: border-box;
+}
+
 .stations-tree {
 
-    max-height: 350px;
+    box-sizing: border-box;
+    max-height: 248px;
     overflow-y: auto;
 
     margin: -16px;

@@ -27,7 +27,11 @@
 
     </div>
 
-    <div fxFlex.gt-sm="50%" fxFlex.gt-md="33.3%" fxFlex="100%">
+    <div class="map" fxFlex.gt-sm="50%" fxFlex.gt-md="66.6%" fxFlex="100%">
+        <div id="map"></div>
+    </div>
+
+    <div class="stations" fxFlex.gt-sm="50%" fxFlex.gt-md="33.3%" fxFlex="100%">
         <mat-card>
             <h1 class="mat-h1">Stations</h1>
 
@@ -35,7 +39,7 @@
             {{config.stationIds.length == 1 ? 'station' :
             'stations'}} selected.
 
-            <br><br>
+            <br>
 
             <mat-form-field appearance="outline"
                 [style.width]="'100%'">
