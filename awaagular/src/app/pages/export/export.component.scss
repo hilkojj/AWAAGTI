@@ -1,3 +1,5 @@
+@import "../../../variables.scss";
+
 .wrapper {
     div {
         padding: 8px;
@@ -47,6 +49,29 @@
         height: 100%;
         box-sizing: border-box;
         border-radius: 4px;
+
+        ::ng-deep .station-icon {
+            border: solid 2px $primary;
+            background: white;
+            padding: 0 6px;
+            border-radius: 100px;
+            height: auto !important;
+            width: auto !important;
+            white-space: nowrap;
+            text-transform: capitalize;
+
+            &.selected {
+                background: $primary;
+                color: white;
+                border-color: white;
+            }
+
+            mat-icon {
+                vertical-align: middle;
+                font-size: 20px;
+                line-height: 22px;
+            }
+        }
     }
 }
 

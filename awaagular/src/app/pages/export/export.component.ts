@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, DoCheck } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
 import { Config, ConfigsService, measurementType } from 'src/app/services/configs.service';
 
@@ -52,7 +52,7 @@ export class ExportComponent implements OnInit, DoCheck {
         })
         this.dateChanged()
 
-        this.map = new L.Map("map").setView([50, 50], 2)
+        this.map = new L.Map("map").setView([30, 30], 2)
         window["map"] = this.map
 
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=sk.eyJ1IjoibG9zb3MiLCJhIjoiY2pueXhwZ3RvMDFzdzNrbXFicnlmY3Q1YiJ9.ixxDbuWyXhWX4PY4qt07ZA', {
@@ -66,6 +66,7 @@ export class ExportComponent implements OnInit, DoCheck {
     }
 
     markersAdded = false
+    markers = {} as { [stationId: number]: any }
 
     ngDoCheck() {
         if (this.markersAdded || this.stations.array.length == 0)
@@ -74,20 +75,22 @@ export class ExportComponent implements OnInit, DoCheck {
         this.prevCountries = null
         this.prevCountriesWSt = null
 
-        let icon = new L.DivIcon({
-            className: 'station-icon',
-            html: 'bla'
-        })
-
         var markerClusters = L.markerClusterGroup({
-            maxClusterRadius: 80
+            maxClusterRadius: 65
         })
 
+        let clickCB = e => {
+            console.log(e)
+            this.selectionChange({
+                selected: !this.config.stationIds.includes(e.target.options.station.id),
+                value: e.target.options.station.id
+            })
+        }
         this.stations.array.forEach(st => {
             try {
-                markerClusters.addLayer(
-                    L.marker([st.lat, st.lon], { icon: icon, station: st })
-                )
+                let marker = this.markers[st.id] = L.marker([st.lat, st.lon], { icon: this.markerIcon(st), station: st })
+                markerClusters.addLayer(marker)
+                marker.on("click", clickCB)
             } catch (e) { }
         })
         this.map.addLayer(markerClusters)
@@ -105,20 +108,39 @@ export class ExportComponent implements OnInit, DoCheck {
         })
     }
 
+    private markerIcon(station: Station) {
+        let selected = this.config.stationIds.includes(station.id)
+        return new L.DivIcon({
+            className: 'station-icon mat-elevation-z1' + (selected ? " selected" : ""),
+            html: `
+                <mat-icon class="mat-icon material-icons" role="img" aria-hidden="true">${selected ? 'done' : 'add'}</mat-icon>
+            ` + station.name.toLowerCase()
+        })
+    }
+
     selectionChange(option) {
         if (!option.selected)
             this.config.stationIds = this.config.stationIds.filter(id => id != option.value)
         else this.config.stationIds.push(option.value)
+
+        this.updateMarkerIcon(option.value)
     }
 
     countrySelect(country: string, checkAll: boolean) {
         let stationIds = this.stationsByCountry(country).map(st => st.id)
         if (!checkAll)
             this.config.stationIds = this.config.stationIds.filter(id => !stationIds.includes(id))
-        else
-            stationIds
-                .filter(id => !this.config.stationIds.includes(id))
-                .forEach(id => this.config.stationIds.push(id))
+        else stationIds
+            .filter(id => !this.config.stationIds.includes(id))
+            .forEach(id => this.config.stationIds.push(id))
+
+        stationIds.forEach(id => this.updateMarkerIcon(id))
+    }
+
+    updateMarkerIcon(stationId: number) {
+        let marker = this.markers[stationId]
+        if (marker)
+            marker.setIcon(this.markerIcon(marker.options.station))
     }
 
     // returns 2 if all selected, 1 if some, 0 if none

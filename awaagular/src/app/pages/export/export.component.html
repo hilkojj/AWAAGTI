@@ -50,7 +50,7 @@
                 <mat-icon matSuffix>search</mat-icon>
 
                 <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 8)"
+                    <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 4)"
                         [value]="country.toLowerCase()" (click)="focusOnCountry(country)">
                         <img class="flag" [src]="'/assets/flags/4x3/' + stations.countryCode(country)?.toLowerCase() + '.svg'">
                         <span class="name">
