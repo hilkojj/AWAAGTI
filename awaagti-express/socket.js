@@ -44,4 +44,15 @@ const initClient = (socket, user) => {
             }
         )
     })
+
+    socket.on("save config", config => {
+        let configs = (user.configs = user.configs || [])
+        let existingI = configs.findIndex(c => c.name == config.name)
+        if (existingI != -1)
+            configs[existingI] = config
+        else
+            configs.push(config)
+        auth.saveUsers()
+    })
+
 }
