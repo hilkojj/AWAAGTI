@@ -1,0 +1,24 @@
+
+.wrapper {
+    div {
+        padding: 8px;
+    }
+
+    padding: .75rem;
+    @media only screen and (min-width: 1200px) {
+        padding: .75rem 4.5rem;
+    }
+}
+
+mat-card {
+    padding: 0;
+    height: 300px;
+
+    .info {
+        padding: 8px;
+    }
+    .buttons {
+        position: absolute;
+        bottom: 8px;
+    }
+}

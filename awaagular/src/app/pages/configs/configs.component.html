@@ -1,0 +1,36 @@
+<div class="wrapper" fxLayout="row wrap">
+
+    <div class="config" *ngFor="let config of configs.array"
+        fxFlex.gt-sm="33.3%" fxFlex.gt-md="25%" fxFlex.sm="50%"
+        fxFlex="100%">
+
+        <mat-card>
+            <app-config-map [config]="config"></app-config-map>
+
+            <div class="info">
+
+                <h2 class="mat-h2">
+                    {{config.name}}
+                </h2>
+
+                <div class="buttons">
+                    <button mat-button color="primary"
+                        (click)="configs.exportConfig(config)">
+                        <mat-icon>save_alt</mat-icon>
+                        Get data
+                    </button>
+                    <button mat-button>
+                        <mat-icon>edit</mat-icon>
+                        Edit
+                    </button>
+                    <button mat-icon-button>
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+
+            </div>
+        </mat-card>
+    </div>
+
+
+</div>

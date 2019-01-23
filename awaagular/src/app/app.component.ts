@@ -19,6 +19,9 @@ export class AppComponent {
     }, {
         label: "Export",
         path: "/export-data"
+    }, {
+        label: "Configurations",
+        path: "/configs"
     }];
 
     constructor(

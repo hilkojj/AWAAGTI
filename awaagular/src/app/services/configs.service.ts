@@ -33,7 +33,8 @@ export class ConfigsService {
     ) {
     }
 
-    get configs(): Config[] {
+    get array(): Config[] {
+        if (!this.auth.user) return null
         return (this.auth.user.configs = this.auth.user.configs || [])
     }
 
@@ -41,7 +42,7 @@ export class ConfigsService {
         if (!config.name)
             config.name = prompt("Please enter a name for this export.") || "untitled"
         this.io.socket.emit("save config", config)
-        this.configs.push(config)
+        this.array.push(config)
     }
 
     exportConfig(config: Config) {

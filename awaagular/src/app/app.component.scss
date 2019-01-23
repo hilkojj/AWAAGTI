@@ -26,6 +26,9 @@ mat-toolbar {
                 @media (max-width: 599px) {
                     height: 56px;
                 }
+                &.mat-tab-label-active {
+                    opacity: 1;
+                }
             }
             ::ng-deep mat-ink-bar {
                 height: 2.5px;
