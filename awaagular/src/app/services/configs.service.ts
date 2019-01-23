@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SocketIoService } from './socket-io.service';
 import { AuthService } from './auth.service';
+import { MatSnackBar } from '@angular/material';
 
 export interface TimeFrame {
     from: number
@@ -30,7 +31,8 @@ export class ConfigsService {
 
     constructor(
         private io: SocketIoService,
-        private auth: AuthService
+        private auth: AuthService,
+        private snackbar: MatSnackBar
     ) {
     }
 
@@ -40,23 +42,34 @@ export class ConfigsService {
     }
 
     saveConfig(config: Config) {
-        if (!config.name)
-            config.name = prompt("Please enter a name for this export.") || "untitled"
+        this.finishConfig(config)
         this.io.socket.emit("save config", config)
         if (!this.array.includes(config))
             this.array.push(config)
+
+        this.snackbar.open(config.name + " saved.", null, {
+            duration: 2000
+        })
     }
 
     deleteConfig(config: Config) {
         this.io.socket.emit("delete config", config)
         this.array.splice(this.array.indexOf(config), 1)
+
+        this.snackbar.open(config.name + " deleted.", "UNDO", { duration: 5000 }).onAction().subscribe(() => {
+            this.saveConfig(config)
+        })
     }
 
-    exportConfig(config: Config) {
+    finishConfig(config: Config) {
         if (!config.name)
             config.name = prompt("Please enter a name for this export.") || "untitled"
         if (!config.id)
             config.id = (Math.random() * 10000) | 0
+    }
+
+    exportConfig(config: Config) {
+        this.finishConfig(config)
         this.io.socket.emit("export", config)
         this.io.socket.on("export error " + config.id, err => {
             console.error(err)

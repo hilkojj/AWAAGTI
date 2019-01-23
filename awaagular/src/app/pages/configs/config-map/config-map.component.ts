@@ -29,7 +29,7 @@ export class ConfigMapComponent implements OnInit {
     }
 
     init() {
-        this.map = new L.Map("map-" + this.config.name, {
+        this.map = new L.Map("map-" + this.config.id, {
             attributionControl: false,
             zoomControl: false,
             boxZoom: false,
