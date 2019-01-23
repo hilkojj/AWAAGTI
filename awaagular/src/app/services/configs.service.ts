@@ -11,6 +11,13 @@ export interface TimeFrame {
 
 export type measurementType = "temperature" | "windSpeed"
 
+export interface Export {
+    config: Config
+    progress: number
+    downloadUrl?: string
+    error?: string
+}
+
 export interface Config {
     id: string | number
     name: string
@@ -28,6 +35,7 @@ export interface Config {
 export class ConfigsService {
 
     measurements = ["temperature", "windSpeed"]
+    exports = [] as Export[]
 
     constructor(
         private io: SocketIoService,
@@ -42,7 +50,7 @@ export class ConfigsService {
     }
 
     saveConfig(config: Config) {
-        this.finishConfig(config)
+        this.completeConfig(config)
         this.io.socket.emit("save config", config)
         if (!this.array.includes(config))
             this.array.push(config)
@@ -61,7 +69,7 @@ export class ConfigsService {
         })
     }
 
-    finishConfig(config: Config) {
+    completeConfig(config: Config) {
         if (!config.name)
             config.name = prompt("Please enter a name for this export.") || "untitled"
         if (!config.id)
@@ -69,11 +77,19 @@ export class ConfigsService {
     }
 
     exportConfig(config: Config) {
-        this.finishConfig(config)
+        let exp = {
+            config,
+            progress: 0,
+            // downloadUrl: "/poep/haha"
+        } as Export
+        this.exports.push(exp)
+
+        this.completeConfig(config)
         this.io.socket.emit("export", config)
         this.io.socket.on("export error " + config.id, err => {
             console.error(err)
             alert(err)
+            exp.error = err
             this.finishExport(config)
         })
     }
