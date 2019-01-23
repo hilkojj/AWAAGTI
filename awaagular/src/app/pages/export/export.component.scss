@@ -43,7 +43,7 @@
 }
 
 .map {
-    height: 420px;
+    height: 490px;
     z-index: 0;
     #map {
         height: 100%;
@@ -76,14 +76,14 @@
 }
 
 .stations mat-card {
-    height: 404px;
+    height: 474px;
     box-sizing: border-box;
 }
 
 .stations-tree {
 
     box-sizing: border-box;
-    max-height: 248px;
+    max-height: 318px;
     overflow-y: auto;
 
     margin: -16px;
@@ -92,6 +92,11 @@
 
     .country {
         position: relative;
+        padding: 0 8px;
+
+        mat-list-option {
+            height: 32px;
+        }
 
         mat-checkbox {
             position: absolute;

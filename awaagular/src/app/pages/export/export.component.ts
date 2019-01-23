@@ -201,8 +201,6 @@ export class ExportComponent implements OnInit, DoCheck {
                 [minLat - 1, minLon - 1],
                 [maxLat + 1, maxLon + 1]
             ])
-            console.log([minLat - 1, minLon - 1],
-                [maxLat + 1, maxLon + 1])
             if (this.map.getZoom() > 10)
                 this.map.setZoom(10)
         })
