@@ -105,16 +105,22 @@ public class Query {
 //            }
 
             String str = "";
-               while (true) {
-
+	    while (true) {
                 str = br.readLine();
                 if (str == null)
                     break;
-                DataPoint s = DataPoint.fromLine(str);
-                if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
-                	//if (this.filter.compare(s)) {
-                		list.add(s);
-                	//}
+
+                 DataPoint s = DataPoint.fromLine(str);
+
+                 if (!IntStream.of(query.stations).anyMatch(x -> x == s.clientID)) {
+                     continue;
+                 }
+
+                 if (this.filter != null && this.filter.execute(s)) {
+                     continue;
+                 }
+
+                 list.add(s);
             }
 
             br.close();
