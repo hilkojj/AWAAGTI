@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import shared.DataPoint;
 import shared.Logger;
@@ -28,22 +29,27 @@ public class Query {
     public String sortBy = "temperature";
     public int limit = 10;
 
-    public Query(String options) {
-        hash = Arrays.hashCode(options.toCharArray());
-        for (String line : options.split("\n")) {
-            String data = line.substring(line.indexOf("=")+1);
+    public Query(String options) throws Exception {
+        try {
+            hash = Arrays.hashCode(options.toCharArray());
+            for (String line : options.split("\n")) {
+                String data = line.substring(line.indexOf("=") + 1);
 
-            switch (line.substring(0, line.indexOf("="))) {
-//                case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
-//                case "from":  from = Long.parseLong(data); break;
-//                case "to": to = Long.parseLong(data); break;
-                case "interval":  interval = Integer.parseInt(data); break;
-//                case "what":  what = data; break;
-                case "sortBy":  sortBy = data; break;
-                case "limit":  limit = Integer.parseInt(data); break;
-                default:
-                    System.out.println("throw new NotImplementedException(): " + line);
+                switch (line.substring(0, line.indexOf("="))) {
+                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
+                    case "from":  from = Long.parseLong(data); break;
+                    case "to": to = Long.parseLong(data); break;
+                    case "interval": interval = Integer.parseInt(data); break;
+                    case "what":  what.addAll(Arrays.asList(data.split(","))); break;
+                    case "sortBy": sortBy = data; break;
+                    case "limit": limit = Integer.parseInt(data); break;
+                    default:
+                        System.out.println("throw new NotImplementedException(): " + line); // TODO:
+                }
             }
+        }
+        catch (Exception e) {
+            throw new Exception("Your query does not have the proper syntax");
         }
     }
 

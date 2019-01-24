@@ -24,23 +24,26 @@ public class WorkerThread implements Runnable {
             conReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             conWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
 
-            String query = "stations=1234,1235\n" +
-                    "from=12469548968\n" +
-                    "to=23848273958\n" +
-                    "interval=1\n" +
-                    "what=temperature\n" +
-                    "sortBy=temperature\n" +
-                    "limit=10\n" +
-                    "filter=temp,<,10\n";
-            process(new Query(query));
+//            String query = "stations=1234,1235\n" +
+//                    "from=12469548968\n" +
+//                    "to=23848273958\n" +
+//                    "interval=1\n" +
+//                    "what=temperature\n" +
+//                    "sortBy=temperature\n" +
+//                    "limit=10\n" +
+//                    "filter=temp,<,10\n";
+
+            try {
+                process(new Query(conReader.readLine()));
+            } catch (Exception e) {
+                conWriter.write(e.getMessage());
+            }
 
             conReader.close();
             conWriter.close();
             connection.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { /* e.printStackTrace(); We are done just ignore connection from now on*/ }
     }
 
 
