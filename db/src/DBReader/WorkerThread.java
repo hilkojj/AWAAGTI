@@ -24,26 +24,29 @@ public class WorkerThread implements Runnable {
             conReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             conWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
 
-//            String query = "stations=1234,1235\n" +
-//                    "from=12469548968\n" +
-//                    "to=23848273958\n" +
-//                    "interval=1\n" +
-//                    "what=temperature\n" +
-//                    "sortBy=temperature\n" +
-//                    "limit=10\n" +
-//                    "filter=temp,<,10\n";
+            String query = "stations=1234,1235\n" +
+                    "from=12469548968\n" +
+                    "to=23848273958\n" +
+                    "interval=1\n" +
+                    "what=temperature\n" +
+                    "sortBy=temperature\n" +
+                    "limit=10\n" +
+                    "filter=temp,<,10\n";
 
             try {
                 process(new Query(conReader.readLine()));
             } catch (Exception e) {
+                Logger.error(e.getMessage());
                 conWriter.write(e.getMessage());
             }
+
+            System.out.println("NEEEE");
 
             conReader.close();
             conWriter.close();
             connection.close();
 
-        } catch (IOException e) { /* e.printStackTrace(); We are done just ignore connection from now on*/ }
+        } catch (IOException e) { e.printStackTrace(); /*We are done just ignore connection from now on*/ }
     }
 
 
@@ -135,8 +138,8 @@ public class WorkerThread implements Runnable {
     }
 
     /*
-    Collect all station data we need from a row
- */
+        Collect all station data we need from a row
+     */
     public void collectStation(DataPoint station, BufferedWriter writer, Query query) throws IOException {
         writer.write("\t\t\t<station id=\""+station.clientID+"\">\n");
 

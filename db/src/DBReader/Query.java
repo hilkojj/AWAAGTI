@@ -37,14 +37,14 @@ public class Query {
                 String data = line.substring(line.indexOf("=") + 1);
 
                 switch (line.substring(0, line.indexOf("="))) {
-                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
-                    case "from":  from = Long.parseLong(data); break;
-                    case "to": to = Long.parseLong(data); break;
-                    case "interval": interval = Integer.parseInt(data); break;
-                    case "what":  what.addAll(Arrays.asList(data.split(","))); break;
-                    case "sortBy": sortBy = data; break;
-                    case "limit": limit = Integer.parseInt(data); break;
-                    case "filter": this.filter = new QueryFilter(data); break;
+//                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
+//                    case "from":  from = Long.parseLong(data); break;
+//                    case "to": to = Long.parseLong(data); break;
+//                    case "interval": interval = Integer.parseInt(data); break;
+//                    case "what":  what.addAll(Arrays.asList(data.split(","))); break;
+//                    case "sortBy": sortBy = data; break;
+//                    case "limit": limit = Integer.parseInt(data); break;
+//                    case "filter": this.filter = new QueryFilter(data); break;
                     default:
                         System.out.println("throw new NotImplementedException(): " + line); // TODO:
                 }
@@ -112,9 +112,9 @@ public class Query {
                     break;
                 DataPoint s = DataPoint.fromLine(str);
                 if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
-                	if (this.filter.compare(s)) {
+                	//if (this.filter.compare(s)) {
                 		list.add(s);
-                	}
+                	//}
             }
 
             br.close();
