@@ -1,8 +1,6 @@
 package DBReader;
 
-import shared.DataPoint;
-import shared.Logger;
-import shared.Settings;
+import shared.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,7 +12,7 @@ public class WorkerThread implements Runnable {
 
     public WorkerThread(Socket connection) throws SocketException { this.connection = connection; connection.setKeepAlive(Settings.KEEP_SOCKETS_ALIVE); }
     private BufferedReader conReader = null;
-    private BufferedWriter conWriter = null;
+    private ConWriter conWriter = null;
 
     @Override
     public void run() {
@@ -22,7 +20,7 @@ public class WorkerThread implements Runnable {
 
         try {
             conReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            conWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+            conWriter = new ConWriter(new OutputStreamWriter(connection.getOutputStream()));
 
 //            String query = "stations=1234,1235\n" +
 //                    "from=12469548968\n" +
@@ -38,14 +36,12 @@ public class WorkerThread implements Runnable {
 //                process(new Query(query));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
-                conWriter.write(e.getMessage());
-                conWriter.flush();
+                conWriter.write(ConWriter.Types.error, e.getMessage());
             }
 
             System.out.println("NEEEE");
 
             conReader.close();
-            conWriter.flush();
             conWriter.close();
             connection.close();
 
@@ -60,8 +56,7 @@ public class WorkerThread implements Runnable {
 
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
-        conWriter.write("file="+fileName);
-        conWriter.flush();
+        conWriter.write(ConWriter.Types.file, fileName);
 
         if(tmpFile.exists() && Settings.CACHE == true) {
             Logger.log("Cached request: "+fileName);
@@ -124,6 +119,7 @@ public class WorkerThread implements Runnable {
     private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException {
 
         ArrayList<DataPoint> stations = query.getStations(file, query);
+        float progress =0;
         if (stations.size() > 0) {
 
 
@@ -133,8 +129,11 @@ public class WorkerThread implements Runnable {
             writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
             writer.write("\t\t<stations>\n");
 
-            for (DataPoint station : stations)
+            for (DataPoint station : stations) {
                 collectStation(station, writer, query);
+                progress ++;
+                conWriter.write(ConWriter.Types.progress, "" + (progress / stations.size() * 100));
+            }
 
             writer.write("\t\t</stations>\n");
             writer.write("\t</datepoint>\n");
@@ -152,4 +151,6 @@ public class WorkerThread implements Runnable {
 
         writer.write("\t\t\t</station>\n");
     }
+
+
 }
