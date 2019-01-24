@@ -28,6 +28,7 @@ public class Query {
     public ArrayList<String> what = new ArrayList<>();
     public String sortBy = "temperature";
     public int limit = 10;
+    public QueryFilter filter;
 
     public Query(String options) throws Exception {
         try {
@@ -43,6 +44,7 @@ public class Query {
                     case "what":  what.addAll(Arrays.asList(data.split(","))); break;
                     case "sortBy": sortBy = data; break;
                     case "limit": limit = Integer.parseInt(data); break;
+                    case "filter": this.filter = new QueryFilter(data); break;
                     default:
                         System.out.println("throw new NotImplementedException(): " + line); // TODO:
                 }
@@ -110,7 +112,9 @@ public class Query {
                     break;
                 DataPoint s = DataPoint.fromLine(str);
                 if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
-                    list.add(s);
+                	if (this.filter.compare(s)) {
+                		list.add(s);
+                	}
             }
 
             br.close();
