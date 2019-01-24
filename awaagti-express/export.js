@@ -11,7 +11,7 @@ const configToQuery = config => {
         q += `sortBy=${config.sortBy};`
     if (config.limit)
         q += `limit=${config.limit};`
-    return q
+    return q + "\r\n"
 }
 
 module.exports = (config, onProgress, onDone, onError) => {
@@ -28,18 +28,13 @@ module.exports = (config, onProgress, onDone, onError) => {
         })
     }, 1000)
 
-    client.connect(12345, '127.0.0.1', () => {
-        console.log('Connected')
-        client.write(configToQuery(config))
-    })
-    client.on("error", err => {
-        console.error(err)
-        onError("Timos server is not running. Blame timo")
-    })
     client.on("data", data => {
-        console.log(data)
-        if (data.startsWith("file="))
+        console.log("hoi")
+        console.log(data.toString())
+        if (data.startsWith("file=")) {
             file = data.split("file=")[1]
+            console.log("wowie we have a filename:", file)
+        }
 
         if (data.startsWith("error="))
             onError(data.split("error=")[1])
@@ -47,8 +42,22 @@ module.exports = (config, onProgress, onDone, onError) => {
         if (data.startsWith("progress="))
             onProgress(Number(data.split("progress=")[1]))
     })
+    client.connect(12345, '127.0.0.1', () => {
+        console.log('Connected')
+        let q = configToQuery(config)
+        console.log(q)
+        client.write(q)
+    })
+    client.on("error", err => {
+        console.error(err)
+        onError("Timos server is broken. Blame timo")
+    })
     client.on("end", () => {
+        console.log("connection ended")
         client.end()
+    })
+    client.on('timeout', function () {
+        console.log('Client connection timeout.');
     })
 
     return {
