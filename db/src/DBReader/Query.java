@@ -21,9 +21,9 @@ public class Query {
 
     public int hash = -1;
 
-    public int[] stations = {50, 4000, 7950};
-    public long from = 1547032000;
-    public long to = 1547033000;
+    public int[] stations = {};
+    public long from = 0;
+    public long to = 0;
     public int interval = 1;
     public ArrayList<String> what = new ArrayList<>();
     public String sortBy = "temperature";
@@ -33,17 +33,17 @@ public class Query {
     public Query(String options) throws Exception {
         try {
             hash = Arrays.hashCode(options.toCharArray());
-            for (String line : options.split("\n")) {
+            for (String line : options.split(";")) {
                 String data = line.substring(line.indexOf("=") + 1);
 
                 switch (line.substring(0, line.indexOf("="))) {
                     case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
                     case "from":  from = Long.parseLong(data); break;
                     case "to": to = Long.parseLong(data); break;
-                    case "interval": interval = Integer.parseInt(data); break;
+//                    case "interval": interval = Integer.parseInt(data); break;
                     case "what":  what.addAll(Arrays.asList(data.split(","))); break;
-                    case "sortBy": sortBy = data; break;
-                    case "limit": limit = Integer.parseInt(data); break;
+//                    case "sortBy": sortBy = data; break;
+//                    case "limit": limit = Integer.parseInt(data); break;
                     case "filter": this.filter = new QueryFilter(data); break;
                     default:
                         System.out.println("throw new NotImplementedException(): " + line); // TODO:
@@ -112,9 +112,9 @@ public class Query {
                     break;
                 DataPoint s = DataPoint.fromLine(str);
                 if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
-                	if (this.filter.compare(s)) {
+                	//if (this.filter.compare(s)) {
                 		list.add(s);
-                	}
+                	//}
             }
 
             br.close();
