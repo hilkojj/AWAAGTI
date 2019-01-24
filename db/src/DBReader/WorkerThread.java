@@ -34,10 +34,14 @@ public class WorkerThread implements Runnable {
                     "filter=temp,<,10\n";
 
             try {
-                process(new Query(conReader.readLine()));
+//                process(new Query(conReader.readLine()));
+                process(new Query(query));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 conWriter.write(e.getMessage());
+                conWriter.flush();
+                conWriter.newLine();
+                conWriter.write(1);
             }
 
             System.out.println("NEEEE");
@@ -57,7 +61,7 @@ public class WorkerThread implements Runnable {
 
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
-        conWriter.write(fileName);
+        conWriter.write("file="+fileName);
 
         if(tmpFile.exists() && Settings.CACHE == true) {
             Logger.log("Cached request: "+fileName);
