@@ -3,17 +3,18 @@ package DBSummariser;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class MinuteSummariser extends Summariser
+import shared.DBFile;
+import shared.DataPoint;
+
+public class DaySummariser extends Summariser
 {
-	private int year, month, day, hour, minute;
+	private int year, month, day, hour;
 	
-	public MinuteSummariser(int year, int month, int day, int hour, int minute)
+	public DaySummariser(int year, int month, int day)
 	{
 		this.year = year;
 		this.month = month;
 		this.day = day;
-		this.hour = hour;
-		this.minute = minute;
 	}
 
 	public DBFile summarise()
@@ -22,14 +23,18 @@ public class MinuteSummariser extends Summariser
 		
 		int exists = 0;
 		
-		for (int second = 0; second < 60; second++) {
-			String fileName = String.format("%04d%02d%02d_%02d%02d%02d.txt", year, month, day, hour, minute, second);
-			DBFile dbFile = DBFile.read(fileName);
+		for (int hour = 0; hour < 24; hour++) {
+			String fileName = String.format(
+					this.s2Type.toString().toLowerCase() + "/"
+					+ this.sType.toString().toLowerCase() +
+					"/hour/%04d%02d%02d_%02d.txt", year, month, day, hour);
+
+			DBFile dbFile = DBFile.readSummary(fileName, this.s2Type);
 			if (dbFile != null) {
-				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
+				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, 0, 0));
 				exists++;
 			}
-			files[second] = dbFile;
+			files[hour] = dbFile;
 		}
 		
 		System.out.println("DEBUG: Found " + exists + " DBFiles.");

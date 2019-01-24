@@ -1,4 +1,4 @@
-import data.StationData;
+package DBReader;
 
 import java.io.*;
 import java.text.ParseException;
@@ -6,6 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import shared.DataPoint;
+import shared.Logger;
+import shared.Settings;
 
 public class Query {
     private final static String FILE_NAME = "export_";
@@ -23,23 +28,30 @@ public class Query {
     public ArrayList<String> what = new ArrayList<>();
     public String sortBy = "temperature";
     public int limit = 10;
+    public QueryFilter filter;
 
-    public Query(String options) {
-        hash = Arrays.hashCode(options.toCharArray());
-        for (String line : options.split("\n")) {
-            String data = line.substring(line.indexOf("=")+1);
+    public Query(String options) throws Exception {
+        try {
+            hash = Arrays.hashCode(options.toCharArray());
+            for (String line : options.split("\n")) {
+                String data = line.substring(line.indexOf("=") + 1);
 
-            switch (line.substring(0, line.indexOf("="))) {
-//                case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
-//                case "from":  from = Long.parseLong(data); break;
-//                case "to": to = Long.parseLong(data); break;
-                case "interval":  interval = Integer.parseInt(data); break;
-//                case "what":  what = data; break;
-                case "sortBy":  sortBy = data; break;
-                case "limit":  limit = Integer.parseInt(data); break;
-                default:
-                    System.out.println("throw new NotImplementedException(): " + line);
+                switch (line.substring(0, line.indexOf("="))) {
+                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
+                    case "from":  from = Long.parseLong(data); break;
+                    case "to": to = Long.parseLong(data); break;
+                    case "interval": interval = Integer.parseInt(data); break;
+                    case "what":  what.addAll(Arrays.asList(data.split(","))); break;
+                    case "sortBy": sortBy = data; break;
+                    case "limit": limit = Integer.parseInt(data); break;
+                    case "filter": this.filter = new QueryFilter(data); break;
+                    default:
+                        System.out.println("throw new NotImplementedException(): " + line); // TODO:
+                }
             }
+        }
+        catch (Exception e) {
+            throw new Exception("Your query does not have the proper syntax");
         }
     }
 
@@ -71,8 +83,8 @@ public class Query {
     }
 
 
-    public ArrayList<StationData> getStations(File file, Query query) {
-        ArrayList<StationData> list = new ArrayList<>();
+    public ArrayList<DataPoint> getStations(File file, Query query) {
+        ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -98,9 +110,11 @@ public class Query {
                 str = br.readLine();
                 if (str == null)
                     break;
-                StationData s = new StationData(str);
-                if (IntStream.of(query.stations).anyMatch(x -> x == s.id))
-                    list.add(s);
+                DataPoint s = DataPoint.fromLine(str);
+                if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
+                	if (this.filter.compare(s)) {
+                		list.add(s);
+                	}
             }
 
             br.close();
