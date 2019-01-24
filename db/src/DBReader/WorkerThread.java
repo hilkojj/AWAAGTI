@@ -32,7 +32,12 @@ public class WorkerThread implements Runnable {
                     "sortBy=temperature\n" +
                     "limit=10\n" +
                     "filter=temp,<,10\n";
-            process(new Query(query));
+            try {
+            	process(new Query(query));
+            } catch (Exception e) {
+            	// TODO: Send the message in the exception to the client.
+            	// Cuz it's probably that their QueryFilter is in an incorrect format.
+            }
 
             conReader.close();
             conWriter.close();
