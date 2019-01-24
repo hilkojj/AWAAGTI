@@ -29,6 +29,12 @@ export interface Config {
     filter?: string
 }
 
+// stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temperature,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
+
+// file=ueouv5oehgjdn.xml\n
+
+// progress=40\n
+
 @Injectable({
     providedIn: 'root'
 })

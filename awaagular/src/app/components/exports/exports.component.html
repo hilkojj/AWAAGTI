@@ -11,7 +11,7 @@
     <br>
 
     <span class="status" *ngIf="!export.downloadUrl && !export.error">
-        Downloading... {{export.progress}}%
+        Exporting data... {{export.progress}}%
     </span>
 
     <span class="status" *ngIf="!export.downloadUrl && export.error">
