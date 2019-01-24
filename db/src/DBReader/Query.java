@@ -67,8 +67,11 @@ public class Query {
             try {
                 long time = FILE_FORMATTER.parse(file.getName()).getTime()/1000;
 
-//                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
-//                System.out.println((from < time && time > to) == false);
+                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
+                System.out.println((from < time && time > to) == false);
+
+//                if(to == -1)
+//                    return (from < time);
 
                 return (from < time && time > to) == false;
             } catch (ParseException e) { e.printStackTrace(); }
