@@ -20,6 +20,7 @@ module.exports = io => {
 
 const initClient = (socket, user) => {
     console.log("hi", user.username)
+    let exports = []
 
     socket.on("export", config => {
 
@@ -28,7 +29,7 @@ const initClient = (socket, user) => {
         if (!config.name.length)
             return
 
-        exportConfig(
+        let exp = exportConfig(
             config,
             progress => {
                 console.log("Export progress " + config.id, progress)
@@ -43,6 +44,7 @@ const initClient = (socket, user) => {
                 socket.emit("export error " + config.id, err)
             }
         )
+        exports.push(exp)
     })
 
     socket.on("save config", config => {
@@ -61,6 +63,12 @@ const initClient = (socket, user) => {
         if (i != -1)
             user.configs.splice(i, 1)
         auth.saveUsers()
+    })
+
+    socket.on("disconnect", () => {
+        if (!exports.length) return
+        console.log("Ending", exports.length, "exports")
+        exports.forEach(e => e.end())
     })
 
 }
