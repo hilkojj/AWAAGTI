@@ -1,5 +1,6 @@
 const net = require('net')
 const fs = require('fs')
+const exportsFolder = require("./index").exportsFolder
 
 //stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
 
@@ -21,7 +22,7 @@ module.exports = (config, onProgress, onDone, onError) => {
 
     let interval = setInterval(() => {
         if (!file) return
-        fs.exists(file, exists => {
+        fs.exists(exportsFolder + file, exists => {
             if (!exists) return
             onDone(file)
             clearInterval(interval)
@@ -30,7 +31,8 @@ module.exports = (config, onProgress, onDone, onError) => {
 
     client.on("data", data => {
         console.log("hoi")
-        console.log(data.toString())
+        data = data.toString()
+        console.log(data)
         if (data.startsWith("file=")) {
             file = data.split("file=")[1]
             console.log("wowie we have a filename:", file)

@@ -85,8 +85,7 @@ export class ConfigsService {
     exportConfig(config: Config) {
         let exp = {
             config,
-            progress: 0,
-            // downloadUrl: "/poep/haha"
+            progress: 0
         } as Export
         this.exports.push(exp)
 
@@ -98,10 +97,14 @@ export class ConfigsService {
             exp.error = err
             this.finishExport(config)
         })
+        this.io.socket.on("export progress " + config.id, progress => exp.progress = Number(progress))
+        this.io.socket.on("export done " + config.id, file => exp.downloadUrl = "/exports/" + file)
     }
 
     finishExport(config: Config) {
         this.io.socket.off("export error " + config.id)
+        this.io.socket.off("export progress " + config.id)
+        this.io.socket.off("export done " + config.id)
     }
 
 }
