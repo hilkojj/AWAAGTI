@@ -37,7 +37,7 @@ const initClient = (socket, user) => {
             },
             file => {
                 console.log("Export can be found in", file)
-                socket.emit("export done" + config.id, file)
+                socket.emit("export done " + config.id, file)
             },
             err => {
                 console.log("Export error " + config.id)

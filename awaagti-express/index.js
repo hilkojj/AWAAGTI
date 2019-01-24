@@ -6,7 +6,7 @@ const port = 8080
 const http = require("http").Server(app)
 const io = require("socket.io")(http)
 
-const exportsFolder = "/../db/db_exports/"
+const exportsFolder = __dirname + "/../db/db_exports/"
 module.exports.exportsFolder = exportsFolder
 
 require("./socket.js")(io)
@@ -26,7 +26,19 @@ app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
 
-console.log(__dirname + exportsFolder)
-app.use("/exports", express.static(__dirname + exportsFolder))
+console.log("Exports are saved in?", exportsFolder)
+app.use("/exports",
+
+    // auth.jwt, (req, res, next) => {
+
+    //     if (!auth.users[req.payload.username])
+    //         res.status(401).send("You are not logged in")
+    //     else next()
+
+    // },
+
+    express.static(exportsFolder))
+
+app.use("/", express.static(__dirname + "/../awaagular/dist/awaagular"))
 
 http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))

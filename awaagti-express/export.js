@@ -22,8 +22,12 @@ module.exports = (config, onProgress, onDone, onError) => {
 
     let interval = setInterval(() => {
         if (!file) return
-        fs.exists(exportsFolder + file, exists => {
+        let path = exportsFolder + file
+
+        fs.exists(path, exists => {
+            console.log(path, "DOES NOT EXIST")
             if (!exists) return
+            console.log(path, "DOES EXIST !! !!!! !! WOWIE")
             onDone(file)
             clearInterval(interval)
         })
@@ -34,7 +38,7 @@ module.exports = (config, onProgress, onDone, onError) => {
         data = data.toString()
         console.log(data)
         if (data.startsWith("file=")) {
-            file = data.split("file=")[1]
+            file = data.split("file=")[1].trim()
             console.log("wowie we have a filename:", file)
         }
 
@@ -56,6 +60,7 @@ module.exports = (config, onProgress, onDone, onError) => {
     })
     client.on("end", () => {
         console.log("connection ended")
+        if (!file) clearInterval(interval)
         client.end()
     })
     client.on('timeout', function () {

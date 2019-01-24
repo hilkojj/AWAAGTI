@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SocketIoService } from './socket-io.service';
 import { AuthService } from './auth.service';
 import { MatSnackBar } from '@angular/material';
+import { environment } from 'src/environments/environment';
 
 export interface TimeFrame {
     from: number
@@ -98,7 +99,10 @@ export class ConfigsService {
             this.finishExport(config)
         })
         this.io.socket.on("export progress " + config.id, progress => exp.progress = Number(progress))
-        this.io.socket.on("export done " + config.id, file => exp.downloadUrl = "/exports/" + file)
+        this.io.socket.on("export done " + config.id, file => {
+            exp.downloadUrl = environment.socketUrl + "exports/" + file
+            console.log(exp.downloadUrl)
+        })
     }
 
     finishExport(config: Config) {
