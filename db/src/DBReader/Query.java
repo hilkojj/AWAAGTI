@@ -3,8 +3,8 @@ package DBReader;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -34,16 +34,19 @@ public class Query {
         try {
             hash = Arrays.hashCode(options.toCharArray());
             for (String line : options.split(";")) {
-                String data = line.substring(line.indexOf("=") + 1);
+                if(line.length() < 3)
+                    continue;
+
+                String data = line.substring(line.indexOf("=") + 1).replace("\n", "" );
 
                 switch (line.substring(0, line.indexOf("="))) {
                     case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
                     case "from":  from = Long.parseLong(data); break;
                     case "to": to = Long.parseLong(data); break;
-//                    case "interval": interval = Integer.parseInt(data); break;
+                    case "interval": interval = Integer.parseInt(data); break;
                     case "what":  what.addAll(Arrays.asList(data.split(","))); break;
 //                    case "sortBy": sortBy = data; break;
-//                    case "limit": limit = Integer.parseInt(data); break;
+                    case "limit": limit = Integer.parseInt(data); break;
                     case "filter": this.filter = new QueryFilter(data); break;
                     default:
                         System.out.println("throw new NotImplementedException(): " + line); // TODO:
@@ -51,8 +54,28 @@ public class Query {
             }
         }
         catch (Exception e) {
+            Logger.error(e.getMessage());
             throw new Exception("Your query does not have the proper syntax");
         }
+    }
+
+    // TEST
+    public static void main(String[] args) {
+        try {
+            Query q1 = new Query("stations=1234,1356;\n");
+            AtomicInteger length = new AtomicInteger();
+            q1.getDataFiles().forEach(x -> length.addAndGet(1));
+            System.out.println("1 " + (length.get() == 4));
+
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
+            System.out.println("2");
+
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+            System.out.println("3");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -61,32 +84,45 @@ public class Query {
     }
 
 
-    public File[] getDataFiles(Query query) {   // TODO: Based on query
-        File dir = new File(Settings.DATA_PATH);
-        File[] directoryListing = dir.listFiles(file -> {
+    public Iterable<File> getDataFiles() {
+        return () -> {
             try {
-                long time = FILE_FORMATTER.parse(file.getName()).getTime()/1000;
+                return new Iterator<File>() {
+                    long start = from;
+                    long iteration = 0;
+                    File next_val = null;
 
-                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
-                System.out.println((from < time && time > to) == false);
+                    @Override
+                    public boolean hasNext() {
+                        if (iteration >= limit)
+                            return false;
 
-//                if(to == -1)
-//                    return (from < time);
+                        while (start < to && next_val != null) {
+                            next_val = new File(Settings.DATA_PATH + "/" + start);
+                            start += interval;
+                        }
 
-                return (from < time && time > to) == false;
-            } catch (ParseException e) { e.printStackTrace(); }
+                        return start < to;
+                    }
 
-            return file.getName().substring(file.getName().lastIndexOf(".")).contains(Settings.DATA_EXTENSION);
-        });
-        if (directoryListing != null)
-            return directoryListing;
+                    @Override
+                    public File next() {
+                        if(next_val == null || iteration >= limit)
+                            throw new NoSuchElementException();
 
-        Logger.log("No usable data found in the database at:" + Settings.DATA_PATH);
-        return new File[0];
+                        iteration ++;
+                        return next_val;
+                    }
+                };
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Collections.emptyIterator();
+            }
+        };
     }
 
 
-    public ArrayList<DataPoint> getStations(File file, Query query) {
+    public ArrayList<DataPoint> getStations(File file) {
         ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
@@ -114,7 +150,7 @@ public class Query {
                 if (str == null)
                     break;
                 DataPoint s = DataPoint.fromLine(str);
-                if (IntStream.of(query.stations).anyMatch(x -> x == s.clientID))
+                if (IntStream.of(stations).anyMatch(x -> x == s.clientID))
                 	//if (this.filter.compare(s)) {
                 		list.add(s);
                 	//}
@@ -132,5 +168,23 @@ public class Query {
 
     public boolean inSelect(String temp) {
         return true;
+    }
+
+    private boolean accept(File file) {
+        try {
+            long time = FILE_FORMATTER.parse(file.getName()).getTime() / 1000;
+
+//                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
+//                System.out.println((from < time && time > to) == false);
+
+            if (to == -1)
+                return (from < time);
+
+            return (from < time && time > to) == false;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return file.getName().substring(file.getName().lastIndexOf(".")).contains(Settings.DATA_EXTENSION);
     }
 }
