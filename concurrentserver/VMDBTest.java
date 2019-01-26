@@ -9,7 +9,7 @@ public class VMDBTest
 			e.printStackTrace();
 			return;
 		}
-		
+
 		while (true) {
 			System.out.println("Send");
 			v.sendBegin();

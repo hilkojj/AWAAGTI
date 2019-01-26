@@ -1,8 +1,5 @@
 import java.net.*;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.util.*;
 
 class WorkerThread implements Runnable  {
@@ -13,7 +10,7 @@ class WorkerThread implements Runnable  {
 	private final static boolean DATABASE = false;
 	private static int num = 0;
 
-    public boolean debug = false;
+	public boolean debug = false;
 
 	public WorkerThread(Socket connection) {
 		this.connection = connection;
@@ -22,20 +19,11 @@ class WorkerThread implements Runnable  {
 	public void run() {
 		print("Worker thread started\n");
 
-		Connection conn = null;
-		String query = "insert into measurements (stn, date, time, temp, dewp, stp, slp, visib, wdsp, prcp, sndp, frshtt, cldc, wnddir) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		final int batchSize = 10; //Batch size is important
-		int insertCount=0;
-
 		try {
-
-			// if (DATABASE) Class.forName("com.mysql.jdbc.Driver").newInstance();
-			// if (DATABASE) conn = DriverManager.getConnection("jdbc:mysql://localhost/unwdmi?user=root&password=lol123");
-
-
 			String s;
 
 			BufferedReader bin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			VMDB db = new VMDB("127.0.0.1", 12345);
 
 			String[] input = new String[14];
 			boolean fill = false;
@@ -59,51 +47,33 @@ class WorkerThread implements Runnable  {
 
 
 			while ((s = bin.readLine()) != null) {
-//
 				if (s.equals("\t</MEASUREMENT>")) {
 
-					// if (DATABASE) {
-					// 	PreparedStatement preparedStmt = conn.prepareStatement(query);
-					// 	for (int i=1; i <= input.length; i++)
-					// 		preparedStmt.setString (i, input[i-1]);
-                    //
-					// 	preparedStmt.addBatch();
-					// 	if (++insertCount % batchSize == 0) {
-					// 		preparedStmt.executeBatch();
-					// 	}
-					// }
-                    //
 					mapIncrement(Integer.parseInt(input[0]));
-					// print(Server.stations.size());
+					print(Server.stations.size());
 					if(Server.stations.get(Integer.parseInt(input[0])) != null) {
 						if(!fill)
 							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
 						if(Server.queues[Server.stations.get(Integer.parseInt(input[0]))].hasBeanRound || fill) {
 							fill = true;
+							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
 							System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
 							float sum = 0;
 							for (int i = 0; i < 10; i++) {
 								sum += Server.queues[Server.stations.get(Integer.parseInt(input[0]))].get(i);
 							}
 							sum /=10;
-							System.out.printf("Avg last 5: %f\nrevStation: %d\n", sum, Server.revStation[Server.stations.get(Integer.parseInt(input[0]))]);
+							if(!Server.lastTime.equals(input[2]) && input[2] != null) {
+								Server.updateTime(input[2]);
+								db.sendBegin(input[1], input[2]);
+								db.sendDataPoint(Integer.parseInt(input[0]), sum);
+								db.sendEnd();
+								System.out.printf("Volgende seconde: %s\n", Server.lastTime);
+
+							}
+							System.out.printf("Avg last 10: %f\nrevStation: %d\n", sum, Server.revStation[Server.stations.get(Integer.parseInt(input[0]))]);
 						}
-						// Server.data.putIfAbsent(Integer.parseInt(input[0]), Float.parseFloat(input[3]));
-						// try{putData(Server.stations.get(Integer.parseInt(input[0])), Float.parseFloat(input[3]));}
-						// catch(Exception e){print("error");}
 					}
-					// if(Server.data[Server.stations.get(Integer.parseInt(input[0]))][10] != null) {
-					// 		System.out.printf("Data: %s", Arrays.asList(Server.data[Integer.parseInt(input[0])]));
-					// 		Arrays.fill(Server.data[Integer.parseInt(input[0])], null);
-					// }
-					// for (int i = 0; i < 8000; i++) {
-					// 	if (Server.data[i] != null) {
-					// 		// send(Server.data);
-					// 		System.out.printf("Data: %s", Arrays.asList(Server.data[i]));
-					// 		// Server.data.clear();
-					// 		Arrays.fill(Server.Data[i], null);
-					// 	}
-					// }
 					continue;
 				}
 
@@ -139,15 +109,12 @@ class WorkerThread implements Runnable  {
 							break;
 						}
 					}
-				// int sum = 0;
-				// for (int d : input[3]) sum += d;
 				}
-	        }
+			}
 
-			// now close the socket connection
-			conn.close();
-			connection.close();
-			error("Connection closing");
+		}
+		catch (ConnectException c) {
+			print("DB connect error");
 		}
 		catch (Exception e) {
 			print("Connection closed unexpectedly");
@@ -176,7 +143,7 @@ class WorkerThread implements Runnable  {
 	}
 	private static synchronized void mapIncrement(Integer station) {
 		if (Server.stations.get(station) == null) {
-		// Server.stations.putIfAbsent(station, num);
+			// Server.stations.putIfAbsent(station, num);
 			Server.stations.put(station, num);
 			num++;
 			// Add the stationID to a ArrayList.
@@ -188,26 +155,26 @@ class WorkerThread implements Runnable  {
 
 /*
 
-<!--Het weatherdata-element bevat meerdere measurement-elementen-->
-    <WEATHERDATA>
+   <!--Het weatherdata-element bevat meerdere measurement-elementen-->
+   <WEATHERDATA>
 
-    10 x  <MEASUREMENT>
-        <STN>123456</STN>
-        <DATE>2009-09-13</DATE>
-        <TIME>15:59:46</TIME>
-        <TEMP>-60.1</TEMP>
-        <DEWP>-58.1</DEWP>
-        <STP>1034.5</STP>
-        <SLP>1007.6</SLP>
-        <VISIB>123.7</VISIB>
-        <WDSP>10.8</WDSP>
-        <PRCP>11.28</PRCP>
-        <SNDP>11.1</SNDP>
-        <FRSHTT>010101</FRSHTT>
-        <CLDC>87.4</CLDC>
-        <WNDDIR>342</WNDDIR>
-    </MEASUREMENT>
+   10 x  <MEASUREMENT>
+   <STN>123456</STN>
+   <DATE>2009-09-13</DATE>
+   <TIME>15:59:46</TIME>
+   <TEMP>-60.1</TEMP>
+   <DEWP>-58.1</DEWP>
+   <STP>1034.5</STP>
+   <SLP>1007.6</SLP>
+   <VISIB>123.7</VISIB>
+   <WDSP>10.8</WDSP>
+   <PRCP>11.28</PRCP>
+   <SNDP>11.1</SNDP>
+   <FRSHTT>010101</FRSHTT>
+   <CLDC>87.4</CLDC>
+   <WNDDIR>342</WNDDIR>
+   </MEASUREMENT>
 
-    </WEATHERDATA>
+   </WEATHERDATA>
 
 */
