@@ -1,9 +1,15 @@
 package shared;
 
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,47 +25,52 @@ public class DBFile
 	
 	private LocalDateTime dateTime;
 	
-	public static DBFile readSummary(String fileName, DataPoint.SummaryType summaryType)
+	public static DBFile readSummary(String fileName, DataPoint.SummaryType summaryType) throws IOException
 	{
 		return read(fileName, summaryType);
 	}
 	
-	public static DBFile read(String fileName)
+	public static DBFile read(String fileName) throws IOException
 	{
 		return read(fileName, null);
 	}
 	
-	private static DBFile read(String fileName, DataPoint.SummaryType summaryType)
+	private static DBFile read(String fileName, DataPoint.SummaryType summaryType) throws IOException
 	{
 		DBFile dbFile = new DBFile();
 
 		dbFile.dataPoints = new ArrayList<DataPoint>();
 		
-		Path path = Paths.get(fileName);
+		File f = new File(fileName);
 
-		try (Stream<String>  lines = Files.lines(path)) {
-	        lines.forEachOrdered(line->dbFile.interpretLine(line, summaryType));
-		} catch (IOException e) {
-			return null;
+        InputStream inputStream = new FileInputStream(f);
+        
+        byte length = inputStream.readNBytes(1)[0];
+        System.out.println("Part length: " + length);
+
+        byte[] byteRead;
+        int i = 0;
+
+    	while (true) {
+        	byteRead = inputStream.readNBytes(length);
+        	if (byteRead.length < length) {
+        		System.out.println("What? Less than expected length: " + byteRead.length);
+        		break;
+        	}
+        	
+        	dbFile.interpretLine(byteRead, summaryType);
 		}
+    	
+    	inputStream.close();
 		
 		return dbFile;	
 	}
 	
-	private void interpretLine(String line, DataPoint.SummaryType summaryType)
+	private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)
 	{
-		String[] val = line.split("=");
-		if (val.length < 2) {
-			return;
-		}
-		
-		line = line.replace("#", "");
-		
 		DataPoint dp = DataPoint.fromDBLine(line, summaryType);
 		this.dataPoints.add(dp);
 	}
-	
-	
 	
 	/**
 	 * Writer formats the DataPoint data and writes the file to the filesystem.
@@ -67,24 +78,15 @@ public class DBFile
 	 * @throws IOException
 	 */
 	public void write() throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(this.fileName));
+		FileOutputStream writer = new FileOutputStream(this.fileName);
 		
-		// Determine required line length
-		int highest = 0;
-		int length;
-		for (DataPoint dp : this.dataPoints) {
-			length = dp.makeDBLine().length();
-			if (length > highest) {
-				highest = length;
-			}
-		}
-		
-		writer.write(padRight(highest+1 + "", highest) + "\n");
-		// (highest+1, because the linebreak is not included in 'highest'
-		//   but is part of the line length of course)
+		writer.write(new byte[] {(byte)this.dataPoints.get(0).makeDBLine().length});
 		
 		for (DataPoint dp : this.dataPoints) {
-			writer.write(padRight(dp.makeDBLine(), highest) + "\n");
+			byte[] data = dp.makeDBLine();
+			
+			//writer.write(padRight(dp.makeDBLine(), highest) + "\n");
+			writer.write(data);
 		}
 		 
 		writer.close();

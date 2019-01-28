@@ -2,6 +2,7 @@ package DBWriter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,7 +105,7 @@ public class InputInterpreter
 		try {
 			Collections.sort(this.list);
 			DBFile dbFile = new DBFile();
-			dbFile.setFileName(this.dateTime.format(this.dbFileNameFormatter) + ".txt");
+			dbFile.setFileName(this.dateTime.toEpochSecond(ZoneOffset.UTC) + ".txt");
 			dbFile.setDataPoints(this.list);
 			dbFile.write();
 		} catch (IOException e) {

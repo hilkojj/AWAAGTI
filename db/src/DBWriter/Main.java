@@ -34,8 +34,6 @@ public class Main {
 		try{
 			BufferedReader socketReader = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));
-			BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(
-					socket.getOutputStream()));
 			
 			InputInterpreter inp = new InputInterpreter();
 			

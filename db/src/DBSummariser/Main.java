@@ -24,11 +24,11 @@ public class Main
 		}
 
 		long fromUTS = Long.parseLong(args[0]);
-		from = LocalDateTime.ofEpochSecond(fromUTS, 0, ZoneOffset.ofHours(0));
+		from = LocalDateTime.ofEpochSecond(fromUTS, 0, ZoneOffset.UTC);
 		
 		if (args.length >= 2) {
 			long toUTS = Long.parseLong(args[1]);
-			to = LocalDateTime.ofEpochSecond(toUTS, 0, ZoneOffset.ofHours(0));
+			to = LocalDateTime.ofEpochSecond(toUTS, 0, ZoneOffset.UTC);
 		} else {
 			to = LocalDateTime.now();
 		}
