@@ -26,7 +26,6 @@ public class VMDB
 	{
 		this.output.write("START\n");
 		this.output.write(date + "," + time + "\n");
-		this.output.flush();
 	}
 
 	/**
@@ -35,7 +34,6 @@ public class VMDB
 	public void sendDataPoint(int station, float temp)
 	{
 		this.output.format("%d,%.01f\n", station, temp);
-		this.output.flush();
 	}
 
 	/**

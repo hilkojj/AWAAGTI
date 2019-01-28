@@ -52,26 +52,36 @@ class WorkerThread implements Runnable  {
 					mapIncrement(Integer.parseInt(input[0]));
 					print(Server.stations.size());
 					if(Server.stations.get(Integer.parseInt(input[0])) != null) {
-						if(!fill)
+						if(!fill) {
 							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
+							System.out.printf("nfill: %s", Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
+						}
 						if(Server.queues[Server.stations.get(Integer.parseInt(input[0]))].hasBeanRound || fill) {
 							fill = true;
-							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
-							System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
-							float sum = 0;
-							for (int i = 0; i < 10; i++) {
-								sum += Server.queues[Server.stations.get(Integer.parseInt(input[0]))].get(i);
+							float avg30 = 0;
+							for (int i = 0; i < 30; i++) {
+								avg30 += Server.queues[Server.stations.get(Integer.parseInt(input[0]))].get(i);
 							}
-							sum /=10;
+							avg30 /=30;
+							if(Math.abs(avg30) >= Math.abs(1.2*Float.parseFloat(input[3])) || Math.abs(avg30) <= Math.abs(0.8*Float.parseFloat(input[3]))) {
+								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(avg30);
+								System.out.printf("Buiten marge: %f\n", Float.parseFloat(input[3]));
+								System.out.printf("Avg last 10: %f\n", avg30);
+							}
+							else {
+								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
+								System.out.printf("Binnen marge: %f\n", Float.parseFloat(input[3]));
+								System.out.printf("Avg last 10: %f\n", avg30);
+							}
+							System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
 							if(!Server.lastTime.equals(input[2]) && input[2] != null) {
 								Server.updateTime(input[2]);
 								db.sendBegin(input[1], input[2]);
-								db.sendDataPoint(Integer.parseInt(input[0]), sum);
+								db.sendDataPoint(Integer.parseInt(input[0]), avg30);
 								db.sendEnd();
 								System.out.printf("Volgende seconde: %s\n", Server.lastTime);
 
 							}
-							System.out.printf("Avg last 10: %f\nrevStation: %d\n", sum, Server.revStation[Server.stations.get(Integer.parseInt(input[0]))]);
 						}
 					}
 					continue;
