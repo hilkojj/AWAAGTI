@@ -9,6 +9,10 @@ public class Server {
 
     private static int head = 0;
     private static int tail = 0;
+	public static String lastTime = new String();
+	public static synchronized void updateTime(String time) {
+		lastTime = time;
+	}
 
 	// public static Map<Integer, Float> data = new ConcurrentHashMap<Integer, Float>();
 	public static int []revStation = new int[8010];
