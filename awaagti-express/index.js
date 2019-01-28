@@ -39,6 +39,6 @@ app.use("/exports",
 
     express.static(exportsFolder))
 
-app.use("/", express.static(__dirname + "/../awaagular/dist/awaagular"))
+app.use("/*", express.static(__dirname + "/../build"))
 
 http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))
