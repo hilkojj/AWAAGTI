@@ -23,7 +23,7 @@ class WorkerThread implements Runnable  {
 			String s;
 
 			BufferedReader bin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			VMDB db = new VMDB("127.0.0.1", 12345);
+			VMDB db = new VMDB("127.0.0.1", 8002);
 
 			String[] input = new String[14];
 			boolean fill = false;
@@ -77,7 +77,8 @@ class WorkerThread implements Runnable  {
 							if(!Server.lastTime.equals(input[2]) && input[2] != null) {
 								Server.updateTime(input[2]);
 								db.sendBegin(input[1], input[2]);
-								db.sendDataPoint(Integer.parseInt(input[0]), avg30);
+								for (int i = 0; i < Server.stations.size(); i++)
+									db.sendDataPoint(Server.revStation[i+1], Server.queues[i].get(0));
 								db.sendEnd();
 								System.out.printf("Volgende seconde: %s\n", Server.lastTime);
 
