@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class DBFile
@@ -125,5 +126,11 @@ public class DBFile
 	public void setDataPoints(ArrayList<DataPoint> dps)
 	{
 		this.dataPoints = dps;
+	}
+	
+	public static String dirForUTS(long uts)
+	{
+		String[] items = (uts + "").split("(?<=\\G..)");
+		return String.join("/", Arrays.copyOf(items, items.length-1)) + "/";
 	}
 }

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
+import jdk.internal.joptsimple.internal.Strings;
 import shared.DBFile;
 import shared.DataPoint;
 
@@ -27,13 +28,20 @@ public class MinuteSummariser extends Summariser
 		
 		long uts = LocalDateTime.of(year, month, day, hour, minute, 0).toEpochSecond(ZoneOffset.UTC);
 		
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@ " + uts);
-		
 		int exists = 0;
 		
+		long thisUTS;
+		String dir;
+		String fileName;
+		DBFile dbFile;
 		for (int second = 0; second < 60; second++) {
-			String fileName = String.format("%d.txt", uts+second);
-			DBFile dbFile = null;
+			thisUTS = uts + second;
+			
+			dir = DBFile.dirForUTS(thisUTS);
+
+			fileName = String.format(dir + "%d.txt", uts+second);
+
+			dbFile = null;
 			try {
 				dbFile = DBFile.read(fileName);
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));

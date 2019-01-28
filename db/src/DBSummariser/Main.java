@@ -119,33 +119,34 @@ public class Main
 	
 	private static boolean summariseMinute(int year, int month, int day, int hour, int minute)
 	{
-		String sumFileName = String.format("/minute/%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+		String sumFileName = String.format("%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
 		Summariser sum = new MinuteSummariser(year, month, day, hour, minute);
 		
-		return summarise(sumFileName, sum);
+		return summarise(sumFileName, sum, "minute");
 	}
 	
 	private static boolean summariseHour(int year, int month, int day, int hour)
 	{
-		String sumFileName = String.format("/hour/%02d%02d%02d_%02d.txt", year, month, day, hour);
+		String sumFileName = String.format("%02d%02d%02d_%02d.txt", year, month, day, hour);
 		Summariser sum = new HourSummariser(year, month, day, hour);
 		
-		return summarise(sumFileName, sum);
+		return summarise(sumFileName, sum, "hour");
 	}
 	
 	private static boolean summariseDay(int year, int month, int day)
 	{
-		String sumFileName = String.format("/day/%02d%02d%02d.txt", year, month, day);
+		String sumFileName = String.format("%02d%02d%02d.txt", year, month, day);
 		Summariser sum = new DaySummariser(year, month, day);
 		
-		return summarise(sumFileName, sum);
+		return summarise(sumFileName, sum, "day");
 	}
 	
-	private static boolean summarise(String fileName, Summariser sum)
+	private static boolean summarise(String fileName, Summariser sum, String type)
 	{
 		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
 			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
-				String sumFileName = s2Type.toString().toLowerCase() + "/" + sType.toString().toLowerCase() + fileName;
+				String dir = s2Type.toString().toLowerCase() + "/" + sType.toString().toLowerCase() + "/" + type;
+				String sumFileName = dir + "/" + fileName;
 
 				File f = new File(sumFileName);
 				if (f.exists() && !f.isDirectory()) { 
@@ -159,6 +160,12 @@ public class Main
 					System.out.println("No summary, nothing to save.");
 					continue;
 				}
+				
+				File directory = new File(dir);
+			    if (!directory.exists()){
+			    	System.out.println("Make dir");
+			        directory.mkdirs();
+			    }
 
 				dbFile.setFileName(sumFileName);
 				try {
