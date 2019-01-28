@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require("express")
 const bodyParser = require("body-parser")
 const app = express()
@@ -39,7 +40,7 @@ app.use("/exports",
 
     express.static(exportsFolder))
 
-app.use("/", express.static(__dirname + "/../build"))
-app.use("*", (req, res) => res.sendFile(__dirname + "/../build/index.html"))
+app.use("/", express.static(path.join(__dirname, "/../build/")))
+app.use("/*", (req, res) => res.sendFile(path.resolve("../build/index.html")))
 
 http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))
