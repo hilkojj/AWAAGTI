@@ -1,0 +1,38 @@
+<div class="export mat-elevation-z10" *ngFor="let export of configs.exports">
+
+    <mat-progress-spinner class="example-margin" [mode]="export.progress || export.error ? 'determinate' : 'indeterminate'"
+        [value]="export.error ? 100 : export.progress"
+        [color]="export.error ? 'warn' : 'primary'">
+    </mat-progress-spinner>
+
+    <span style="font-size: 18px">
+        {{export.config.name}}
+    </span>
+    <br>
+
+    <span class="status" *ngIf="!export.downloadUrl && !export.error">
+        Exporting data... {{export.progress}}%
+    </span>
+
+    <span class="status" *ngIf="!export.downloadUrl && export.error">
+        Error
+    </span>
+
+    <span *ngIf="export.downloadUrl">
+
+        <a mat-button color="primary" [href]="export.downloadUrl"
+            [download]="export.config.name + '.xml'">
+            <mat-icon>save_alt</mat-icon>
+            Download XML
+        </a>
+
+        <button mat-button>
+            <mat-icon>table_chart</mat-icon>
+            Show in table
+        </button>
+    </span>
+
+    <button mat-icon-button class="close">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>

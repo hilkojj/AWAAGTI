@@ -1,8 +1,11 @@
 package DBSummariser;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
+import jdk.internal.joptsimple.internal.Strings;
 import shared.DBFile;
 import shared.DataPoint;
 
@@ -23,14 +26,27 @@ public class MinuteSummariser extends Summariser
 	{
 		DBFile[] files = new DBFile[60];
 		
+		long uts = LocalDateTime.of(year, month, day, hour, minute, 0).toEpochSecond(ZoneOffset.UTC);
+		
 		int exists = 0;
 		
+		long thisUTS;
+		String dir;
+		String fileName;
+		DBFile dbFile;
 		for (int second = 0; second < 60; second++) {
-			String fileName = String.format("%04d%02d%02d_%02d%02d%02d.txt", year, month, day, hour, minute, second);
-			DBFile dbFile = DBFile.read(fileName);
-			if (dbFile != null) {
+			thisUTS = uts + second;
+			
+			dir = DBFile.dirForUTS(thisUTS);
+
+			fileName = String.format(dir + "%d.txt", uts+second);
+
+			dbFile = null;
+			try {
+				dbFile = DBFile.read(fileName);
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
 				exists++;
+			} catch (IOException e) {
 			}
 			files[second] = dbFile;
 		}

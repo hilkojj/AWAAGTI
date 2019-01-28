@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MatDialog } from '@angular/material';
 import { LoginRegisterComponent } from '../components/login-register/login-register.component';
+import { Config } from './configs.service';
 
 type AuthResponse = {
     message?: string
@@ -13,6 +14,7 @@ type AuthResponse = {
 type User = {
     username: string
     registeredTimestamp: number
+    configs: Config[]
 }
 
 @Injectable({
@@ -27,6 +29,8 @@ export class AuthService {
         window["auth"] = this
     }
 
+    onTokenChange: (() => void)[] = []
+
     private _token: string
     private _user: User
 
@@ -39,6 +43,8 @@ export class AuthService {
             localStorage.removeItem("JWT")
             this._token = null
         } else localStorage.setItem("JWT", (this._token = token))
+
+        this.onTokenChange.forEach(cb => cb())
     }
 
     private requestingUser = false

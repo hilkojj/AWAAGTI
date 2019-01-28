@@ -16,7 +16,7 @@ body {
     background: #f1f1f1;
 }
 
-button {
+button:not(.mat-icon-button) {
     mat-icon {
         margin-right: 7px;
         margin-bottom: 4px;
