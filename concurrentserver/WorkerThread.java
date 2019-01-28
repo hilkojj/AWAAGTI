@@ -115,6 +115,7 @@ class WorkerThread implements Runnable  {
 		}
 		catch (ConnectException c) {
 			print("DB connect error");
+			c.printStackTrace();
 		}
 		catch (Exception e) {
 			print("Connection closed unexpectedly");
