@@ -25,6 +25,7 @@ public class WorkerThread implements Runnable {
 
             try {
 //                process(new Query(conReader.readLine()));
+                System.out.println(conReader.readLine());
                 Thread.sleep(500);
                 conWriter.write(ConWriter.Types.progress, "50");
                 Thread.sleep(1000);
