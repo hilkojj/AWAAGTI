@@ -3,6 +3,7 @@ package DBReader;
 import shared.DBFile;
 import shared.DataPoint;
 import shared.Logger;
+import shared.QueryFilter;
 import shared.Settings;
 
 import java.io.File;
@@ -237,7 +238,7 @@ public class Query {
         ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
-            DBFile dbFile = DBFile.readFile(file, null, stations, this.filter);
+            DBFile dbFile = DBFile.read(file, null, stations, this.filter);
             return dbFile.getDataPoints();
         } catch (IOException e) {
             e.printStackTrace();

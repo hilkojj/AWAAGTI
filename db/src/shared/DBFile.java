@@ -1,8 +1,6 @@
 package shared;
 
 
-import DBReader.QueryFilter;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,6 +16,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class DBFile
@@ -28,28 +27,38 @@ public class DBFile
 	
 	private LocalDateTime dateTime;
 	
-	public static DBFile readSummary(String fileName, DataPoint.SummaryType summaryType) throws IOException
-	{
-		return read(fileName, summaryType);
-	}
+	private int[] readFilterClientIDs;
+	private String readFileName;
 	
-	public static DBFile read(String fileName) throws IOException
-	{
-		return read(fileName, null);
-	}
-	
-	private static DBFile read(String fileName, DataPoint.SummaryType summaryType) throws IOException
-	{
-		File f = new File(fileName);
-
-		return readFile(f, summaryType);
-	}
-
-	public static DBFile readFile(File file, DataPoint.SummaryType summaryType) throws IOException
+	public static DBFile read(File file) throws IOException
 	{
 		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, null, null, null);
+		return dbFile;
+	}
+	
+	public static DBFile read(File file, DataPoint.SummaryType summaryType) throws IOException
+	{
+		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, summaryType, null, null);
+		return dbFile;
+	}
+	
+	public static DBFile read(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	{
+		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, summaryType, filterClientIDs, filter);
+		return dbFile;
+	}
+	
+	private void readFile(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	{
+		IntStream clientIDs = null;
+		if (filterClientIDs != null) {
+			IntStream.of(filterClientIDs);
+		}
 
-		dbFile.dataPoints = new ArrayList<DataPoint>();
+		this.dataPoints = new ArrayList<DataPoint>();
 
         InputStream inputStream = new FileInputStream(file);
 
@@ -69,23 +78,20 @@ public class DBFile
         		break;
         	}
         	
-        	dbFile.interpretLine(byteRead, summaryType);
+        	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
+
+        	if (clientIDs != null && !clientIDs.anyMatch(x -> x == dp.clientID)) {
+        		continue;
+        	}
+        	
+        	if (filter != null && !filter.execute(dp)) {
+        		continue;
+        	}
+
+        	this.dataPoints.add(dp);
 		}
     	
     	inputStream.close();
-		
-		return dbFile;	
-	}
-
-    public static DBFile readFile(File file, Object o, int[] stations, QueryFilter filter) throws IOException {
-	    throw new IOException();
-        // TODO remi
-    }
-
-    private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)
-	{
-		DataPoint dp = DataPoint.fromDBLine(line, summaryType);
-		this.dataPoints.add(dp);
 	}
 	
 	/**

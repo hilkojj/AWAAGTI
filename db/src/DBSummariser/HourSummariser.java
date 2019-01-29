@@ -35,7 +35,8 @@ public class HourSummariser extends Summariser
 
 			DBFile dbFile = null;
 			try {
-				dbFile = DBFile.readSummary(fileName, this.s2Type);
+				File file = new File(fileName);
+				dbFile = DBFile.read(file, this.s2Type);
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, 0));
 				exists++;
 			} catch (IOException e) {
