@@ -24,7 +24,7 @@ public class FixedRingArray {
      * @param length the length of the FixedArray.
      */
     public FixedRingArray() {
-        elements = new float[10];
+        elements = new float[31];
     }
 
     /**

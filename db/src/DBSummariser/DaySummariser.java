@@ -1,5 +1,6 @@
 package DBSummariser;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -29,10 +30,12 @@ public class DaySummariser extends Summariser
 					+ this.sType.toString().toLowerCase() +
 					"/hour/%04d%02d%02d_%02d.txt", year, month, day, hour);
 
-			DBFile dbFile = DBFile.readSummary(fileName, this.s2Type);
-			if (dbFile != null) {
+			DBFile dbFile = null;
+			try {
+				dbFile = DBFile.readSummary(fileName, this.s2Type);
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, 0, 0));
 				exists++;
+			} catch (IOException e) {
 			}
 			files[hour] = dbFile;
 		}
