@@ -8,11 +8,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-<<<<<<< HEAD
-=======
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
->>>>>>> db_reader
 
 public class DBFile
 {
