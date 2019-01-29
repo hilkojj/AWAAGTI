@@ -31,7 +31,7 @@ public class HourSummariser extends Summariser
 			String fileName = String.format(
 					this.s2Type.toString().toLowerCase() + "/"
 					+ this.sType.toString().toLowerCase() +
-					"/minute/%04d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+					"/minute/%04d%02d%02d_%02d%02d.awaagti", year, month, day, hour, minute);
 
 			DBFile dbFile = null;
 			try {

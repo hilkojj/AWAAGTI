@@ -113,7 +113,7 @@ public class InputInterpreter
 		    }
 
 			DBFile dbFile = new DBFile();
-			dbFile.setFileName(dir + uts + ".txt");
+			dbFile.setFileName(dir + uts + ".awaagti");
 			dbFile.setDataPoints(this.list);
 			dbFile.write();
 		} catch (IOException e) {

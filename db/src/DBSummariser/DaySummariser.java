@@ -29,7 +29,7 @@ public class DaySummariser extends Summariser
 			String fileName = String.format(
 					this.s2Type.toString().toLowerCase() + "/"
 					+ this.sType.toString().toLowerCase() +
-					"/hour/%04d%02d%02d_%02d.txt", year, month, day, hour);
+					"/hour/%04d%02d%02d_%02d.awaagti", year, month, day, hour);
 
 			DBFile dbFile = null;
 			try {

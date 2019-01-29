@@ -119,7 +119,7 @@ public class Main
 	
 	private static boolean summariseMinute(int year, int month, int day, int hour, int minute)
 	{
-		String sumFileName = String.format("%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
+		String sumFileName = String.format("%02d%02d%02d_%02d%02d.awaagti", year, month, day, hour, minute);
 		Summariser sum = new MinuteSummariser(year, month, day, hour, minute);
 		
 		return summarise(sumFileName, sum, "minute");
@@ -127,7 +127,7 @@ public class Main
 	
 	private static boolean summariseHour(int year, int month, int day, int hour)
 	{
-		String sumFileName = String.format("%02d%02d%02d_%02d.txt", year, month, day, hour);
+		String sumFileName = String.format("%02d%02d%02d_%02d.awaagti", year, month, day, hour);
 		Summariser sum = new HourSummariser(year, month, day, hour);
 		
 		return summarise(sumFileName, sum, "hour");
@@ -135,7 +135,7 @@ public class Main
 	
 	private static boolean summariseDay(int year, int month, int day)
 	{
-		String sumFileName = String.format("%02d%02d%02d.txt", year, month, day);
+		String sumFileName = String.format("%02d%02d%02d.awaagti", year, month, day);
 		Summariser sum = new DaySummariser(year, month, day);
 		
 		return summarise(sumFileName, sum, "day");

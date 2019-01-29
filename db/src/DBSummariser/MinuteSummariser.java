@@ -39,7 +39,7 @@ public class MinuteSummariser extends Summariser
 			
 			dir = DBFile.dirForUTS(thisUTS);
 
-			fileName = String.format(dir + "%d.txt", uts+second);
+			fileName = String.format(dir + "%d.awaagti", uts+second);
 
 			dbFile = null;
 			try {
