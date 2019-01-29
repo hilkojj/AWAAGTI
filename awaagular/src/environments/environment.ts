@@ -4,8 +4,8 @@
 
 export const environment = {
     production: false,
-    apiUrl: "http://localhost:8080/api/",
-    socketUrl: "http://localhost:8080/"
+    apiUrl: "https://university-of-tehran.ml/api/",
+    socketUrl: "https://university-of-tehran.ml/"
 }
 
 /*

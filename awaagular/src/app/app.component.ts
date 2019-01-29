@@ -12,7 +12,7 @@ export class AppComponent {
 
     atTop = true
 
-    links = [{
+    private _links = [{
         label: "Home",
         path: "/",
         exact: true
@@ -22,7 +22,12 @@ export class AppComponent {
     }, {
         label: "Configurations",
         path: "/configs"
-    }];
+    }] 
+
+    get links() {
+        console.log("pizza")
+        return this.auth.token ? this._links : this._links.slice(0, 1) // only show Home when not logged in.
+    }
 
     constructor(
         private stations: StationsService, // to initialize stations
