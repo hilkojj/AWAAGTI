@@ -1,22 +1,10 @@
 package shared;
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class DBFile
 {
@@ -41,30 +29,36 @@ public class DBFile
 		DBFile dbFile = new DBFile();
 
 		dbFile.dataPoints = new ArrayList<DataPoint>();
-		
+
 		File f = new File(fileName);
 
         InputStream inputStream = new FileInputStream(f);
-        
-        byte length = inputStream.readNBytes(1)[0];
+
+        byte[] lengths = new byte[]{Byte.valueOf("a")}; // NEW
+        inputStream.read(lengths, 0, 1);
+		byte length = lengths[0];
+
+//		byte length = inputStream.readNBytes(1)[0];  // OLD
+
         System.out.println("Part length: " + length);
 
-        byte[] byteRead;
+        byte[] byteRead = new byte[length];
         int i = 0;
 
     	while (true) {
-        	byteRead = inputStream.readNBytes(length);
+			inputStream.read(byteRead);	// NEW
+//        	byteRead = inputStream.readNBytes(length); // OLD
         	if (byteRead.length < length) {
         		System.out.println("What? Less than expected length: " + byteRead.length);
         		break;
         	}
-        	
+
         	dbFile.interpretLine(byteRead, summaryType);
 		}
-    	
+
     	inputStream.close();
-		
-		return dbFile;	
+
+		return dbFile;
 	}
 	
 	private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)

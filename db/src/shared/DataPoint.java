@@ -8,8 +8,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import sun.util.calendar.ZoneInfo;
-
 /**
  * DataPoint is a single state of a specific weather station.
  * It stores the weather station ID and the measured values.
@@ -40,6 +38,11 @@ public class DataPoint implements Comparable<DataPoint>
 		TEMP
 	}
 
+	public DataPoint() { } // TODO: Merge the database files in order to remove this.
+	public DataPoint(int clientID, int temp) {
+		this.clientID = clientID;
+		this.temp = temp;
+	}
 
 	public static DataPoint fromLine(byte[] line)
 	{

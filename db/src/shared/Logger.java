@@ -16,7 +16,8 @@ public class Logger {
     public static void error(Object o) {
         if (Settings.SHOW_DEBUG) {
             System.err.print(new java.util.Date());
-            System.err.print(" ERROR SEND: \t");
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.err.print(stackTrace[2]);
             System.err.println(o);
         }
     }
