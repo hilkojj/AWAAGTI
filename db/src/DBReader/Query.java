@@ -155,16 +155,10 @@ public class Query {
                     return false;
 
                 while (cur <= to) {
-
-
-//                    System.out.println("WOWIE I AM GOING TO LOOK FOR A DIR");
-
                     if (!findDir()) return false;
 
-//                    System.out.println("WOWIE I HAVE FOUND A DIR");
-
                     String filename = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/") + "/" + cur + ".txt";
-//                    System.out.println(filename);
+
                     nextVal = new File(filename);
                     cur += interval;
                     if (nextVal.exists()) return true;

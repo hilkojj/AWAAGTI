@@ -1,6 +1,8 @@
 package shared;
 
 
+import DBReader.QueryFilter;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,8 +76,13 @@ public class DBFile
 		
 		return dbFile;	
 	}
-	
-	private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)
+
+    public static DBFile readFile(File file, Object o, int[] stations, QueryFilter filter) throws IOException {
+	    throw new IOException();
+        // TODO remi
+    }
+
+    private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)
 	{
 		DataPoint dp = DataPoint.fromDBLine(line, summaryType);
 		this.dataPoints.add(dp);
