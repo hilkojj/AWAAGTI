@@ -38,23 +38,31 @@ public class DBFile
 	
 	private static DBFile read(String fileName, DataPoint.SummaryType summaryType) throws IOException
 	{
+		File f = new File(fileName);
+
+		return readFile(f, summaryType);
+	}
+
+	public static DBFile readFile(File file, DataPoint.SummaryType summaryType) throws IOException
+	{
 		DBFile dbFile = new DBFile();
 
 		dbFile.dataPoints = new ArrayList<DataPoint>();
-		
-		File f = new File(fileName);
 
-        InputStream inputStream = new FileInputStream(f);
-        
-        byte length = inputStream.readNBytes(1)[0];
+        InputStream inputStream = new FileInputStream(file);
+
+		byte[] lengths = new byte[1];
+		inputStream.read(lengths, 0, 1);
+		byte length = lengths[0];
+
         System.out.println("Part length: " + length);
 
-        byte[] byteRead;
-        int i = 0;
+        byte[] byteRead = new byte[length];
+        int read;
 
     	while (true) {
-        	byteRead = inputStream.readNBytes(length);
-        	if (byteRead.length < length) {
+        	read = inputStream.read(byteRead, 0, length); // OLD
+        	if (read < length) {
         		System.out.println("What? Less than expected length: " + byteRead.length);
         		break;
         	}

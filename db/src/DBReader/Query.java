@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import shared.DBFile;
 import shared.DataPoint;
 import shared.Logger;
 import shared.Settings;
@@ -244,38 +245,8 @@ public class Query {
         ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            //TODO: <====== ADD EXTREME SPEED
-//            StringBuilder str = new StringBuilder();
-////            br.skip(61*19); // TODO: first jump to position
-//
-//            char c = '?';
-//
-//            for(int i=0; i<60; i++) {
-//                c = (char) br.read();
-//                if(c == '#') {
-//                    br.readLine(); // TODO use skip
-//                    i += 60;       // TODO use skip
-//                } else
-//                    str.append(c);
-//            }
-
-            String str = "";
-               while (true) {
-
-                str = br.readLine();
-                if (str == null)
-                    break;
-                DataPoint s = DataPoint.fromLine(str);
-                if (IntStream.of(stations).anyMatch(x -> x == s.clientID))
-                	//if (this.filter.compare(s)) {
-                		list.add(s);
-                	//}
-            }
-
-            br.close();
-
+            DBFile dbFile = DBFile.readFile(file, null, stations, this.filter);
+            return dbFile.getDataPoints();
         } catch (IOException e) {
             e.printStackTrace();
         }
