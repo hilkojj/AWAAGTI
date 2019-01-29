@@ -22,18 +22,8 @@ public class WorkerThread implements Runnable {
             conReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             conWriter = new ConWriter(new OutputStreamWriter(connection.getOutputStream()));
 
-//            String query = "stations=1234,1235\n" +
-//                    "from=12469548968\n" +
-//                    "to=23848273958\n" +
-//                    "interval=1\n" +
-//                    "what=temperature\n" +
-//                    "sortBy=temperature\n" +
-//                    "limit=10\n" +
-//                    "filter=temp,<,10\n";
-
             try {
                 process(new Query(conReader.readLine()));
-//                process(new Query(query));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 conWriter.write(ConWriter.Types.error, e.getMessage());
@@ -100,7 +90,7 @@ public class WorkerThread implements Runnable {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<export>\n");
 
-            for (File file : query.getDataFiles(query)) {
+            for (File file : query.getDataFiles()) {
                 Logger.log("Collecting from: " +file.getName());
                 collectDatePoint(file, writer, query);
             }
@@ -118,7 +108,7 @@ public class WorkerThread implements Runnable {
      */
     private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException {
 
-        ArrayList<DataPoint> stations = query.getStations(file, query);
+        ArrayList<DataPoint> stations = query.getStations(file);
         float progress =0;
         if (stations.size() > 0) {
 

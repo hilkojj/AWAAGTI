@@ -27,6 +27,6 @@ public class Server {
             }
         }
 
-        catch (java.io.IOException ioe) { System.err.print("\n\nIOException\n\n"); }
+        catch (java.io.IOException ioe) { System.err.print("\n\nIOException\n\n" + ioe.getMessage()); }
     }
 }

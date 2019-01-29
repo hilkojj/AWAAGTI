@@ -12,22 +12,28 @@
                     [(ngModel)]="config.name">
             </mat-form-field>
 
-            <button fxFlex="150px" mat-raised-button color="primary"
-                fxHide.lt-md>
+            <button fxFlex="210px" mat-raised-button color="primary"
+                fxHide.lt-md (click)="configs.saveConfig(config)">
                 <mat-icon>save</mat-icon>
-                Save config
+                Save configuration
             </button>
 
             <button fxFlex="100%" mat-raised-button color="primary"
-                class="small" fxHide.gt-sm>
+                class="small" fxHide.gt-sm (click)="configs.saveConfig(config)">
                 <mat-icon>save</mat-icon>
-                Save config
+                Save configuration
             </button>
         </div>
 
     </div>
 
-    <div fxFlex.gt-sm="50%" fxFlex.gt-md="33.3%" fxFlex="100%">
+    <div class="map" fxFlex.gt-sm="50%" fxFlex.gt-md="66.6%"
+        fxFlex="100%">
+        <div id="map"></div>
+    </div>
+
+    <div class="stations" fxFlex.gt-sm="50%" fxFlex.gt-md="33.3%"
+        fxFlex="100%">
         <mat-card>
             <h1 class="mat-h1">Stations</h1>
 
@@ -35,7 +41,7 @@
             {{config.stationIds.length == 1 ? 'station' :
             'stations'}} selected.
 
-            <br><br>
+            <br>
 
             <mat-form-field appearance="outline"
                 [style.width]="'100%'">
@@ -46,8 +52,9 @@
                 <mat-icon matSuffix>search</mat-icon>
 
                 <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 8)"
-                        [value]="country.toLowerCase()">
+                    <mat-option *ngFor="let country of (searchInput == '' ? [] : countries).slice(0, 4)"
+                        [value]="country.toLowerCase()"
+                        (click)="focusOnCountry(country)">
                         <img class="flag" [src]="'/assets/flags/4x3/' + stations.countryCode(country)?.toLowerCase() + '.svg'">
                         <span class="name">
                             {{country.toLowerCase()}}
@@ -63,7 +70,7 @@
                     class="country">
 
                     <button mat-icon-button color="primary"
-                        (click)="expanded[country] = !expanded[country]">
+                        (click)="expanded[country] = !expanded[country]; expanded[country] && focusOnCountry(country)">
 
                         <mat-icon [style.transform]="expanded[country] ? 'rotate(90deg)' : ''">
                             keyboard_arrow_right
@@ -216,7 +223,8 @@
 
             <br>
 
-            <button mat-raised-button color="primary">
+            <button mat-raised-button color="primary"
+                (click)="configs.exportConfig(config)">
                 <mat-icon style="margin-right: 8px; vertical-align: sub">save_alt</mat-icon>
                 Get data
             </button>

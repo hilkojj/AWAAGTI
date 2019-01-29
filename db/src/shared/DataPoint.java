@@ -2,7 +2,10 @@ package shared;
 
 
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -21,7 +24,7 @@ public class DataPoint implements Comparable<DataPoint>
 	public LocalDateTime summaryDateTime;
 	
 		
-	private String dbLine;
+	private byte[] dbLine;
 
 	DecimalFormat df = new DecimalFormat("#.#");
 	
@@ -35,10 +38,9 @@ public class DataPoint implements Comparable<DataPoint>
 		TEMP
 	}
 
-
-	public static DataPoint fromLine(String str)
+	public static DataPoint fromLine(byte[] line)
 	{
-		return fromDBLine(str, null);
+		return fromDBLine(line, null);
 	}
 
 	@Override
@@ -55,73 +57,93 @@ public class DataPoint implements Comparable<DataPoint>
 	 * 
 	 * @return String Formatted string
 	 */
-	public String makeDBLine()
+	public byte[] makeDBLine()
 	{
 		if (this.dbLine == null) {
 			if (this.summaryType != null) {
-				String val = "";
+				this.dbLine = new byte[4+8];
 				switch (this.summaryType) {
 				case TEMP:
-					val = String.format("%.01f", ((float)this.temp)/10);
+					short temp = (short) (this.temp+100);
+					
+					this.dbLine[2] = (byte)(temp >> 8);
+					this.dbLine[3] = (byte)(temp);
+					System.out.println(this.dbLine[2]);
+					System.out.println(this.dbLine[3]);
 					break;
 				default:
 					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
 				}
-
-				this.dbLine = String.format("%d=%s", this.clientID, val);
-
+				
 				if (this.summaryDateTime != null) {
-					this.dbLine += "," + this.summaryDateTime.format(dateFormatter) + "," + this.summaryDateTime.format(timeFormatter);
+					// RIP 2038
+					int uts = (int) this.summaryDateTime.toEpochSecond(ZoneOffset.UTC);
+					
+					this.dbLine[4] = (byte)(uts >>> 24);
+					this.dbLine[5] = (byte)(uts >>> 16);
+					this.dbLine[6] = (byte)(uts >>> 8);
+					this.dbLine[7] = (byte)uts;
 				}
 			} else {
-				this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
+				//this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
+				
+				this.dbLine = new byte[4];
+				
+				short temp = (short) (this.temp+100);
+				
+				this.dbLine[2] = (byte)((short)temp >> 8);
+				this.dbLine[3] = (byte)((short)temp);
 			}
+			
+			this.dbLine[0] = (byte)((short)this.clientID >> 8);//(byte)((short)this.clientID & 0xff);
+			this.dbLine[1] = (byte)((short)this.clientID); //(byte)(((short)this.clientID >> 8) & 0xff);
 		}
 		
 		return this.dbLine;
 	}
 	
-	public static DataPoint fromDBLine(String line, SummaryType summaryType)
+	public static DataPoint fromDBLine(byte[] line, SummaryType summaryType)
 	{
 		DataPoint dp = new DataPoint();
-		String[] args = dp.parse(line);
+		
+		if (line.length < 2) {
+			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 2");
+			return null;
+		}
+		
+		dp.clientID = ((line[0] & 0xff) << 8) | (line[1] & 0xff);
 		
 		//System.out.println("ARGS" + String.join(", ", args) + " " + line);
 		
 		if (summaryType == null) {
-			float temp =  Float.parseFloat(args[0]);
-			dp.temp = (int) (temp*10);
+			if (line.length < 4) {
+				System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 4");
+				System.out.println(line);
+				for (int i = 0; i < line.length ;i++) {
+					System.out.println(line[i]);
+				}
+				return null;
+			}
+			// Regular DB file, not a summary file.
+			dp.temp = ((line[2] << 8) | (line[3]))-100;
 			return dp;
 		}
 		
 		switch (summaryType) {
 		case TEMP:
-			float temp =  Float.parseFloat(args[0]);
-			dp.temp = (int) (temp*10);
-
+			dp.temp = ((line[2] << 8) | (line[3]))-100;
 			break;
 		default:
 			System.out.println("ERROR: unknown summaryType in fromDBLine: " + summaryType);
 		}
 		
-		dp.summaryDateTime = LocalDateTime.parse(args[1] + " " + args[2], summaryDateTimeFormatter);
+		long uts = line[4] << 24 | (line[5] & 0xFF) << 16 | (line[6] & 0xFF) << 8 | (line[7] & 0xFF);
+		
+		dp.summaryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(uts), ZoneId.of("UTC"));
 		
 		dp.summaryType = summaryType;
 		
 		return dp;
-	}
-	
-	private String[] parse(String line)
-	{
-		String[] parts = line.split("=");
-		if (parts.length < 2) {
-			System.out.println("DataPoint: invalid datapoint line: " + line);
-			return null;
-		}
-
-		this.clientID = Integer.parseInt(parts[0]);
-		
-		return parts[1].split(",");
 	}
 	
 	public int getVal(SummaryType sType)
