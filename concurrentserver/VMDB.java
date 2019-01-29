@@ -22,7 +22,7 @@ public class VMDB
 	 * @param date in the format: 2006-01-02
 	 * @param time in the format: 15:03:04
 	 */
-	public void sendBegin(String date, String time)
+	private synchronized void sendBegin(String date, String time)
 	{
 		this.output.write("START\n");
 		this.output.write(date + "," + time + "\n");
@@ -31,9 +31,17 @@ public class VMDB
 	/**
 	 * sendDataPoint
 	 */
-	public void sendDataPoint(int station, float temp)
+	private synchronized void sendDataPoint(int station, float temp)
 	{
 		this.output.format("%d,%.01f\n", station, temp);
+	}
+
+	public synchronized void sendData(float[] data, int len, String date, String time) {
+		sendBegin(date, time);
+		for (int i = 0; i < len; i++) {
+			this.output.format("%d,%.01f\n", Server.revStation[i+1], data[i]);
+		}
+		sendEnd();
 	}
 
 	/**
@@ -41,7 +49,7 @@ public class VMDB
 	 * for this second, so that the database can write the previously
 	 * send datapoints to disk.
 	 */
-	public void sendEnd()
+	private synchronized void sendEnd()
 	{
 		this.output.write("END\n");
 		this.output.flush();

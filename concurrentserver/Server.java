@@ -9,8 +9,8 @@ public class Server {
 
     private static int head = 0;
     private static int tail = 0;
-	public static String lastTime = new String();
-	public static synchronized void updateTime(String time) {
+	public static int lastTime;
+	public static synchronized void updateTime(int time) {
 		lastTime = time;
 	}
 
@@ -18,6 +18,7 @@ public class Server {
 	public static int []revStation = new int[8010];
 	public static String[][] data = new String[8000][60];
 	public static Map<Integer, Integer> stations = new ConcurrentHashMap<Integer, Integer>();
+	public static VMDB db;
 	public static FixedRingArray[] queues = new FixedRingArray[8010];
 	public static void main(String[] args) {
 			for (int i = 0; i < 8010; i++) {
@@ -25,6 +26,7 @@ public class Server {
 		}
 		Socket connection;
 		try {
+			db = new VMDB("127.0.0.1", 8002);
 			ServerSocket server = new ServerSocket(PORT);
 			System.err.println("Server started with a maximum of: " + maxnrofConnections + " Connections");
 
@@ -38,6 +40,9 @@ public class Server {
 
 		catch (java.io.IOException ioe) {
 			System.err.print("\n\nIOException\n\n");
+		}
+		catch (Exception e) {
+			System.err.print("vmdb error\n");
 		}
 	}
 }

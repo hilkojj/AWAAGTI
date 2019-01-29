@@ -13,10 +13,11 @@ public class VMDBTest
 		while (true) {
 			System.out.println("Send");
 			v.sendBegin("aaa", "aaa");
-			for (int i = 0; i < 8000; i++) {
-				v.sendDataPoint(i+1000, (float)i/10);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e){
+				e.printStackTrace();
 			}
-			v.sendEnd();
 		}
 	}
 }

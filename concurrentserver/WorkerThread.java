@@ -23,10 +23,10 @@ class WorkerThread implements Runnable  {
 			String s;
 
 			BufferedReader bin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			VMDB db = new VMDB("127.0.0.1", 8002);
 
 			String[] input = new String[14];
 			boolean fill = false;
+			float data[] = new float[8010];
 
 			Map<String, Integer> lookup = new HashMap<String, Integer>();
 			lookup.put("STN", 0);
@@ -50,37 +50,41 @@ class WorkerThread implements Runnable  {
 				if (s.equals("\t</MEASUREMENT>")) {
 
 					mapIncrement(Integer.parseInt(input[0]));
-					print(Server.stations.size());
+					// print(Server.stations.size());
 					if(Server.stations.get(Integer.parseInt(input[0])) != null) {
 						if(!fill) {
 							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
-							System.out.printf("nfill: %s", Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
+							// System.out.printf("nfill: %s", Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
 						}
 						if(Server.queues[Server.stations.get(Integer.parseInt(input[0]))].hasBeanRound || fill) {
 							fill = true;
 							float avg30 = 0;
-							for (int i = 0; i < 30; i++) {
+							for (int i = 0; i < 30; i++) {//TODO: kan sneller!!!!
 								avg30 += Server.queues[Server.stations.get(Integer.parseInt(input[0]))].get(i);
 							}
 							avg30 /=30;
 							if(Math.abs(avg30) >= Math.abs(1.2*Float.parseFloat(input[3])) || Math.abs(avg30) <= Math.abs(0.8*Float.parseFloat(input[3]))) {
 								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(avg30);
-								System.out.printf("Buiten marge: %f\n", Float.parseFloat(input[3]));
-								System.out.printf("Avg last 10: %f\n", avg30);
+								// System.out.printf("Buiten marge: %f\n", Float.parseFloat(input[3]));
+								// System.out.printf("Avg last 10: %f\n", avg30);
 							}
 							else {
 								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
-								System.out.printf("Binnen marge: %f\n", Float.parseFloat(input[3]));
-								System.out.printf("Avg last 10: %f\n", avg30);
+								// System.out.printf("Binnen marge: %f\n", Float.parseFloat(input[3]));
+								// System.out.printf("Avg last 10: %f\n", avg30);
 							}
-							System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
-							if(!Server.lastTime.equals(input[2]) && input[2] != null) {
-								Server.updateTime(input[2]);
-								db.sendBegin(input[1], input[2]);
+							// System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
+							int currTime = Integer.parseInt(input[2].replaceAll(":", ""));
+							if(currTime > Server.lastTime && input[2] != null) {
+							// if(!Server.lastTime.equals(input[2]) && input[2] != null) {
+								Server.updateTime(currTime);
+								// Server.db.sendBegin(input[1], input[2]);
 								for (int i = 0; i < Server.stations.size(); i++)
-									db.sendDataPoint(Server.revStation[i+1], Server.queues[i].get(0));
-								db.sendEnd();
-								System.out.printf("Volgende seconde: %s\n", Server.lastTime);
+									data[i] = Server.queues[i].get(0);
+									// Server.db.sendDataPoint(Server.revStation[i+1], Server.queues[i].get(0));
+								Server.db.sendData(data, Server.stations.size(), input[1], input[2]);
+								// Server.db.sendEnd();
+								// System.out.printf("Volgende seconde: %s\n", Server.lastTime);
 
 							}
 						}
