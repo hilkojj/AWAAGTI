@@ -29,13 +29,16 @@ public class WorkerThread implements Runnable {
                 Thread.sleep(500);
                 conWriter.write(ConWriter.Types.progress, "50");
                 Thread.sleep(1000);
-                conWriter.write(ConWriter.Types.progress, "90");
+                conWriter.write(ConWriter.Types.progress, "100");
+                Thread.sleep(500);
 
                 Random random = new Random();
                 int max = 1000;
                 int min = 1;
                 int ran = random.nextInt(max + 1 - min) + min;
                 conWriter.write(ConWriter.Types.file, "export_"+ ran +".xml");
+                Thread.sleep(1000);
+
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 conWriter.write(ConWriter.Types.error, e.getMessage());
