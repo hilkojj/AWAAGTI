@@ -1,10 +1,6 @@
 package DBReader;
 
-import shared.DBFile;
-import shared.DataPoint;
-import shared.Logger;
-import shared.QueryFilter;
-import shared.Settings;
+import shared.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +24,6 @@ public class Query {
     private int interval = 1;
     private ArrayList<String> what = new ArrayList<>();
     private String sortBy = "";
-    private boolean distinct = false;
     private int limit = -1;
     private QueryFilter filter;
 
@@ -47,8 +42,7 @@ public class Query {
                     case "to": to = Long.parseLong(data); break;
                     case "interval": interval = Integer.parseInt(data); break;
                     case "what":  what.addAll(Arrays.asList(data.split(","))); break;
-//                    case "sortBy": sortBy = data; break;
-//                    case "distinct": distinct = false; break;
+                    case "sortBy": sortBy = data; break;
                     case "limit": limit = Integer.parseInt(data); break;
                     case "filter": this.filter = new QueryFilter(data); break;
                     default:
@@ -89,29 +83,34 @@ public class Query {
         try {
             boolean DEBUG = false;
 
-            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
-            System.out.println("Syntax: 1");
+//            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
+//            System.out.println("Syntax: 1");
+//
+//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
+//            System.out.println("Syntax: 2");
+//
+//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+//            System.out.println("Syntax: 3");
+//
+//
+//            Query q1 = new Query("stations=1234,1356;\n");
+//            System.out.println("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
+//
+//            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
+//            System.out.println("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
+//
+//            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
+//            System.out.println("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
+//
+//            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
+//            System.out.println("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
+//
+//
+//            Query qs1 = new Query("stations=50,7950;sortedBy=temp;limit=1\n");
+//            System.out.println("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 5));
 
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
-            System.out.println("Syntax: 2");
-
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
-            System.out.println("Syntax: 3");
-
-
-            Query q1 = new Query("stations=1234,1356;\n");
-            System.out.println("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
-
-            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
-            System.out.println("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
-
-            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
-            System.out.println("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
-
-
-            Query qs1 = new Query("stations=50,7950;sortedBy=temperature\n");
-            System.out.println("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 5));
-
+            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortedBy=temp;limit=1\n");
+            System.out.println("PARSE SORTED: 1 " + qs2.getDataFilesSorted().iterator().hasNext());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,17 +217,53 @@ public class Query {
      */
     private Iterable<File> getDataFilesSorted() {
         return () -> new Iterator<File>() {
-            @Override
-            public boolean hasNext() {
-                return true;
+            long cur = from;
+            long iteration = 0;
+            File nextVal = null;
+            String type = "temp_min.txt";
+
+            private int get2pair(long value, int nth) {
+                return (int) ((value / (int) Math.pow(10, 8 - (nth * 2))) % 100);
+            }
+
+//          1548348440
+            public ArrayList<DataPoint> sortMagic(long from, long to) {
+                ArrayList<DataPoint> list = new ArrayList<>();
+                System.out.println(get2pair(from, 4));
+
+                for(int a=get2pair(from, 4); a%100 != 0; a++) {
+//                    String filename = Settings.DATA_PATH + "/" + cur + "/" + type;
+//                    File file = new File(filename);
+//                    if (file.exists()) {
+//                        try {
+//                            DBFile dbFile = DBFile.read(file, DataPoint.SummaryType.TEMP);
+//                            list.addAll(dbFile.getDataPoints());
+//                        } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
+//                    }
+                    cur += 1;
+                    System.out.println(from +" "+ cur +" "+ to);
+
+                }
+                return list;
             }
 
             @Override
+            public boolean hasNext() {
+                if (iteration >= limit)
+                    return false;
+
+                System.out.println(sortMagic(from, to));
+
+
+                return false;
+            }
+
             public File next() {
-                if(!hasNext())
+                if(nextVal == null)
                     throw new NoSuchElementException();
 
-                return null;
+                iteration ++;
+                return nextVal;
             }
         };
     }
