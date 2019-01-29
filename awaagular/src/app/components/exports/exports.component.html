@@ -1,7 +1,7 @@
 <div class="export mat-elevation-z10" *ngFor="let export of configs.exports">
 
     <mat-progress-spinner class="example-margin" [mode]="export.progress || export.error ? 'determinate' : 'indeterminate'"
-        [value]="export.error ? 100 : export.progress"
+        [value]="export.error || export.downloadUrl ? 100 : export.progress"
         [color]="export.error ? 'warn' : 'primary'">
     </mat-progress-spinner>
 
