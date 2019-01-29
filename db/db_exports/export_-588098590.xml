@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export>
+	<datepoint time="20190109_122305">
+		<stations>
+			<station id="7500">
+				<temp>-930</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190114_143202">
+		<stations>
+			<station id="10">
+				<temp>-840</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190115_120301">
+		<stations>
+			<station id="10">
+				<temp>-283</temp>
+			</station>
+			<station id="7500">
+				<temp>683</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190114_143205">
+		<stations>
+			<station id="10">
+				<temp>-699</temp>
+			</station>
+			<station id="7500">
+				<temp>217</temp>
+			</station>
+		</stations>
+	</datepoint>
+	<datepoint time="20190114_143203">
+		<stations>
+			<station id="10">
+				<temp>-699</temp>
+			</station>
+			<station id="7500">
+				<temp>217</temp>
+			</station>
+		</stations>
+	</datepoint>
+</export>

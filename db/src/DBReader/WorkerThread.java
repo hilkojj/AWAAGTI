@@ -23,7 +23,12 @@ public class WorkerThread implements Runnable {
             conWriter = new ConWriter(new OutputStreamWriter(connection.getOutputStream()));
 
             try {
-                process(new Query(conReader.readLine()));
+//                process(new Query(conReader.readLine()));
+                Thread.sleep(500);
+                conWriter.write(ConWriter.Types.progress, "50");
+                Thread.sleep(1000);
+                conWriter.write(ConWriter.Types.progress, "90");
+                conWriter.write(ConWriter.Types.file, "export_-588098590.xml");
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 conWriter.write(ConWriter.Types.error, e.getMessage());

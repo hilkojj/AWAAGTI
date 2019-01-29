@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import shared.DBFile;
 import shared.DataPoint;
 import shared.Logger;
 import shared.Settings;
@@ -76,41 +77,39 @@ public class Query {
             new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
             System.out.println("Syntax: 2");
 
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10,distinct=true\n");
             System.out.println("Syntax: 3");
 
 
 
             Query q1 = new Query("stations=1234,1356;\n");
             int i = 0;
-            Iterator<File> iterator1 = q1.getDataFilesNormal().iterator();
-            while(iterator1.hasNext()) {
+            for (File file : q1.getDataFilesNormal()) {
                 i++;
+//                System.out.println(file);
             }
 
-            System.out.println("PARSE: 1 " + (i == 5) + " _ " + i);
+            System.out.println("PARSE Normal: 1 " + (i == 5) + " _ " + i+"="+5);
 
 
             Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
             int i2 = 0;
-            Iterator<File> iterator2 = q2.getDataFilesNormal().iterator();
-            while(iterator2.hasNext()) {
+            for (File file : q2.getDataFilesNormal()) {
                 i2++;
-                System.out.println(iterator2.next());
+//                System.out.println(file);
             }
 
-            System.out.println("PARSE: 2 " + (i2 == 5) + " _ " + i2 );
+            System.out.println("PARSE Normal: 2 " + (i2 == 5) + " _ " + i2+"="+5);
 
 
             Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
             int i3 = 0;
-            Iterator<File> iterator3 = q3.getDataFilesNormal().iterator();
-            while(iterator3.hasNext()) {
+            for (File file : q3.getDataFilesNormal()) {
                 i3++;
-                System.out.println(iterator3.next());
+//                System.out.println(file);
             }
 
-            System.out.println("PARSE: 3 " + (i3 == 3) + " _ " + i3 );
+            System.out.println("PARSE Normal: 3 " + (i3 == 3) + " _ " + i3+"="+3 );
 
 
         } catch (Exception e) {
@@ -155,12 +154,7 @@ public class Query {
 
                 while (cur <= to) {
 
-
-//                    System.out.println("WOWIE I AM GOING TO LOOK FOR A DIR");
-
                     if (!findDir()) return false;
-
-//                    System.out.println("WOWIE I HAVE FOUND A DIR");
 
                     String filename = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/") + "/" + cur + ".txt";
 //                    System.out.println(filename);
@@ -208,7 +202,7 @@ public class Query {
 
                         int antiDeepness = 4 - currentPath.length() / 2;
                         long minimalTimestamp = cur + (int) Math.pow(100, antiDeepness);
-                        while (cur < minimalTimestamp) cur += interval;
+                        cur += (cur - minimalTimestamp) * interval;
 
                         return findDir();
                     } else currentPath = currentPath.substring(0, currentPath.length() - 2);
@@ -240,47 +234,57 @@ public class Query {
     }
 
 
-    public ArrayList<DataPoint> getStations(File file) {
+    public ArrayList<DataPoint> getStations(File file) { // TODO: Make use off DBFile
         ArrayList<DataPoint> list = new ArrayList<>();
+        Random random = new Random();
+        int max = 51;
+        int min = -35;
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            //TODO: <====== ADD EXTREME SPEED
-//            StringBuilder str = new StringBuilder();
-////            br.skip(61*19); // TODO: first jump to position
-//
-//            char c = '?';
-//
-//            for(int i=0; i<60; i++) {
-//                c = (char) br.read();
-//                if(c == '#') {
-//                    br.readLine(); // TODO use skip
-//                    i += 60;       // TODO use skip
-//                } else
-//                    str.append(c);
-//            }
-
-            String str = "";
-               while (true) {
-
-                str = br.readLine();
-                if (str == null)
-                    break;
-                DataPoint s = DataPoint.fromLine(str);
-                if (IntStream.of(stations).anyMatch(x -> x == s.clientID))
-                	//if (this.filter.compare(s)) {
-                		list.add(s);
-                	//}
-            }
-
-            br.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        for(int sID : stations) {
+            DataPoint dp = new DataPoint(sID, random.nextInt(max + 1 - min) + min);
+            list.add(dp);
         }
-
         return list;
+
+//        try {
+//            BufferedReader br = new BufferedReader(new FileReader(file));
+//
+//            //TODO: <====== ADD EXTREME SPEED
+////            StringBuilder str = new StringBuilder();
+//////            br.skip(61*19); // TODO: first jump to position
+////
+////            char c = '?';
+////
+////            for(int i=0; i<60; i++) {
+////                c = (char) br.read();
+////                if(c == '#') {
+////                    br.readLine(); // TODO use skip
+////                    i += 60;       // TODO use skip
+////                } else
+////                    str.append(c);
+////            }
+//
+//            String str = "";
+//            while (true) {
+//
+//                str = br.readLine();
+//                if (str == null)
+//                    break;
+//
+//
+//                DataPoint s = DataPoint.fromLine(str);
+//                if (IntStream.of(stations).anyMatch(x -> x == s.clientID))
+//                	if (this.filter.compare(s))
+//                		list.add(s);
+//            }
+//
+//            br.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+//        return list;
     }
 
 

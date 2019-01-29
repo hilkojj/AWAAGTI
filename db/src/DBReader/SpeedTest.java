@@ -11,6 +11,7 @@ public class SpeedTest {
     public static void main(String[] args){
 //        new SpeedTest();
         System.out.println( new Date().getTime() / 1000 );
+        System.out.println( System.currentTimeMillis() / 1000);
     }
 
     public static final int SKIP = 100;
