@@ -1,22 +1,13 @@
 package shared;
 
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class DBFile
 {
@@ -50,8 +41,6 @@ public class DBFile
         System.out.println("Part length: " + length);
 
         byte[] byteRead;
-        int i = 0;
-
     	while (true) {
         	byteRead = inputStream.readNBytes(length);
         	if (byteRead.length < length) {
@@ -103,11 +92,6 @@ public class DBFile
 		return this.fileName;
 	}
 	
-	private static String padRight(String s, int n)
-	{
-	     return String.format("%1$-" + n + "s", s).replace(' ', '#'); 
-	}
-
 	public LocalDateTime getDateTime()
 	{
 		return dateTime;

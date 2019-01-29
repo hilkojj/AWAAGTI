@@ -28,9 +28,6 @@ public class InputInterpreter
 	private DateTimeFormatter dateTimeFormatter =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	private DateTimeFormatter dbFileNameFormatter =
-				DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-
 	private LocalDateTime dateTime;
 	
 	

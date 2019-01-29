@@ -30,12 +30,6 @@ public class DataPoint implements Comparable<DataPoint>
 
 	DecimalFormat df = new DecimalFormat("#.#");
 	
-	private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss");
-	private static DateTimeFormatter summaryDateTimeFormatter =
-			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-	
 	public enum SummaryType {
 		TEMP
 	}
