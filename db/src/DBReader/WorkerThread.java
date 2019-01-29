@@ -34,7 +34,7 @@ public class WorkerThread implements Runnable {
                 conWriter.write(ConWriter.Types.error, e.getMessage());
             }
 
-            System.out.println("NEEEE");
+            System.out.println("DONE");
 
             conReader.close();
             conWriter.close();
