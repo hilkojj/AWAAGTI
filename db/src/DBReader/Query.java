@@ -1,17 +1,16 @@
 package DBReader;
 
-import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import shared.DBFile;
 import shared.DataPoint;
 import shared.Logger;
 import shared.Settings;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Query {
     private final static String FILE_NAME = "export_";
@@ -27,7 +26,7 @@ public class Query {
     private long to = -1;
     private int interval = 1;
     private ArrayList<String> what = new ArrayList<>();
-    private String sortBy = "temperature";
+    private String sortBy = "";
     private boolean distinct = false;
     private int limit = -1;
     private QueryFilter filter;
@@ -68,9 +67,27 @@ public class Query {
             limit = Integer.MAX_VALUE;
     }
 
+    // TEST Helper
+    public static boolean assertQuery(Iterable it, boolean print, int value) {
+        int i = 0;
+        Iterator iterator = it.iterator();
+        while(iterator.hasNext()) {
+            i++;
+            if (print)
+                System.out.println(iterator.next());
+            else
+                iterator.next();
+        }
+
+        System.out.println(i + " == " + value);
+        return (i == value);
+    }
+
     // TEST
     public static void main(String[] args) {
         try {
+            boolean DEBUG = false;
+
             new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
             System.out.println("Syntax: 1");
 
@@ -81,37 +98,18 @@ public class Query {
             System.out.println("Syntax: 3");
 
 
-
             Query q1 = new Query("stations=1234,1356;\n");
-            int i = 0;
-            Iterator<File> iterator1 = q1.getDataFilesNormal().iterator();
-            while(iterator1.hasNext()) {
-                i++;
-            }
-
-            System.out.println("PARSE: 1 " + (i == 5) + " _ " + i);
-
+            System.out.println("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
 
             Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
-            int i2 = 0;
-            Iterator<File> iterator2 = q2.getDataFilesNormal().iterator();
-            while(iterator2.hasNext()) {
-                i2++;
-                System.out.println(iterator2.next());
-            }
-
-            System.out.println("PARSE: 2 " + (i2 == 5) + " _ " + i2 );
-
+            System.out.println("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
 
             Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
-            int i3 = 0;
-            Iterator<File> iterator3 = q3.getDataFilesNormal().iterator();
-            while(iterator3.hasNext()) {
-                i3++;
-                System.out.println(iterator3.next());
-            }
+            System.out.println("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
 
-            System.out.println("PARSE: 3 " + (i3 == 3) + " _ " + i3 );
+
+            Query qs1 = new Query("stations=50,7950;sortedBy=temperature\n");
+            System.out.println("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 5));
 
 
         } catch (Exception e) {
@@ -249,7 +247,7 @@ public class Query {
     }
 
 
-    public boolean inSelect(String temp) {
+    public boolean inSelect(String temp) { // TODO:
         return true;
     }
 
