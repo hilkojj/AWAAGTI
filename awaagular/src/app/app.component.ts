@@ -25,7 +25,6 @@ export class AppComponent {
     }] 
 
     get links() {
-        console.log("pizza")
         return this.auth.token ? this._links : this._links.slice(0, 1) // only show Home when not logged in.
     }
 

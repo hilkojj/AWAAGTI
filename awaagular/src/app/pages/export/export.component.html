@@ -202,10 +202,10 @@
             </div>
 
             <mat-form-field>
-                <mat-select placeholder="Sort by"
+                <mat-select placeholder="Create top list of:"
                     [(ngModel)]="config.sortBy">
                     <mat-option [value]="null">
-                        Don't sort
+                        Don't create top list.
                     </mat-option>
                     <mat-option *ngFor="let m of configs.measurements"
                         [value]="m">
@@ -216,8 +216,8 @@
 
             </mat-form-field>
             <br>
-            <mat-form-field>
-                <input matInput placeholder="Limit"
+            <mat-form-field *ngIf="config.sortBy">
+                <input matInput placeholder="Top list length:"
                     [(ngModel)]="config.limit" type="number">
             </mat-form-field>
 

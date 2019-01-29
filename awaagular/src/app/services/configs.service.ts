@@ -111,4 +111,8 @@ export class ConfigsService {
         this.io.socket.off("export done " + config.id)
     }
 
+    closeExport(exp: Export) {
+        this.exports.splice(this.exports.indexOf(exp), 1)
+    }
+
 }
