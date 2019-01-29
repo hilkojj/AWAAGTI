@@ -25,10 +25,10 @@ import { ExportsComponent } from './components/exports/exports.component';
         ExportComponent,
         DecamelcasePipe,
         TimestampPipe,
-        LoginRegisterComponent,nghyjmi,kumjyntbrbynumi8,o7mu6nybt
+        LoginRegisterComponent,
         ConfigsComponent,
         ConfigMapComponent,
-        ExportsComponentsgr;kjtdyhkjrt oew;rihgkfiejoqepfghbudfvoijep9qjbk 
+        ExportsComponent
     ],
     imports: [
         FormsModule,
