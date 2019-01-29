@@ -4,13 +4,11 @@ import java.net.Socket;
 /**
  * VMDB facilitates the communication with the database.
  */
-public class VMDB
-{
+public class VMDB {
 	private Socket socket;
 	private PrintWriter output;
 
-	public VMDB(String host, int port) throws Exception
-	{
+	public VMDB(String host, int port) throws Exception {
 		this.socket = new Socket(host, port);
 		this.output = new PrintWriter(this.socket.getOutputStream());
 	}
@@ -22,8 +20,7 @@ public class VMDB
 	 * @param date in the format: 2006-01-02
 	 * @param time in the format: 15:03:04
 	 */
-	private synchronized void sendBegin(String date, String time)
-	{
+	private synchronized void sendBegin(String date, String time) {
 		this.output.write("START\n");
 		this.output.write(date + "," + time + "\n");
 	}
@@ -31,15 +28,14 @@ public class VMDB
 	/**
 	 * sendDataPoint
 	 */
-	private synchronized void sendDataPoint(int station, float temp)
-	{
+	private synchronized void sendDataPoint(int station, float temp) {
 		this.output.format("%d,%.01f\n", station, temp);
 	}
 
 	public synchronized void sendData(float[] data, int len, String date, String time) {
 		sendBegin(date, time);
 		for (int i = 0; i < len; i++) {
-			this.output.format("%d,%.01f\n", Server.revStation[i+1], data[i]);
+			output.format("%d,%.01f\n", Server.revStation[i], data[i]);
 		}
 		sendEnd();
 	}
@@ -49,8 +45,7 @@ public class VMDB
 	 * for this second, so that the database can write the previously
 	 * send datapoints to disk.
 	 */
-	private synchronized void sendEnd()
-	{
+	private synchronized void sendEnd() {
 		this.output.write("END\n");
 		this.output.flush();
 	}
