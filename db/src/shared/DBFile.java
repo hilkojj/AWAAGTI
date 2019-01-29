@@ -57,16 +57,15 @@ public class DBFile
 		byte[] lengths = new byte[1];
 		inputStream.read(lengths, 0, 1);
 		byte length = lengths[0];
-
-        System.out.println("Part length: " + length);
+		
+		System.out.println("YOO DEZE LENGTH: " + length);
 
         byte[] byteRead = new byte[length];
         int read;
 
     	while (true) {
         	read = inputStream.read(byteRead, 0, length); // OLD
-        	if (read < length) {
-        		System.out.println("What? Less than expected length: " + byteRead.length);
+        	if (read == -1) {
         		break;
         	}
         	

@@ -62,8 +62,6 @@ public class DataPoint implements Comparable<DataPoint>
 					
 					this.dbLine[3] = (byte)(temp >> 8);
 					this.dbLine[4] = (byte)(temp);
-					System.out.println(this.dbLine[2]);
-					System.out.println(this.dbLine[3]);
 					break;
 				default:
 					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
@@ -101,8 +99,8 @@ public class DataPoint implements Comparable<DataPoint>
 	{
 		DataPoint dp = new DataPoint();
 		
-		if (line.length < 2) {
-			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 2");
+		if (line.length < 3) {
+			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 3");
 			return null;
 		}
 		
@@ -111,8 +109,8 @@ public class DataPoint implements Comparable<DataPoint>
 		//System.out.println("ARGS" + String.join(", ", args) + " " + line);
 		
 		if (summaryType == null) {
-			if (line.length < 4) {
-				System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 4");
+			if (line.length < 5) {
+				System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 5");
 				System.out.println(line);
 				for (int i = 0; i < line.length ;i++) {
 					System.out.println(line[i]);
