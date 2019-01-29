@@ -49,7 +49,7 @@ reated by https://www.gitignore.io/api/c,vim,node,java,linux,windows,eclipse,int
 *.pdb
 
 # Kernel Module Compile Results
-*.mod*
+# *.mod* stop pls
 *.cmd
 .tmp_versions/
 modules.order
@@ -431,7 +431,7 @@ $RECYCLE.BIN/
 *.pdb
 
 # Kernel Module Compile Results
-*.mod*
+# *.mod* AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 *.cmd
 .tmp_versions/
 modules.order
@@ -813,7 +813,7 @@ $RECYCLE.BIN/
 *.pdb
 
 # Kernel Module Compile Results
-*.mod*
+# *.mod* FUCK JOU GITIGNORE
 *.cmd
 .tmp_versions/
 modules.order
