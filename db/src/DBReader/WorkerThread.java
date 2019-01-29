@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class WorkerThread implements Runnable {
     private Socket connection;
@@ -28,7 +29,12 @@ public class WorkerThread implements Runnable {
                 conWriter.write(ConWriter.Types.progress, "50");
                 Thread.sleep(1000);
                 conWriter.write(ConWriter.Types.progress, "90");
-                conWriter.write(ConWriter.Types.file, "export_-588098590.xml");
+
+                Random random = new Random();
+                int max = 1000;
+                int min = 1;
+                int ran = random.nextInt(max + 1 - min) + min;
+                conWriter.write(ConWriter.Types.file, "export_"+ ran +".xml");
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 conWriter.write(ConWriter.Types.error, e.getMessage());
