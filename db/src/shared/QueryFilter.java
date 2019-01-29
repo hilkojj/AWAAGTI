@@ -1,6 +1,4 @@
-package DBReader;
-
-import shared.DataPoint;
+package shared;
 
 /**
  * QueryFilter parses query filter string formats and allows for

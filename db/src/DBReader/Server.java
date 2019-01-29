@@ -7,13 +7,8 @@ public class Server {
     public static final int PORT = 12345;
 
     public static void main(String[] args) {
-<<<<<<< Updated upstream
 //        System.out.println("Working Directory = " +
 //                System.getProperty("user.dir"));
-=======
-    	 System.out.println("Working Directory = " +
-                 System.getProperty("user.dir"));
->>>>>>> Stashed changes
         Socket connection;
         try {
             ServerSocket server = new ServerSocket(PORT);

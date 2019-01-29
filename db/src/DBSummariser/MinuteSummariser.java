@@ -1,5 +1,6 @@
 package DBSummariser;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -42,7 +43,8 @@ public class MinuteSummariser extends Summariser
 
 			dbFile = null;
 			try {
-				dbFile = DBFile.read(fileName);
+				File f = new File(fileName);
+				dbFile = DBFile.read(f);
 				dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
 				exists++;
 			} catch (IOException e) {
