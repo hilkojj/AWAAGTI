@@ -8,8 +8,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import sun.util.calendar.ZoneInfo;
-
 /**
  * DataPoint is a single state of a specific weather station.
  * It stores the weather station ID and the measured values.
@@ -34,7 +32,6 @@ public class DataPoint implements Comparable<DataPoint>
 		TEMP
 	}
 
-
 	public static DataPoint fromLine(byte[] line)
 	{
 		return fromDBLine(line, null);
@@ -58,13 +55,13 @@ public class DataPoint implements Comparable<DataPoint>
 	{
 		if (this.dbLine == null) {
 			if (this.summaryType != null) {
-				this.dbLine = new byte[4+8];
+				this.dbLine = new byte[5+8];
 				switch (this.summaryType) {
 				case TEMP:
 					short temp = (short) (this.temp+100);
 					
-					this.dbLine[2] = (byte)(temp >> 8);
-					this.dbLine[3] = (byte)(temp);
+					this.dbLine[3] = (byte)(temp >> 8);
+					this.dbLine[4] = (byte)(temp);
 					System.out.println(this.dbLine[2]);
 					System.out.println(this.dbLine[3]);
 					break;
@@ -76,24 +73,25 @@ public class DataPoint implements Comparable<DataPoint>
 					// RIP 2038
 					int uts = (int) this.summaryDateTime.toEpochSecond(ZoneOffset.UTC);
 					
-					this.dbLine[4] = (byte)(uts >>> 24);
-					this.dbLine[5] = (byte)(uts >>> 16);
-					this.dbLine[6] = (byte)(uts >>> 8);
-					this.dbLine[7] = (byte)uts;
+					this.dbLine[5] = (byte)(uts >>> 24);
+					this.dbLine[6] = (byte)(uts >>> 16);
+					this.dbLine[7] = (byte)(uts >>> 8);
+					this.dbLine[8] = (byte)uts;
 				}
 			} else {
 				//this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
 				
-				this.dbLine = new byte[4];
+				this.dbLine = new byte[5];
 				
 				short temp = (short) (this.temp+100);
 				
-				this.dbLine[2] = (byte)((short)temp >> 8);
-				this.dbLine[3] = (byte)((short)temp);
+				this.dbLine[3] = (byte)((short)temp >> 8);
+				this.dbLine[4] = (byte)((short)temp);
 			}
 			
-			this.dbLine[0] = (byte)((short)this.clientID >> 8);//(byte)((short)this.clientID & 0xff);
-			this.dbLine[1] = (byte)((short)this.clientID); //(byte)(((short)this.clientID >> 8) & 0xff);
+			this.dbLine[0] = (byte)((short)this.clientID >> 16);
+			this.dbLine[1] = (byte)((short)this.clientID >> 8);
+			this.dbLine[2] = (byte)((short)this.clientID);
 		}
 		
 		return this.dbLine;
@@ -108,7 +106,7 @@ public class DataPoint implements Comparable<DataPoint>
 			return null;
 		}
 		
-		dp.clientID = ((line[0] & 0xff) << 8) | (line[1] & 0xff);
+		dp.clientID = ((line[0] & 0xff) << 16) | ((line[1] & 0xff) << 8) | (line[2] & 0xff);
 		
 		//System.out.println("ARGS" + String.join(", ", args) + " " + line);
 		
@@ -122,19 +120,19 @@ public class DataPoint implements Comparable<DataPoint>
 				return null;
 			}
 			// Regular DB file, not a summary file.
-			dp.temp = ((line[2] << 8) | (line[3]))-100;
+			dp.temp = ((line[3] << 8) | (line[4]))-100;
 			return dp;
 		}
 		
 		switch (summaryType) {
 		case TEMP:
-			dp.temp = ((line[2] << 8) | (line[3]))-100;
+			dp.temp = ((line[3] << 8) | (line[4]))-100;
 			break;
 		default:
 			System.out.println("ERROR: unknown summaryType in fromDBLine: " + summaryType);
 		}
 		
-		long uts = line[4] << 24 | (line[5] & 0xFF) << 16 | (line[6] & 0xFF) << 8 | (line[7] & 0xFF);
+		long uts = line[5] << 24 | (line[6] & 0xFF) << 16 | (line[7] & 0xFF) << 8 | (line[8] & 0xFF);
 		
 		dp.summaryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(uts), ZoneId.of("UTC"));
 		

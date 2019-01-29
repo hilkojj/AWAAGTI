@@ -8,6 +8,11 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+<<<<<<< HEAD
+=======
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+>>>>>>> db_reader
 
 public class DBFile
 {
@@ -17,49 +22,71 @@ public class DBFile
 	
 	private LocalDateTime dateTime;
 	
-	public static DBFile readSummary(String fileName, DataPoint.SummaryType summaryType) throws IOException
-	{
-		return read(fileName, summaryType);
-	}
+	private int[] readFilterClientIDs;
+	private String readFileName;
 	
-	public static DBFile read(String fileName) throws IOException
-	{
-		return read(fileName, null);
-	}
-	
-	private static DBFile read(String fileName, DataPoint.SummaryType summaryType) throws IOException
+	public static DBFile read(File file) throws IOException
 	{
 		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, null, null, null);
+		return dbFile;
+	}
+	
+	public static DBFile read(File file, DataPoint.SummaryType summaryType) throws IOException
+	{
+		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, summaryType, null, null);
+		return dbFile;
+	}
+	
+	public static DBFile read(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	{
+		DBFile dbFile = new DBFile();
+		dbFile.readFile(file, summaryType, filterClientIDs, filter);
+		return dbFile;
+	}
+	
+	private void readFile(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	{
+		IntStream clientIDs = null;
+		if (filterClientIDs != null) {
+			IntStream.of(filterClientIDs);
+		}
 
-		dbFile.dataPoints = new ArrayList<DataPoint>();
-		
-		File f = new File(fileName);
+		this.dataPoints = new ArrayList<DataPoint>();
 
-        InputStream inputStream = new FileInputStream(f);
-        
-        byte length = inputStream.readNBytes(1)[0];
+        InputStream inputStream = new FileInputStream(file);
+
+		byte[] lengths = new byte[1];
+		inputStream.read(lengths, 0, 1);
+		byte length = lengths[0];
+
         System.out.println("Part length: " + length);
 
-        byte[] byteRead;
+        byte[] byteRead = new byte[length];
+        int read;
+
     	while (true) {
-        	byteRead = inputStream.readNBytes(length);
-        	if (byteRead.length < length) {
+        	read = inputStream.read(byteRead, 0, length); // OLD
+        	if (read < length) {
         		System.out.println("What? Less than expected length: " + byteRead.length);
         		break;
         	}
         	
-        	dbFile.interpretLine(byteRead, summaryType);
+        	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
+
+        	if (clientIDs != null && !clientIDs.anyMatch(x -> x == dp.clientID)) {
+        		continue;
+        	}
+        	
+        	if (filter != null && !filter.execute(dp)) {
+        		continue;
+        	}
+
+        	this.dataPoints.add(dp);
 		}
     	
     	inputStream.close();
-		
-		return dbFile;	
-	}
-	
-	private void interpretLine(byte[] line, DataPoint.SummaryType summaryType)
-	{
-		DataPoint dp = DataPoint.fromDBLine(line, summaryType);
-		this.dataPoints.add(dp);
 	}
 	
 	/**

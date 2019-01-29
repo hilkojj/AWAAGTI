@@ -1,6 +1,4 @@
-package DBReader;
-
-import shared.DataPoint;
+package shared;
 
 /**
  * QueryFilter parses query filter string formats and allows for
@@ -34,7 +32,16 @@ public class QueryFilter
 		this.parseFilter(filter);
 	}
 	
-	public boolean compare(DataPoint dp)
+	/**
+	 * execute this QueryFilter on a DataPoint.
+	 * The 'variable' part of the QueryFilter string (see constructor)
+	 * determines which value of the DataPoint is used for the comparison.
+	 * 
+	 * @param dp The DataPoint.
+	 * 
+	 * @return boolean
+	 */
+	public boolean execute(DataPoint dp)
 	{
 		int a = 0;
 		switch (this.variable) {
@@ -46,6 +53,13 @@ public class QueryFilter
 		return this.execute(a);
 	}
 	
+	/**
+	 * execute this QueryFilter on this integer.
+	 * 
+	 * @param a Integer
+	 * 
+	 * @return boolean
+	 */
 	public boolean execute(int a)
 	{
 		switch (this.operand) {
