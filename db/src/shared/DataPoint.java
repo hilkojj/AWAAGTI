@@ -21,7 +21,7 @@ public class DataPoint implements Comparable<DataPoint>
 	public int temp;
 	
 	public SummaryType summaryType;
-	public LocalDateTime summaryDateTime;
+	public long summaryDateTime;
 	
 		
 	private byte[] dbLine;
@@ -67,9 +67,9 @@ public class DataPoint implements Comparable<DataPoint>
 					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
 				}
 				
-				if (this.summaryDateTime != null) {
+				if (this.summaryDateTime != 0) {
 					// RIP 2038
-					int uts = (int) this.summaryDateTime.toEpochSecond(ZoneOffset.UTC);
+					int uts = (int) this.summaryDateTime;
 					
 					this.dbLine[5] = (byte)(uts >>> 24);
 					this.dbLine[6] = (byte)(uts >>> 16);
@@ -132,7 +132,7 @@ public class DataPoint implements Comparable<DataPoint>
 		
 		long uts = line[5] << 24 | (line[6] & 0xFF) << 16 | (line[7] & 0xFF) << 8 | (line[8] & 0xFF);
 		
-		dp.summaryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(uts), ZoneId.of("UTC"));
+		dp.summaryDateTime = uts;
 		
 		dp.summaryType = summaryType;
 		

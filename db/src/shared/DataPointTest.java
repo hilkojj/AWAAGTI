@@ -45,7 +45,7 @@ public class DataPointTest
 		dp5.clientID = 5;
 		dp5.temp = 215;
 		dp5.summaryType = DataPoint.SummaryType.TEMP;
-		dp5.summaryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(1548596433), ZoneId.systemDefault());
+		dp5.summaryDateTime = 1548596433;
 
 		dbLine = dp5.makeDBLine();
 		
@@ -58,7 +58,7 @@ public class DataPointTest
 		a(dp5.summaryType == dp6.summaryType);	
 		System.out.println(dp5.summaryDateTime);
 		System.out.println(dp6.summaryDateTime);
-		a(dp5.summaryDateTime.equals(dp6.summaryDateTime));
+		a(dp5.summaryDateTime == dp6.summaryDateTime);
 	}
 	
 	public static void a(boolean b) throws Exception

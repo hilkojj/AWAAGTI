@@ -17,7 +17,7 @@ public class DBFile
 	
 	private String fileName;
 	
-	private LocalDateTime dateTime;
+	private long dateTime;
 	
 	private int[] readFilterClientIDs;
 	private String readFileName;
@@ -115,12 +115,12 @@ public class DBFile
 		return this.fileName;
 	}
 	
-	public LocalDateTime getDateTime()
+	public long getDateTime()
 	{
 		return dateTime;
 	}
 
-	public void setDateTime(LocalDateTime dateTime)
+	public void setDateTime(long dateTime)
 	{
 		this.dateTime = dateTime;
 	}	
