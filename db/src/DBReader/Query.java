@@ -22,7 +22,8 @@ public class Query {
     public int hash = -1;
 
     private int[] stations = {};
-    private long from = 1500000000;
+    private long from = 0;
+    private long cur = from;
     private long to = -1;
     private int interval = 1;
     private ArrayList<String> what = new ArrayList<>();
@@ -40,16 +41,16 @@ public class Query {
                 String data = line.substring(line.indexOf("=") + 1).replace("\n", "" );
 
                 switch (line.substring(0, line.indexOf("="))) {
-                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break;
-                    case "from":  from = Long.parseLong(data); break;
-                    case "to": to = Long.parseLong(data); break;
+                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break; // TESTED
+                    case "from":  from = Long.parseLong(data); break; // TESTED
+                    case "to": to = Long.parseLong(data); break; // TESTED
                     case "interval": interval = Integer.parseInt(data); break;
                     case "what":  what.addAll(Arrays.asList(data.split(","))); break;
                     case "sortBy": sortBy = data; break;
                     case "limit": limit = Integer.parseInt(data); break;
-                    case "filter": this.filter = new QueryFilter(data); break;
+                    case "filter": this.filter = new QueryFilter(data); break; // TESTED
                     default:
-                        Logger.log("throw new NotImplementedException(): " + line); // TODO:
+                        Logger.log("throw new NotImplementedException(): " + line);
                 }
             }
         }
@@ -65,6 +66,11 @@ public class Query {
 
         if (limit == -1)
             limit = Integer.MAX_VALUE;
+
+        if (what.size() == 0) {
+            what.add("temp");
+            // TODO: add more
+        }
 
 
         // Tell the client about wrong queries
@@ -97,10 +103,10 @@ public class Query {
             Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
             Logger.log("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
 
-            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
+            Query q3 = new Query("stations=50,7950;from=1548690682;to=1548690699\n");
             Logger.log("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
 
-            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
+            Query q4 = new Query("stations=50,7950;from=1548690682;to=1548690699;filter=temp,<,0\n");
             Logger.log("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
 
             Query q5 = new Query("stations=50,7950;from=0;to=-1;interval=2;\n");
@@ -110,7 +116,7 @@ public class Query {
             Query qs1 = new Query("stations=50,7950;sortBy=temp_min;limit=1\n");
             Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
 
-            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp_min;limit=1\n");
+            Query qs2 = new Query("stations=50,7950;from=1548690682;to=1548690699;sortBy=temp_min;limit=1\n");
             File file = qs2.getDataFilesSorted().iterator().next();
             boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
             Logger.log("PARSE SORTED: 2 " + works);
@@ -150,7 +156,6 @@ public class Query {
      */
     private Iterable<File> getDataFilesNormal() {
         return () -> new Iterator<File>() {
-            long cur = from;
             long iteration = 0;
             File nextVal = null;
             String currentPath = "";
@@ -160,10 +165,11 @@ public class Query {
                 if (iteration >= limit)
                     return false;
 
-                while (cur <= to) {
+                while (cur < to) {
                     if (!findDir()) return false;
 
-                    String filename = timestampToFolder(currentPath) + cur + ".txt";
+                    String filename = timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION;
+                    Logger.error(filename);
 
                     nextVal = new File(filename);
                     cur += interval;
@@ -234,15 +240,14 @@ public class Query {
      */
     private Iterable<File> getDataFilesSorted() {
         return () -> new Iterator<File>() {
-            long cur = from;
-            String summaryFileName = "temp_min_sum";
+            String summaryFileName = sortBy+"_sum";
             Boolean hasExported = false;
             DataPoint.SummaryType summaryType = DataPoint.SummaryType.TEMP;
 
             /*
                 Get the query answer by combining index files
              */
-            private ArrayList<DataPoint> getIndexResults(long from, long to) {
+            private ArrayList<DataPoint> getIndexResults() {
                 hasExported = true;
                 Map<Integer, DataPoint> indexResultMap = new HashMap<>();
 
@@ -342,7 +347,7 @@ public class Query {
                 if (hasExported)
                     throw new NoSuchElementException();
 
-                ArrayList<DataPoint> dps = getIndexResults(from, to);
+                ArrayList<DataPoint> dps = getIndexResults();
                 hasExported = true;
 
                 DBFile dbFile = new DBFile();
@@ -376,6 +381,7 @@ public class Query {
         ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
+//            Logger.error(Arrays.toString(this.stations));
             DBFile dbFile = DBFile.read(file, null, stations, this.filter);
             return dbFile.getDataPoints();
         } catch (IOException e) {
@@ -388,5 +394,14 @@ public class Query {
 
     public boolean inSelect(String temp) { // TODO: IMPLEMENT WHAT
         return true;
+    }
+
+    public int progress() {
+        long diffFromStart = cur - from;
+        long total = to - from;
+        float proc = ((diffFromStart / (float)total) * 100);
+//        Logger.log(from + " " + cur + " " + to + " = "+proc);
+//        Logger.log(diffFromStart + " " + total + " = "+proc);
+        return (int) Math.min(proc, 100);
     }
 }

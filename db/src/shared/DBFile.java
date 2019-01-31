@@ -45,10 +45,7 @@ public class DBFile
 	
 	private void readFile(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
 	{
-		IntStream clientIDs = null;
-		if (filterClientIDs != null) {
-			IntStream.of(filterClientIDs);
-		}
+
 
 		this.dataPoints = new ArrayList<DataPoint>();
 
@@ -71,9 +68,18 @@ public class DBFile
         	
         	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
 
-        	if (clientIDs != null && !clientIDs.anyMatch(x -> x == dp.clientID)) {
-        		continue;
-        	}
+			IntStream clientIDs = null;
+			if (filterClientIDs != null) {
+				clientIDs = IntStream.of(filterClientIDs);
+			}
+
+			if (clientIDs != null) {
+				boolean match = clientIDs.anyMatch(x -> x == dp.clientID);
+//				Logger.error("MATCH: " + match);
+				if (!match) {
+					continue;
+				}
+			}
         	
         	if (filter != null && !filter.execute(dp)) {
         		continue;

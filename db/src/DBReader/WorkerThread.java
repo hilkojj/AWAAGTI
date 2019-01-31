@@ -13,6 +13,7 @@ public class WorkerThread implements Runnable {
     public WorkerThread(Socket connection) throws SocketException { this.connection = connection; connection.setKeepAlive(Settings.KEEP_SOCKETS_ALIVE); }
     private BufferedReader conReader = null;
     private ConWriter conWriter = null;
+    private int progress = 0;
 
     @Override
     public void run() {
@@ -26,6 +27,7 @@ public class WorkerThread implements Runnable {
                 process(new Query(conReader.readLine()));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
+                e.printStackTrace();
                 conWriter.write(ConWriter.Types.error, e.getMessage());
             }
 
@@ -90,7 +92,15 @@ public class WorkerThread implements Runnable {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<export>\n");
 
+            int oldProgress = 0;
+
             for (File file : query.getDataFiles()) {
+                int newProgress = query.progress();
+                if (oldProgress < newProgress) {
+                    oldProgress = newProgress;
+                    conWriter.write(ConWriter.Types.progress, ""+newProgress);
+                }
+
                 Logger.log("Collecting from: " +file.getName());
                 collectDatePoint(file, writer, query);
             }
@@ -109,20 +119,13 @@ public class WorkerThread implements Runnable {
     private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException {
 
         ArrayList<DataPoint> stations = query.getStations(file);
-        float progress =0;
         if (stations.size() > 0) {
-
-
-//            new SimpleDateFormat("dd-MM-yyyy").format(date);
-//            new SimpleDateFormat("HH:mm:ss").format(date);
 
             writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
             writer.write("\t\t<stations>\n");
 
             for (DataPoint station : stations) {
                 collectStation(station, writer, query);
-                progress ++;
-                conWriter.write(ConWriter.Types.progress, "" + (progress / stations.size() * 100));
             }
 
             writer.write("\t\t</stations>\n");
