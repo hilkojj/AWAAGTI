@@ -24,6 +24,7 @@ module.exports.registerIp = (req, res) => {
     if (apiKeys[apiKey]) {
 
         let name = apiKeys[apiKey]
+        let prevId = (ips[name] || {}).ip
         ips[name] = {
             ip,
             timeRegisterd: new Date().toTimeString()
@@ -31,7 +32,7 @@ module.exports.registerIp = (req, res) => {
 
         res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
 
-        bot.sendMessage(telegramTokenAndChatId, `Ip van ${name}: ${ip}`)
+        prevId != id && bot.sendMessage(telegramTokenAndChatId[1], `Wowie dit is het IP van ${name}:\n${ip}`)
 
     } else res.send("fuck you i dont know you\n")
 }
