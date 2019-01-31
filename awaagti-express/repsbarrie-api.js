@@ -1,6 +1,10 @@
 const fs = require("fs")
 const apiKeysFile = "./api-keys.json"
 const apiKeys = fs.existsSync(apiKeysFile) ? JSON.parse(fs.readFileSync(apiKeysFile).toString()) : {}
+const TelegramBot = require('node-telegram-bot-api')
+const telegramTokenAndChatId = fs.readFileSync("./telegram-token.txt").toString().split("\n")
+
+const bot = new TelegramBot(telegramTokenAndChatId[0], { polling: true })
 
 const ips = {}
 
@@ -26,6 +30,8 @@ module.exports.registerIp = (req, res) => {
         }
 
         res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
+
+        bot.sendMessage(telegramTokenAndChatId, `Ip van ${name}: ${ip}`)
 
     } else res.send("fuck you i dont know you\n")
 }
