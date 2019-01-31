@@ -207,7 +207,7 @@
                     <mat-option [value]="null">
                         Don't create top list.
                     </mat-option>
-                    <mat-option *ngFor="let m of configs.measurements"
+                    <mat-option *ngFor="let m of config.what"
                         [value]="m">
                         {{m | decamelcase}}
                     </mat-option>
@@ -222,6 +222,60 @@
             </mat-form-field>
 
             <br>
+
+            <mat-form-field>
+                <mat-select placeholder="Filter:"
+                    [(ngModel)]="config.filterThing">
+                    <mat-option [value]="null">
+                        Do not filter.
+                    </mat-option>
+                    <mat-option *ngFor="let m of (config.sortBy ? [config.sortBy] : config.what)"
+                        [value]="m">
+                        {{m | decamelcase}}
+                    </mat-option>
+
+                </mat-select>
+
+            </mat-form-field>
+            <br>
+
+            <div *ngIf="config.filterThing">
+                <mat-form-field>
+                    <mat-select placeholder="{{config.filterThing | decamelcase}} is:"
+                        [(ngModel)]="config.filterMode">
+                        <mat-option *ngFor="let m of configs.filterModes"
+                            [value]="m">
+                            {{m | decamelcase}}
+                        </mat-option>
+
+                    </mat-select>
+
+                </mat-form-field>
+
+                <br>
+
+                <span *ngIf="config.filterMode == 'between'">
+
+                    <mat-form-field style="width: 150px">
+                        <input matInput placeholder="Lower value:"
+                            [(ngModel)]="config.betweenLower">
+                    </mat-form-field>
+
+                    and
+
+                    <mat-form-field style="width: 150px">
+                        <input matInput placeholder="Upper value:"
+                            [(ngModel)]="config.betweenUpper">
+                    </mat-form-field>
+                </span>
+
+                <mat-form-field style="width: 200px" *ngIf="config.filterMode != 'between' && config.filterMode">
+                    <input matInput placeholder="{{config.filterThing | decamelcase}} {{config.filterMode | decamelcase}}:"
+                        [(ngModel)]="config.filterValue">
+                </mat-form-field>
+
+            </div>
+
 
             <button mat-raised-button color="primary"
                 (click)="configs.exportConfig(config)">

@@ -28,6 +28,11 @@ export interface Config {
     sortBy?: measurementType
     limit?: number
     filter?: string
+    filterThing?: string
+    filterMode?: "between" | "greaterThan" | "smallerThan" | "equals" | "notEquals"
+    filterValue?: number
+    betweenLower?: number
+    betweenUpper?: number
 }
 
 // stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temperature,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
@@ -42,6 +47,7 @@ export interface Config {
 export class ConfigsService {
 
     measurements = ["temperature", "windSpeed"]
+    filterModes = ["between", "greaterThan", "smallerThan", "equals", "notEquals"]
     exports = [] as Export[]
 
     constructor(
