@@ -47,220 +47,79 @@ public class Main
 		
 		long now = fromUTS/100*100;
 		for (; now <= toUTS; now+=100) {
-			System.out.println(now);
-			summarise(DBFile.dirForUTS(now), now, false);
+			summarise(now);
 			
 			if (now % 10000 == 0) {
-				System.out.println("Made it");
-				summarise(DBFile.dirForUTS(now/100), now, true);
+				summariseIntermediate(now, now/100-1);
+				System.out.println("Oke dan");
 			}
 			if (now % 1000000 == 0) {
-				summarise(DBFile.dirForUTS(now/10000), now, true);
+				summariseIntermediate(now, now/10000-1);
 			}
 			if (now % 100000000 == 0) {
-				summarise(DBFile.dirForUTS(now/1000000), now, true);
+				summariseIntermediate(now, now/1000000-1);
 			}
 		}
 	}
 	
-	private static void summarise(String dir, long uts, boolean ofSummaries)
+	public static void summarise(long now)
 	{
+		Summariser sum = new Summariser(now);
+
+		boolean needs = false;
+
 		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
 			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
-				String fileName = s2Type.toString().toLowerCase() + "_" + sType.toString().toLowerCase() + "_sum";
-				String sumFileName = dir + "/" + fileName + ".awaagti";
+				sum.setsType(sType);
+				sum.setS2Type(s2Type);
+				if (sum.alreadyExists()) {
+					System.out.println(now + " already exists");
+					return;
+				}
+				needs = true;
+			}
+		}
+		
+		if (!needs) {
+			return;
+		}
+		
+		int read = sum.readFiles();
+		if (read == 0) {
+			return;
+		}
 
-				File f = new File(sumFileName);
-				if (f.exists() && !f.isDirectory()) { 
-					System.out.println(sumFileName + ": already exists");
-					continue;
-				}
-				
-				DBFile[] inputs = readFiles(dir, uts, ofSummaries, fileName);
-				if (inputs == null) {
-					System.out.println("No files read :( ");
-					continue;
-				}
-				
-				ArrayList<DataPoint> dps = summariseActually(inputs, sType, s2Type);
-				if (dps.size() == 0) {
-					System.out.println("No summary, nothing to save.");
-					continue;
-				}
-				
-				DBFile dbFile = new DBFile();
-				dbFile.setDataPoints(dps);
-				
-				File directory = new File(dir);
-			    if (!directory.exists()){
-			    	System.out.println("Make dir");
-			        directory.mkdirs();
-			    }
-
-				dbFile.setFileName(sumFileName);
-				try {
-					dbFile.write();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
+			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
+				sum.setsType(sType);
+				sum.setS2Type(s2Type);
+				sum.summarise();
 			}
 		}
 	}
 	
-	private static DBFile[] readFiles(String dir, long uts, boolean ofSummarized, String fileNameBase)
+	public static void summariseIntermediate(long now, long dir)
 	{
-		DBFile[] files = new DBFile[100];
-		
-		int exists = 0;
-		String fileName = "";
-		
-		DBFile dbFile;
-		for (int second = 0; second < 100; second++) {
-			// (The variable name 'second' is not a good variable name,
-			//  as it's not a second, but just the last two digits of the unix time.)
-			if (ofSummarized) {
-				fileName = String.format("%s/%02d/%s.awaagti", dir, second, fileNameBase);
-			} else {
-				fileName = String.format(dir + "%d.awaagti", uts+second);
-			}
-			
-			dbFile = null;
-			try {
-				File f = new File(fileName);
-				dbFile = DBFile.read(f);
-				// TODO: check why this is needed.
-				dbFile.setDateTime(uts+second);
-				exists++;
-			} catch (IOException e) {
-			}
-			files[second] = dbFile;
-		}
-		
-		System.out.println("DEBUG: Found " + exists + " DBFiles. " + fileName);
-		
-		if (exists == 0) {
-			return null;
-		}
-		
-		return files;
-	}
-	
-	protected static ArrayList<DataPoint> summariseActually(DBFile[] files, Summariser.SummaryType sType, DataPoint.SummaryType s2Type)
-	{
-		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
-		
-		int[] fileDPSIndexes = new int[files.length];
-		
-		boolean going = true;
-		//int dpIndex = -1; // DataPoint index.
-		while (going) { // Loop over DataPoints in files.
-			//dpIndex++;
-
-			DataPoint dp = new DataPoint();
-			dp.summaryType = s2Type;
-			
-			// Determine next lowest clientID.
-			// (Because client can be missing from DBFiles)
-			int clientID = -1;
-			int i = -1;
-			for (DBFile file : files) {
-				i++;
-				if (file == null) {
-					continue;
-				}
+		Summariser sum;
+		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
+			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
+				sum = new IntermediateSummariser(now, dir);
+				sum.setsType(sType);
+				sum.setS2Type(s2Type);
 				
-				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
-					continue;
-				}
-				
-				int ourLowestClientID  = file.getDataPoints().get(fileDPSIndexes[i]).clientID;
-				if (clientID != -1 && clientID <= ourLowestClientID) {
-					continue;
-				}
-				
-				clientID = ourLowestClientID;
-			}
-			
-			Integer val = null;
-			long maxDateTime = 0;
-			
-			going = false;
-			
-			i = -1;
-			for (DBFile file : files) {
-				i++;
-				if (file == null) {
-					continue;
-				}
-				
-				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
+				if (sum.alreadyExists()) {
+					System.out.println(dir + " already exists");
 					continue;
 				}
 
-				DataPoint tDP = file.getDataPoints().get(fileDPSIndexes[i]);
-				
-				if (clientID != tDP.clientID) {
-					// ClientID is missing from this DBFile :(, but that's okay.
-					// All DPS's are sorted, so if the clientID is not .
-					
-					System.out.println("DEBUG: missing clientID " + clientID + ", got " + tDP.clientID + " at " + i);
+				int read = sum.readFiles();
+				if (read == 0) {
 					continue;
 				}
-				
-				going = true;
-				
-				fileDPSIndexes[i]++;
 
-				Integer newVal = check(sType, val, tDP.getVal(s2Type));
-				if (newVal != null) {
-					val = newVal;
-					
-					if (tDP.summaryDateTime != 0) {
-						maxDateTime = tDP.summaryDateTime;
-					} else {
-						maxDateTime = file.getDateTime();
-					}
-				}	
-	
+				sum.summarise();
 			}
-			
-			if (!going) {
-				continue;
-			}
-
-			dp.clientID = clientID;
-			
-			if (maxDateTime != 0) {
-				dp.temp = val;
-				dp.summaryDateTime = maxDateTime;
-			}
-			
-			dps.add(dp);
-		}
-		
-		return dps;
-	}
-	
-	private static Integer check(Summariser.SummaryType sType, Integer val1, int val2)
-	{
-		if (val1 == null) {
-			return val2;
-		}
-
-		switch (sType) {
-		case MAX:
-			if (val2 > val1) {
-				return val2;
-			}
-			return null;
-		case MIN:
-			if (val2 < val1) {
-				return val2;
-			}
-			return null;
-		default:
-			System.out.println("ERROR: invalid sType in method check: " + sType);
-			return 0;
 		}
 	}
 }
+

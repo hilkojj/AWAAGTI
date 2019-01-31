@@ -10,6 +10,7 @@ public class InspectDBFile
 		if (args.length == 0) {
 			System.out.println("Provide unix time pl0x");
 			System.out.println("Usage: InspectDBFile {unix time} [summaryType (temp) (optional)] [summaryType (max) (optional)]");
+			return;
 		}
 		
 		long uts = Long.parseLong(args[0]);

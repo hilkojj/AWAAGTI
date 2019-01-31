@@ -6,10 +6,16 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Main {
+public class Main
+{
 	public static void main(String[] args) throws Exception
 	{
-		ServerSocket serverSocket = new ServerSocket(8002, 100,
+		if (args.length == 0) {
+			System.out.println("Usage: db_writer {port}");
+			return;
+		}
+
+		ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]), 100,
 				InetAddress.getByName("0.0.0.0"));
 		System.out.println("Server started	at:	" + serverSocket);
 

@@ -58,8 +58,6 @@ public class DBFile
 		inputStream.read(lengths, 0, 1);
 		byte length = lengths[0];
 		
-		System.out.println("YOO DEZE LENGTH: " + length);
-
         byte[] byteRead = new byte[length];
         int read;
 
