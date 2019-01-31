@@ -25,7 +25,7 @@ export interface Config {
     stationIds: number[]
     timeFrame: TimeFrame
     what: measurementType[]
-    sortBy?: measurementType
+    sortBy?: [measurementType, 'min' | 'max']
     limit?: number
     filter?: string
     filterThing?: string

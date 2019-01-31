@@ -6,16 +6,15 @@ const exportsFolder = require("./index").exportsFolder
 
 const configToQuery = config => {
     let q = `stations=${config.stationIds.join(",")};from=${config.timeFrame.from};to=${config.timeFrame.to};`
-        + `interval=${config.timeFrame.interval};what=${config.what.join(",")};`
+        + `interval=${config.timeFrame.interval};what=${config.what.map(t => t.slice(0, 4)).join(",")};`
 
     if (config.sortBy)
-        q += `sortBy=${config.sortBy};`
+        q += `sortBy=${config.sortBy[0].slice(0, 4)}_${sortBy[1] == 'min' ? 'min' : 'max'};`
     if (config.limit)
         q += `limit=${config.limit};`
     if (config.filterThing && config.filterMode) {
 
-        // Remi wil geen 'temperature' hij wil alleen 'temp':
-        let filterThing = config.filterThing == "temperature" ? "temp" : String(config.filterThing)
+        let filterThing = String(config.filterThing).slice(0, 4)
 
         switch (config.filterMode) {
             case "between":

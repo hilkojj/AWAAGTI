@@ -208,9 +208,14 @@
                         Don't create top list.
                     </mat-option>
                     <mat-option *ngFor="let m of config.what"
-                        [value]="m">
-                        {{m | decamelcase}}
+                        [value]="[m, 'max']">
+                        Highest {{m | decamelcase}}
                     </mat-option>
+                    <mat-option *ngFor="let m of config.what"
+                        [value]="[m, 'min']">
+                        Lowest {{m | decamelcase}}
+                    </mat-option>
+
 
                 </mat-select>
 
@@ -229,7 +234,7 @@
                     <mat-option [value]="null">
                         Do not filter.
                     </mat-option>
-                    <mat-option *ngFor="let m of (config.sortBy ? [config.sortBy] : config.what)"
+                    <mat-option *ngFor="let m of (config.sortBy ? [config.sortBy[0]] : config.what)"
                         [value]="m">
                         {{m | decamelcase}}
                     </mat-option>
