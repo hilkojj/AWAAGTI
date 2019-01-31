@@ -16,6 +16,7 @@ export interface Export {
     config: Config
     progress: number
     downloadUrl?: string
+    fileSize?: number
     error?: string
 }
 
@@ -109,15 +110,21 @@ export class ConfigsService {
             exp.downloadUrl = environment.socketUrl + "exports/" + file
             console.log(exp.downloadUrl)
         })
+        this.io.socket.on("export size " + config.id, size => {
+            exp.fileSize = Number(size)
+            console.log("export size", size)
+        })
     }
 
     finishExport(config: Config) {
         this.io.socket.off("export error " + config.id)
         this.io.socket.off("export progress " + config.id)
         this.io.socket.off("export done " + config.id)
+        this.io.socket.off("export size " + config.id)
     }
 
     closeExport(exp: Export) {
+        this.finishExport(exp.config)
         this.exports.splice(this.exports.indexOf(exp), 1)
     }
 
