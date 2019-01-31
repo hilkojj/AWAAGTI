@@ -1,3 +1,13 @@
+console.log(`
+▄▄▄· ▄▄▌ ▐ ▄▌ ▄▄▄·  ▄▄▄·  ▄▄ • ▄▄▄▄▄▪  
+▐█ ▀█ ██· █▌▐█▐█ ▀█ ▐█ ▀█ ▐█ ▀ ▪•██  ██ 
+▄█▀▀█ ██▪▐█▐▐▌▄█▀▀█ ▄█▀▀█ ▄█ ▀█▄ ▐█.▪▐█·
+▐█ ▪▐▌▐█▌██▐█▌▐█ ▪▐▌▐█ ▪▐▌▐█▄▪▐█ ▐█▌·▐█▌
+ ▀  ▀  ▀▀▀▀ ▀▪ ▀  ▀  ▀  ▀ ·▀▀▀▀  ▀▀▀ ▀▀▀
+ =============== Express ===============
+ Version 1.0
+`)
+
 const path = require('path')
 const express = require("express")
 const bodyParser = require("body-parser")
@@ -27,6 +37,8 @@ app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
 
+app.post("/github-webhook", require("./github-webhook"))
+
 console.log("Exports are saved in?", exportsFolder)
 app.use("/exports",
 
@@ -40,7 +52,7 @@ app.use("/exports",
 
     express.static(exportsFolder))
 
-app.use("/", express.static(path.join(__dirname, "/../build/")))
-app.use("/*", (req, res) => res.sendFile(path.resolve("../build/index.html")))
+app.use("/", express.static(path.join(__dirname, "/../awaagular/dist/awaagular/")))
+app.use("/*", (req, res) => res.sendFile(path.resolve("/../awaagular/dist/awaagular/index.html")))
 
 http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))

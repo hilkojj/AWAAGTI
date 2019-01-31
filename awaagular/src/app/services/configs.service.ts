@@ -25,9 +25,14 @@ export interface Config {
     stationIds: number[]
     timeFrame: TimeFrame
     what: measurementType[]
-    sortBy?: measurementType
+    sortBy?: [measurementType, 'min' | 'max']
     limit?: number
     filter?: string
+    filterThing?: string
+    filterMode?: "between" | "greaterThan" | "smallerThan" | "equals" | "notEquals" | "equalsOrGreaterThan" | "equalsOrSmallerThan"
+    filterValue?: number
+    betweenLower?: number
+    betweenUpper?: number
 }
 
 // stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temperature,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
@@ -42,6 +47,7 @@ export interface Config {
 export class ConfigsService {
 
     measurements = ["temperature", "windSpeed"]
+    filterModes = ["between", "greaterThan", "smallerThan", "equals", "notEquals", "equalsOrGreaterThan", "equalsOrSmallerThan"]
     exports = [] as Export[]
 
     constructor(
@@ -109,6 +115,10 @@ export class ConfigsService {
         this.io.socket.off("export error " + config.id)
         this.io.socket.off("export progress " + config.id)
         this.io.socket.off("export done " + config.id)
+    }
+
+    closeExport(exp: Export) {
+        this.exports.splice(this.exports.indexOf(exp), 1)
     }
 
 }
