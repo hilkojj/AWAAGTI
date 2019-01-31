@@ -25,9 +25,9 @@ module.exports.registerIp = (req, res) => {
             timeRegisterd: new Date().toTimeString()
         }
 
-        res.send(`${bird}\nThank you ${name} for your IP (${ip})`)
+        res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
 
-    } else res.send("fuck you i dont know you")
+    } else res.send("fuck you i dont know you\n")
 }
 
 module.exports.showIps = (req, res) => res.json(ips)
