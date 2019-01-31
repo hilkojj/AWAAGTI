@@ -22,18 +22,18 @@ module.exports.exportsFolder = exportsFolder
 
 require("./socket.js")(io)
 
-app.post("/api/repsbarrie", (req, res) => {
-
-    console.log(req.body.ip, req.body.apiKey)
-
-})
-
 app.use(bodyParser.json())
 app.use((_req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200")
     res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization")
     next()
-});
+})
+
+app.post("/api/repsbarrie", (req, res) => {
+
+    console.log(req.body.ip, req.body.apiKey)
+
+})
 
 const auth = require("./auth.js")
 const passport = require('passport')
