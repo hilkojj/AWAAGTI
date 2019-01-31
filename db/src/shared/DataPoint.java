@@ -58,7 +58,7 @@ public class DataPoint implements Comparable<DataPoint>
 				this.dbLine = new byte[5+8];
 				switch (this.summaryType) {
 				case TEMP:
-					short temp = (short) (this.temp+100);
+					int temp = (this.temp+100);
 					
 					this.dbLine[3] = (byte)(temp >> 8);
 					this.dbLine[4] = (byte)(temp);
@@ -81,15 +81,15 @@ public class DataPoint implements Comparable<DataPoint>
 				
 				this.dbLine = new byte[5];
 				
-				short temp = (short) (this.temp+100);
+				int temp = this.temp+100;
 				
-				this.dbLine[3] = (byte)((short)temp >> 8);
-				this.dbLine[4] = (byte)((short)temp);
+				this.dbLine[3] = (byte)(temp >> 8);
+				this.dbLine[4] = (byte)(temp);
 			}
 			
-			this.dbLine[0] = (byte)((short)this.clientID >> 16);
-			this.dbLine[1] = (byte)((short)this.clientID >> 8);
-			this.dbLine[2] = (byte)((short)this.clientID);
+			this.dbLine[0] = (byte)(this.clientID >> 16);
+			this.dbLine[1] = (byte)(this.clientID >> 8);
+			this.dbLine[2] = (byte)(this.clientID);
 		}
 		
 		return this.dbLine;
