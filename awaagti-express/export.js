@@ -12,6 +12,22 @@ const configToQuery = config => {
         q += `sortBy=${config.sortBy};`
     if (config.limit)
         q += `limit=${config.limit};`
+    if (config.filterThing && config.filterMode) {
+
+        // Remi wil geen 'temperature' hij wil alleen 'temp':
+        let filterThing = config.filterThing == "temperature" ? "temp" : String(config.filterThing)
+
+        switch (config.filterMode) {
+            case "between":
+                q += `filter=${filterThing},between,${config.betweenLower},${config.betweenUpper};`
+                break
+            default:
+                let operand = { "greaterThan": ">", "smallerThan": "<", "equals": "==", "notEquals": "!=", "equalsOrGreaterThan": ">=", "equalsOrSmallerThan": "<=" }[config.filterMode]
+                if (operand)
+                    q += `filter=${filterThing},${operand},${config.filterValue};`
+        }
+    }
+
     return q + "\r\n"
 }
 

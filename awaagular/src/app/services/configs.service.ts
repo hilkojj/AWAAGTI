@@ -29,7 +29,7 @@ export interface Config {
     limit?: number
     filter?: string
     filterThing?: string
-    filterMode?: "between" | "greaterThan" | "smallerThan" | "equals" | "notEquals"
+    filterMode?: "between" | "greaterThan" | "smallerThan" | "equals" | "notEquals" | "equalsOrGreaterThan" | "equalsOrSmallerThan"
     filterValue?: number
     betweenLower?: number
     betweenUpper?: number
@@ -47,7 +47,7 @@ export interface Config {
 export class ConfigsService {
 
     measurements = ["temperature", "windSpeed"]
-    filterModes = ["between", "greaterThan", "smallerThan", "equals", "notEquals"]
+    filterModes = ["between", "greaterThan", "smallerThan", "equals", "notEquals", "equalsOrGreaterThan", "equalsOrSmallerThan"]
     exports = [] as Export[]
 
     constructor(
