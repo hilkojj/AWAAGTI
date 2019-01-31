@@ -183,39 +183,48 @@ public class Query {
             }
 
             private boolean findDir() {
-                String timestampStr = "" + cur;
-                if (currentPath.length() == 8 && timestampStr.startsWith(currentPath)) return true;
-                goDeeper:
-                while (currentPath.length() / 2 < 4 || !timestampStr.startsWith(currentPath)) {
+                searchForTheDir:
+                while (true) {
+                      
+                    String timestampStr = "" + cur;
+                    if (currentPath.length() == 8 && timestampStr.startsWith(currentPath)) return true;
+                    goDeeper:
+                    while (currentPath.length() / 2 < 4 || !timestampStr.startsWith(currentPath)) {
 
-                    if (timestampStr.startsWith(currentPath)) {
+                        if (timestampStr.startsWith(currentPath)) {
 
-                        String currentPathWithSlashes = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/");
-                        System.out.println(currentPathWithSlashes);
+                            String currentPathWithSlashes = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/");
+                            System.out.println(currentPathWithSlashes);
 
-                        String[] directories = new File(currentPathWithSlashes).list();
+                            String[] directories = new File(currentPathWithSlashes).list();
 
-                        for (String dir : directories) {
-                            String path = currentPath + dir;
-                            if (timestampStr.startsWith(path)) {
-                                currentPath = path;
+                            for (String dir : directories) {
+                                String path = currentPath + dir;
+                                if (timestampStr.startsWith(path)) {
+                                    currentPath = path;
 
-                                if (currentPath.length() == 8) return true; // dir was found, cannot go any deeper ;-(
+                                    if (currentPath.length() == 8) return true; // dir was found, cannot go any deeper ;-(
 
-                                continue goDeeper; // dir was found, eg: 15/48 was found, now find 15/48/34
+                                    continue goDeeper; // dir was found, eg: 15/48 was found, now find 15/48/34
+                                }
                             }
-                        }
-                        // no dir found
+                            // no dir found
 
-                        int antiDeepness = 4 - currentPath.length() / 2;
-                        long minimalTimestamp = cur + (int) Math.pow(100, antiDeepness);
+                            int antiDeepness = 4 - currentPath.length() / 2;
+                            long minimalTimestamp = cur + (int) Math.pow(100, antiDeepness);
+                            
+                           
+                            if (cur < minimalTimestamp)
+                                cur += Math.ceil((minimalTimestamp - cur) / (float) interval) * interval;
+                              
+                            if (cur > to)
+                                return false
 
-                        if (cur < minimalTimestamp)
-                            cur += Math.ceil((minimalTimestamp - cur) / (float) interval) * interval;
+                            continue searchForTheDir;
+                            
+                        } else currentPath = currentPath.substring(0, currentPath.length() - 2);
 
-                        return findDir();
-                    } else currentPath = currentPath.substring(0, currentPath.length() - 2);
-
+                    }
                 }
                 return false;
             }
