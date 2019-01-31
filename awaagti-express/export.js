@@ -31,12 +31,12 @@ const configToQuery = config => {
     return q + "\r\n"
 }
 
-module.exports = (config, onProgress, onDone, onError) => {
+module.exports = async (config, onProgress, onDone, onError) => {
 
     let client = new net.Socket()
     let file = null
 
-    let interval = setInterval(() => {
+    let interval = setInterval(async () => {
         if (!file) return
         let path = exportsFolder + file
 

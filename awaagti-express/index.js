@@ -22,6 +22,12 @@ module.exports.exportsFolder = exportsFolder
 
 require("./socket.js")(io)
 
+app.post("/api/repsbarrie", (req, res) => {
+
+    console.log(req.ip, req.apiKey)
+
+})
+
 app.use(bodyParser.json())
 app.use((_req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200")
