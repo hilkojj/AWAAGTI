@@ -29,11 +29,9 @@ app.use((_req, res, next) => {
     next()
 })
 
-app.post("/api/repsbarrie", (req, res) => {
-
-    console.log(req.body.ip, req.body.apiKey)
-
-})
+const repsbarrieApi = require("./repsbarrie-api")
+app.post("/api/register-repsbarrie-ip", repsbarrieApi.registerIp)
+app.get("/api/repsbarries", repsbarrieApi.showIps)
 
 const auth = require("./auth.js")
 const passport = require('passport')
