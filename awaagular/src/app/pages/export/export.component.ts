@@ -1,7 +1,8 @@
 import { Component, OnInit, DoCheck } from '@angular/core';
 import { StationsService, Station } from 'src/app/services/stations.service';
 import { Config, ConfigsService, measurementType } from 'src/app/services/configs.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 declare var L: any
 
@@ -29,8 +30,14 @@ export class ExportComponent implements OnInit, DoCheck {
     constructor(
         public stations: StationsService,
         public configs: ConfigsService,
-        private route: ActivatedRoute
+        route: ActivatedRoute,
+        router: Router,
+        auth: AuthService
     ) {
+        if (!auth.token) {
+            router.navigateByUrl("/")
+            return
+        }
         if (route.snapshot.params["configIndex"] && configs.array)
             this.config = configs.array[route.snapshot.params["configIndex"]]
     }

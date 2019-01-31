@@ -7,13 +7,13 @@ public class DBFileTest
 {
 	public static void main(String[] args) throws IOException
 	{
-		File file = new File("15/38/39/94/1538399400.txt");
+		File file = new File("15/48/69/06/1548690685.awaagti");
 		DBFile dbFile = DBFile.read(file);
 		for (DataPoint db: dbFile.getDataPoints()) {
 			System.out.println(db.clientID + ": " + db.temp);
 		}
 		
-		file = new File("temp/min/hour/20181001_13.txt");
+		file = new File("15/48/69/06/temp_max_sum.awaagti");
 		dbFile = DBFile.read(file, DataPoint.SummaryType.TEMP);
 		for (DataPoint db: dbFile.getDataPoints()) {
 			System.out.println(db.clientID + ": " + db.temp + " " + db.summaryDateTime);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 
 import shared.DBFile;
 import shared.DataPoint;
@@ -17,136 +18,57 @@ public class Main
 		
 		if (args.length < 1) {
 			System.out.println("Usage: db_summariser {unix time stamp: from} [unix time stamp: to, defaults to Now if not specified]");
-			System.out.println("Generates summary files for the minutes, hours and days between the given timestamps.");
+			System.out.println("Generates summary files for every 100, 10*100, 100*100, etc between the given timestamps.");
 			System.out.println("ERROR: Please provide unixtimestamp of when to start making summuries.");
 
 			return;
 		}
 
 		long fromUTS = Long.parseLong(args[0]);
-		from = LocalDateTime.ofEpochSecond(fromUTS, 0, ZoneOffset.UTC);
+		long toUTS;
 		
 		if (args.length >= 2) {
-			long toUTS = Long.parseLong(args[1]);
-			to = LocalDateTime.ofEpochSecond(toUTS, 0, ZoneOffset.UTC);
+			toUTS = Long.parseLong(args[1]);
 		} else {
-			to = LocalDateTime.now();
+			toUTS = (int)(System.currentTimeMillis()/1000);
 		}
 		
 		boolean dryRun = args.length >= 3 && args[2].equalsIgnoreCase("dryrun");
 		
 		System.out.println("Start db_summariser");
 		System.out.print("Summarise from ");
-		System.out.print(from);
+		System.out.print(fromUTS);
 		System.out.print(" to ");
-		System.out.println(to);
+		System.out.println(toUTS);
 		
 		if (dryRun) {
 			System.out.println("Dry run!");
 		}
 		
-		LocalDateTime now = from;
-		
-		int year = 0;
-		int month = 0;
-		int day = 0;
-		boolean firstDay = false;
-		boolean lastDay = false;
-		while (!now.isAfter(to)) {
-			year = now.getYear();
-			month = now.getMonthValue();
-			day = now.getDayOfMonth();
+		long now = fromUTS/100*100;
+		for (; now <= toUTS; now+=100) {
+			System.out.println(now);
+			summarise(DBFile.dirForUTS(now), now, false);
 			
-			firstDay = from.getYear() == year && from.getMonthValue() == month && from.getDayOfMonth() == day;
-			lastDay = to.getYear() == year && to.getMonthValue() == month && to.getDayOfMonth() == day;
-			
-			System.out.println();
-			System.out.println(" ---- " + year + " " + month + " " + day + " , is first: " + firstDay + " , is last: " + lastDay);
-			System.out.println();
-			
-			for (int hour = 0; hour < 24; hour++) {
-				if (firstDay && from.getHour() > hour) {
-					System.out.println(" - Skipping Hour: " + hour);
-					continue;
-				}
-								
-				boolean firstHour = firstDay && from.getHour() == hour;
-				boolean lastHour = lastDay && to.getHour() == hour;
-				
-				System.out.println();
-				System.out.println(" --- " + hour + " , is first: " + firstHour + " , is last: " + lastHour);
-
-				for (int minute = 0; minute < 60; minute++) {
-					if (firstHour && from.getMinute() > minute) {
-						System.out.println(" - Skipping minute: " + minute);
-						continue;
-					}
-					if (lastHour && minute >= to.getMinute()) {
-						System.out.println(" - Skipping all minutes: " + minute);
-						break;
-					}
-
-					System.out.println(" -- Summarise Minute: " + minute);
-					if (!dryRun) {
-						summariseMinute(year, month, day, hour, minute);
-					}
-				}
-				
-				if (lastDay && lastHour) {
-					break;
-				}
-				
-				System.out.println(" -- Summarise Hour: " + hour);
-				if (!dryRun) {
-					summariseHour(year, month, day, hour);
-				}
+			if (now % 10000 == 0) {
+				System.out.println("Made it");
+				summarise(DBFile.dirForUTS(now/100), now, true);
 			}
-			
-			if (lastDay && day >= to.getDayOfMonth()) {
-				break;
+			if (now % 1000000 == 0) {
+				summarise(DBFile.dirForUTS(now/10000), now, true);
 			}
-			
-			System.out.println(" -- Summarise Day: " + day);
-			
-			if (!dryRun) {
-				summariseDay(year, month, day);
+			if (now % 100000000 == 0) {
+				summarise(DBFile.dirForUTS(now/1000000), now, true);
 			}
-			
-			now = now.plusDays(1);
 		}
-		
 	}
 	
-	private static boolean summariseMinute(int year, int month, int day, int hour, int minute)
-	{
-		String sumFileName = String.format("%02d%02d%02d_%02d%02d.txt", year, month, day, hour, minute);
-		Summariser sum = new MinuteSummariser(year, month, day, hour, minute);
-		
-		return summarise(sumFileName, sum, "minute");
-	}
-	
-	private static boolean summariseHour(int year, int month, int day, int hour)
-	{
-		String sumFileName = String.format("%02d%02d%02d_%02d.txt", year, month, day, hour);
-		Summariser sum = new HourSummariser(year, month, day, hour);
-		
-		return summarise(sumFileName, sum, "hour");
-	}
-	
-	private static boolean summariseDay(int year, int month, int day)
-	{
-		String sumFileName = String.format("%02d%02d%02d.txt", year, month, day);
-		Summariser sum = new DaySummariser(year, month, day);
-		
-		return summarise(sumFileName, sum, "day");
-	}
-	
-	private static boolean summarise(String fileName, Summariser sum, String type)
+	private static void summarise(String dir, long uts, boolean ofSummaries)
 	{
 		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
 			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
-				String dir = s2Type.toString().toLowerCase() + "/" + sType.toString().toLowerCase() + "/" + type;
-				String sumFileName = dir + "/" + fileName;
+				String fileName = s2Type.toString().toLowerCase() + "_" + sType.toString().toLowerCase() + "_sum";
+				String sumFileName = dir + "/" + fileName + ".awaagti";
 
 				File f = new File(sumFileName);
 				if (f.exists() && !f.isDirectory()) { 
@@ -154,12 +76,20 @@ public class Main
 					continue;
 				}
 				
-				sum.setSummaryTypes(sType, s2Type);
-				DBFile dbFile = sum.summarise();
-				if (dbFile == null) {
+				DBFile[] inputs = readFiles(dir, uts, ofSummaries, fileName);
+				if (inputs == null) {
+					System.out.println("No files read :( ");
+					continue;
+				}
+				
+				ArrayList<DataPoint> dps = summariseActually(inputs, sType, s2Type);
+				if (dps.size() == 0) {
 					System.out.println("No summary, nothing to save.");
 					continue;
 				}
+				
+				DBFile dbFile = new DBFile();
+				dbFile.setDataPoints(dps);
 				
 				File directory = new File(dir);
 			    if (!directory.exists()){
@@ -175,7 +105,162 @@ public class Main
 				}
 			}
 		}
+	}
+	
+	private static DBFile[] readFiles(String dir, long uts, boolean ofSummarized, String fileNameBase)
+	{
+		DBFile[] files = new DBFile[100];
 		
-		return true;
+		int exists = 0;
+		String fileName = "";
+		
+		DBFile dbFile;
+		for (int second = 0; second < 100; second++) {
+			// (The variable name 'second' is not a good variable name,
+			//  as it's not a second, but just the last two digits of the unix time.)
+			if (ofSummarized) {
+				fileName = String.format("%s/%02d/%s.awaagti", dir, second, fileNameBase);
+			} else {
+				fileName = String.format(dir + "%d.awaagti", uts+second);
+			}
+			
+			dbFile = null;
+			try {
+				File f = new File(fileName);
+				dbFile = DBFile.read(f);
+				// TODO: check why this is needed.
+				dbFile.setDateTime(uts+second);
+				exists++;
+			} catch (IOException e) {
+			}
+			files[second] = dbFile;
+		}
+		
+		System.out.println("DEBUG: Found " + exists + " DBFiles. " + fileName);
+		
+		if (exists == 0) {
+			return null;
+		}
+		
+		return files;
+	}
+	
+	protected static ArrayList<DataPoint> summariseActually(DBFile[] files, Summariser.SummaryType sType, DataPoint.SummaryType s2Type)
+	{
+		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
+		
+		int[] fileDPSIndexes = new int[files.length];
+		
+		boolean going = true;
+		//int dpIndex = -1; // DataPoint index.
+		while (going) { // Loop over DataPoints in files.
+			//dpIndex++;
+
+			DataPoint dp = new DataPoint();
+			dp.summaryType = s2Type;
+			
+			// Determine next lowest clientID.
+			// (Because client can be missing from DBFiles)
+			int clientID = -1;
+			int i = -1;
+			for (DBFile file : files) {
+				i++;
+				if (file == null) {
+					continue;
+				}
+				
+				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
+					continue;
+				}
+				
+				int ourLowestClientID  = file.getDataPoints().get(fileDPSIndexes[i]).clientID;
+				if (clientID != -1 && clientID <= ourLowestClientID) {
+					continue;
+				}
+				
+				clientID = ourLowestClientID;
+			}
+			
+			Integer val = null;
+			long maxDateTime = 0;
+			
+			going = false;
+			
+			i = -1;
+			for (DBFile file : files) {
+				i++;
+				if (file == null) {
+					continue;
+				}
+				
+				if (file.getDataPoints().size() < fileDPSIndexes[i]+1) {
+					continue;
+				}
+
+				DataPoint tDP = file.getDataPoints().get(fileDPSIndexes[i]);
+				
+				if (clientID != tDP.clientID) {
+					// ClientID is missing from this DBFile :(, but that's okay.
+					// All DPS's are sorted, so if the clientID is not .
+					
+					System.out.println("DEBUG: missing clientID " + clientID + ", got " + tDP.clientID + " at " + i);
+					continue;
+				}
+				
+				going = true;
+				
+				fileDPSIndexes[i]++;
+
+				Integer newVal = check(sType, val, tDP.getVal(s2Type));
+				if (newVal != null) {
+					val = newVal;
+					
+					if (tDP.summaryDateTime != 0) {
+						maxDateTime = tDP.summaryDateTime;
+					} else {
+						maxDateTime = file.getDateTime();
+					}
+				}	
+	
+			}
+			
+			if (!going) {
+				continue;
+			}
+
+			dp.clientID = clientID;
+			
+			if (maxDateTime != 0) {
+				dp.temp = val;
+				dp.summaryDateTime = maxDateTime;
+			}
+			
+			dps.add(dp);
+		}
+		
+		return dps;
+	}
+	
+	private static Integer check(Summariser.SummaryType sType, Integer val1, int val2)
+	{
+		if (val1 == null) {
+			return val2;
+		}
+
+		switch (sType) {
+		case MAX:
+			if (val2 > val1) {
+				return val2;
+			}
+			return null;
+		case MIN:
+			if (val2 < val1) {
+				return val2;
+			}
+			return null;
+		default:
+			System.out.println("ERROR: invalid sType in method check: " + sType);
+			return 0;
+		}
 	}
 }

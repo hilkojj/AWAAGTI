@@ -21,18 +21,12 @@ public class DataPoint implements Comparable<DataPoint>
 	public int temp;
 	
 	public SummaryType summaryType;
-	public LocalDateTime summaryDateTime;
+	public long summaryDateTime;
 	
 		
 	private byte[] dbLine;
 
 	DecimalFormat df = new DecimalFormat("#.#");
-	
-	private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss");
-	private static DateTimeFormatter summaryDateTimeFormatter =
-			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 	
 	public enum SummaryType {
 		TEMP
@@ -76,16 +70,14 @@ public class DataPoint implements Comparable<DataPoint>
 					
 					this.dbLine[3] = (byte)(temp >> 8);
 					this.dbLine[4] = (byte)(temp);
-					System.out.println(this.dbLine[2]);
-					System.out.println(this.dbLine[3]);
 					break;
 				default:
 					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
 				}
 				
-				if (this.summaryDateTime != null) {
+				if (this.summaryDateTime != 0) {
 					// RIP 2038
-					int uts = (int) this.summaryDateTime.toEpochSecond(ZoneOffset.UTC);
+					int uts = (int) this.summaryDateTime;
 					
 					this.dbLine[5] = (byte)(uts >>> 24);
 					this.dbLine[6] = (byte)(uts >>> 16);
@@ -115,8 +107,8 @@ public class DataPoint implements Comparable<DataPoint>
 	{
 		DataPoint dp = new DataPoint();
 		
-		if (line.length < 2) {
-			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 2");
+		if (line.length < 3) {
+			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 3");
 			return null;
 		}
 		
@@ -125,8 +117,8 @@ public class DataPoint implements Comparable<DataPoint>
 		//System.out.println("ARGS" + String.join(", ", args) + " " + line);
 		
 		if (summaryType == null) {
-			if (line.length < 4) {
-				System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 4");
+			if (line.length < 5) {
+				System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 5");
 				System.out.println(line);
 				for (int i = 0; i < line.length ;i++) {
 					System.out.println(line[i]);
@@ -148,7 +140,7 @@ public class DataPoint implements Comparable<DataPoint>
 		
 		long uts = line[5] << 24 | (line[6] & 0xFF) << 16 | (line[7] & 0xFF) << 8 | (line[8] & 0xFF);
 		
-		dp.summaryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(uts), ZoneId.of("UTC"));
+		dp.summaryDateTime = uts;
 		
 		dp.summaryType = summaryType;
 		

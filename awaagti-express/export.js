@@ -33,9 +33,9 @@ module.exports = (config, onProgress, onDone, onError) => {
         })
     }, 1000)
 
-    client.on("data", data => {
+    let handleData = data => {
         console.log("hoi")
-        data = data.toString()
+        data = data.trim()
         console.log(data)
         if (data.startsWith("file=")) {
             file = data.split("file=")[1].trim()
@@ -47,7 +47,10 @@ module.exports = (config, onProgress, onDone, onError) => {
 
         if (data.startsWith("progress="))
             onProgress(Number(data.split("progress=")[1]))
-    })
+    }
+
+    client.on("data", data => data.toString().split("\n").forEach(handleData))
+
     client.connect(12345, '127.0.0.1', () => {
         console.log('Connected')
         let q = configToQuery(config)
