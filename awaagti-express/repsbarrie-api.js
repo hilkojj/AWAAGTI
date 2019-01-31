@@ -14,8 +14,8 @@ const bird = `
 
 module.exports.registerIp = (req, res) => {
 
-    let ip = req.body.ip
-    let apiKey = req.body.apiKey
+    let ip = String(req.body.ip).trim()
+    let apiKey = String(req.body.apiKey)
 
     if (apiKeys[apiKey]) {
 
