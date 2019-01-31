@@ -13,14 +13,12 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-		System.out.println("@@@ YOU WERE WORKING ON MAKING THIS WORK. IT GENERATES THE FILES, BUT FOR SOME REASON DBFileTest says they're with payload (=temp) 0");
-		
 		LocalDateTime from;
 		LocalDateTime to;
 		
 		if (args.length < 1) {
 			System.out.println("Usage: db_summariser {unix time stamp: from} [unix time stamp: to, defaults to Now if not specified]");
-			System.out.println("Generates summary files for the minutes, hours and days between the given timestamps.");
+			System.out.println("Generates summary files for every 100, 10*100, 100*100, etc between the given timestamps.");
 			System.out.println("ERROR: Please provide unixtimestamp of when to start making summuries.");
 
 			return;
@@ -49,20 +47,18 @@ public class Main
 		
 		long now = fromUTS/100*100;
 		for (; now <= toUTS; now+=100) {
-			//summarise(DBFile.dirForUTS(now), now, false);
+			System.out.println(now);
+			summarise(DBFile.dirForUTS(now), now, false);
 			
 			if (now % 10000 == 0) {
 				System.out.println("Made it");
 				summarise(DBFile.dirForUTS(now/100), now, true);
-				return;
 			}
 			if (now % 1000000 == 0) {
 				summarise(DBFile.dirForUTS(now/10000), now, true);
-				return;
 			}
 			if (now % 100000000 == 0) {
 				summarise(DBFile.dirForUTS(now/1000000), now, true);
-				return;
 			}
 		}
 	}
@@ -116,10 +112,12 @@ public class Main
 		DBFile[] files = new DBFile[100];
 		
 		int exists = 0;
-		String fileName;
+		String fileName = "";
 		
 		DBFile dbFile;
 		for (int second = 0; second < 100; second++) {
+			// (The variable name 'second' is not a good variable name,
+			//  as it's not a second, but just the last two digits of the unix time.)
 			if (ofSummarized) {
 				fileName = String.format("%s/%02d/%s.awaagti", dir, second, fileNameBase);
 			} else {
@@ -131,14 +129,14 @@ public class Main
 				File f = new File(fileName);
 				dbFile = DBFile.read(f);
 				// TODO: check why this is needed.
-				//dbFile.setDateTime(LocalDateTime.of(year, month, day, hour, minute, second));
+				dbFile.setDateTime(uts+second);
 				exists++;
 			} catch (IOException e) {
 			}
 			files[second] = dbFile;
 		}
 		
-		System.out.println("DEBUG: Found " + exists + " DBFiles.");
+		System.out.println("DEBUG: Found " + exists + " DBFiles. " + fileName);
 		
 		if (exists == 0) {
 			return null;
@@ -184,7 +182,7 @@ public class Main
 			}
 			
 			Integer val = null;
-			LocalDateTime maxDateTime = null;
+			long maxDateTime = 0;
 			
 			going = false;
 			
@@ -217,7 +215,7 @@ public class Main
 				if (newVal != null) {
 					val = newVal;
 					
-					if (tDP.summaryDateTime != null) {
+					if (tDP.summaryDateTime != 0) {
 						maxDateTime = tDP.summaryDateTime;
 					} else {
 						maxDateTime = file.getDateTime();
@@ -232,7 +230,7 @@ public class Main
 
 			dp.clientID = clientID;
 			
-			if (maxDateTime != null) {
+			if (maxDateTime != 0) {
 				dp.temp = val;
 				dp.summaryDateTime = maxDateTime;
 			}
