@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public class DBFile
 {
-	private ArrayList<DataPoint> dataPoints;
+	private ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
 	
 	private String fileName;
 	
@@ -57,17 +57,17 @@ public class DBFile
 		byte[] lengths = new byte[1];
 		inputStream.read(lengths, 0, 1);
 		byte length = lengths[0];
-		
-		System.out.println("YOO DEZE LENGTH: " + length);
 
         byte[] byteRead = new byte[length];
         int read;
 
     	while (true) {
         	read = inputStream.read(byteRead, 0, length); // OLD
-        	if (read == -1) {
-        		break;
-        	}
+        	if (read == -1 || read == 0) {
+				break;
+			}
+
+//			Logger.error(read);
         	
         	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
 
@@ -92,11 +92,19 @@ public class DBFile
 	 */
 	public void write() throws IOException {
 		FileOutputStream writer = new FileOutputStream(this.fileName);
-		
-		writer.write(new byte[] {(byte)this.dataPoints.get(0).makeDBLine().length});
-		
+
+		byte lineLength = 0;
+		if (this.dataPoints != null && this.dataPoints.size() > 0) {
+			lineLength = (byte)this.dataPoints.get(0).makeDBLine().length;
+		}
+
+		writer.write(new byte[] {lineLength});
+
 		for (DataPoint dp : this.dataPoints) {
 			byte[] data = dp.makeDBLine();
+			if (data.length != lineLength) {
+				Logger.error("HAHAHAAHHAHA DIT IS KUT " + data.length + " : " + lineLength);
+			}
 			
 			//writer.write(padRight(dp.makeDBLine(), highest) + "\n");
 			writer.write(data);

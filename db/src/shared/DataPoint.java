@@ -108,7 +108,7 @@ public class DataPoint implements Comparable<DataPoint>
 		DataPoint dp = new DataPoint();
 		
 		if (line.length < 3) {
-			System.out.println("ERROR: incorrect dbLine in fromDBLine. Less than 3");
+			Logger.log("ERROR: incorrect dbLine in fromDBLine. Less than 3");
 			return null;
 		}
 		
