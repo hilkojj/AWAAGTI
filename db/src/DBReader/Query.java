@@ -107,15 +107,15 @@ public class Query {
             Logger.log("PARSE: 5 " + assertQuery(q5.getDataFilesNormal(), DEBUG, 4));
 
 
-            Query qs1 = new Query("stations=50,7950;sortBy=temp;limit=1\n");
+            Query qs1 = new Query("stations=50,7950;sortBy=temp_min;limit=1\n");
             Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
 
-            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp;limit=1\n");
+            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp_min;limit=1\n");
             File file = qs2.getDataFilesSorted().iterator().next();
             boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
             Logger.log("PARSE SORTED: 2 " + works);
 
-            Query qs3 = new Query("stations=50,7950;from=0;to=1548692209;sortBy=temp;\n");
+            Query qs3 = new Query("stations=50,7950;from=0;to=1548692209;sortBy=temp_min;\n");
             File file3 = qs3.getDataFilesSorted().iterator().next();
             int works3 = DBFile.read(file3).getDataPoints().size(); // == 8000;
             Logger.log("PARSE SORTED: 3 " + works3);
@@ -134,7 +134,7 @@ public class Query {
 
     public Iterable<File> getDataFiles() {
         try {
-            if (sortBy == null)
+            if (sortBy == null || sortBy.length() == 0)
                 return getDataFilesNormal();
             else
                 return getDataFilesSorted();
@@ -194,7 +194,7 @@ public class Query {
                         if (timestampStr.startsWith(currentPath)) {
 
                             String currentPathWithSlashes = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/");
-                            System.out.println(currentPathWithSlashes);
+//                            Logger.log(currentPathWithSlashes);
 
                             String[] directories = new File(currentPathWithSlashes).list();
 
@@ -218,15 +218,13 @@ public class Query {
                                 cur += Math.ceil((minimalTimestamp - cur) / (float) interval) * interval;
                               
                             if (cur > to)
-                                return false
+                                return false;
 
                             continue searchForTheDir;
                             
                         } else currentPath = currentPath.substring(0, currentPath.length() - 2);
-
                     }
                 }
-                return false;
             }
         };
     }
@@ -271,6 +269,7 @@ public class Query {
              */
             private void processCurPosition(int n, Map<Integer, DataPoint> indexResultMap) {
                 String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
+                filename = filename.replace("//", "/");
                 File file = new File(filename);
                 Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
@@ -299,9 +298,15 @@ public class Query {
                     DataPoint old = indexResult.get(dp.clientID);
 
                     switch (sortBy) {
-                        case "temp": // TODO make it workable for more cases
+                        case "temp_min":
                             if (old.temp < dp.temp) {
 //                                Logger.log("UPDATE: " + old.temp + " < " +dp.temp);
+                                indexResult.put(dp.clientID, dp);
+                            }
+                            break;
+                        case "temp_max":
+                            if (old.temp > dp.temp) {
+//                                Logger.log("UPDATE: " + old.temp + " > " +dp.temp);
                                 indexResult.put(dp.clientID, dp);
                             }
                             break;
@@ -342,7 +347,7 @@ public class Query {
 
                 DBFile dbFile = new DBFile();
                 String fileName = Settings.DATA_PATH+"/sortedQuery_cache_" + hash +"."+Settings.DATA_EXTENSION;
-                dbFile.setFileName(fileName); // todo: file trick
+                dbFile.setFileName(fileName.replace("//", "/")); // todo: file trick
 
                 if (dps.size() > limit)
                     dbFile.setDataPoints(new ArrayList<>(dps.subList(0, limit)));

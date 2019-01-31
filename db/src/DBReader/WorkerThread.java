@@ -42,7 +42,7 @@ public class WorkerThread implements Runnable {
     /*
         Start doing what the user requested to us.
      */
-    private void process(Query query) throws IOException {
+    private void process(Query query) {
 
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
