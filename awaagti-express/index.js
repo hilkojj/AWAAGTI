@@ -55,7 +55,7 @@ app.post("/github-webhook", (req, res) => {
 
     console.log("o wowie someone pushed to master o no")
 
-    exec("git pull origin master", { cwd: path.resolve("/../") }, () => {
+    exec("git fetch --all; git reset --hard origin/master", { cwd: path.resolve("/../") }, () => {
 
         console.log("wowie i have pulled master, now lets install 5 million npm modules")
 
