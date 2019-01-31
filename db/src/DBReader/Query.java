@@ -82,40 +82,40 @@ public class Query {
         try {
             boolean DEBUG = false;
 
-            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
-            Logger.log("Syntax: 1");
-
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
-            Logger.log("Syntax: 2");
-
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
-            Logger.log("Syntax: 3");
-
-
-            Query q1 = new Query("stations=1234,1356;\n");
-            Logger.log("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
-
-            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
-            Logger.log("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
-
-            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
-            Logger.log("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
-
-            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
-            Logger.log("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
-
-            Query q5 = new Query("stations=50,7950;from=0;to=-1;interval=2;\n");
-            Logger.log("PARSE: 5 " + assertQuery(q5.getDataFilesNormal(), DEBUG, 4));
-
-
-
-            Query qs1 = new Query("stations=50,7950;sortBy=temp;limit=1\n");
-            Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
-
-            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp;limit=1\n");
-            File file = qs2.getDataFilesSorted().iterator().next();
-            boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
-            Logger.log("PARSE SORTED: 2 " + works);
+//            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
+//            Logger.log("Syntax: 1");
+//
+//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
+//            Logger.log("Syntax: 2");
+//
+//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+//            Logger.log("Syntax: 3");
+//
+//
+//            Query q1 = new Query("stations=1234,1356;\n");
+//            Logger.log("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
+//
+//            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
+//            Logger.log("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
+//
+//            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
+//            Logger.log("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
+//
+//            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
+//            Logger.log("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
+//
+//            Query q5 = new Query("stations=50,7950;from=0;to=-1;interval=2;\n");
+//            Logger.log("PARSE: 5 " + assertQuery(q5.getDataFilesNormal(), DEBUG, 4));
+//
+//
+//
+//            Query qs1 = new Query("stations=50,7950;sortBy=temp;limit=1\n");
+//            Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
+//
+//            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp;limit=1\n");
+//            File file = qs2.getDataFilesSorted().iterator().next();
+//            boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
+//            Logger.log("PARSE SORTED: 2 " + works);
 
             Query qs3 = new Query("stations=50,7950;from=1548348440;to=1647348642;sortBy=temp;limit=1\n");
             File file3 = qs3.getDataFilesSorted().iterator().next();
@@ -265,7 +265,7 @@ public class Query {
             private void processCurPosition(int n, Map<Integer, DataPoint> indexResultMap) {
                 String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
                 File file = new File(filename);
-//                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
+                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
                 cur += distanceToNextCur(n);
 
@@ -304,22 +304,22 @@ public class Query {
 
             // Exceptions take up a lot of code
             private ArrayList<DataPoint> getAllDataPointsFromFile(File file, DataPoint.SummaryType type) {
-//                try {
-//                    DBFile dbFile = DBFile.read(file, type);
+                try {
+                    DBFile dbFile = DBFile.read(file, type);
 
-                    ArrayList<DataPoint> list = new ArrayList<>();
-                    Random r = new Random();
+//                    ArrayList<DataPoint> list = new ArrayList<>();
+//                    Random r = new Random();
+//
+//                    for (int i = 0; i < 8000; i++)
+//                        list.add(new DataPoint("JUST FOR TESTING", 8000, r.nextInt(100)));
+//
+//                    return list;
 
-                    for (int i = 0; i < 8000; i++)
-                        list.add(new DataPoint("JUST FOR TESTING", 8000, r.nextInt(100)));
 
-                    return list;
+                    return dbFile.getDataPoints();
+                } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
 
-
-//                    return dbFile.getDataPoints();
-//                } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
-
-//                return new ArrayList<>();
+                return new ArrayList<>();
             }
 
             @Override

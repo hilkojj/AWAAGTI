@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import shared.DBFile;
 import shared.DataPoint;
+import shared.Settings;
 
 public class Main
 {
@@ -68,7 +69,7 @@ public class Main
 		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
 			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
 				String fileName = s2Type.toString().toLowerCase() + "_" + sType.toString().toLowerCase() + "_sum";
-				String sumFileName = dir + "/" + fileName + ".awaagti";
+				String sumFileName = dir + "/" + fileName + "."+ Settings.DATA_EXTENSION;
 
 				File f = new File(sumFileName);
 				if (f.exists() && !f.isDirectory()) { 
@@ -119,9 +120,9 @@ public class Main
 			// (The variable name 'second' is not a good variable name,
 			//  as it's not a second, but just the last two digits of the unix time.)
 			if (ofSummarized) {
-				fileName = String.format("%s/%02d/%s.awaagti", dir, second, fileNameBase);
+				fileName = String.format("%s/%02d/%s."+Settings.DATA_EXTENSION, dir, second, fileNameBase);
 			} else {
-				fileName = String.format(dir + "%d.awaagti", uts+second);
+				fileName = String.format(dir + "%d."+Settings.DATA_EXTENSION, uts+second);
 			}
 			
 			dbFile = null;

@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import shared.DBFile;
 import shared.DataPoint;
+import shared.Settings;
 
 /**
  * InputInterpreter interprets the stream of data from the weather
@@ -113,7 +114,7 @@ public class InputInterpreter
 		    }
 
 			DBFile dbFile = new DBFile();
-			dbFile.setFileName(dir + uts + ".awaagti");
+			dbFile.setFileName(dir + uts + "."+Settings.DATA_EXTENSION);
 			dbFile.setDataPoints(this.list);
 			dbFile.write();
 		} catch (IOException e) {

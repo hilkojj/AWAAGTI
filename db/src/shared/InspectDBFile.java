@@ -18,10 +18,10 @@ public class InspectDBFile
 		File f;
 		DBFile dbFile;
 		if (args.length == 3) {
-			f = new File(String.format("%s/%s_%s_sum.awaagti", dir, args[1], args[2]));
+			f = new File(String.format("%s/%s_%s_sum."+Settings.DATA_EXTENSION, dir, args[1], args[2]));
 			dbFile = DBFile.read(f, DataPoint.SummaryType.TEMP);
 		} else {
-			f = new File(String.format("%s/%d.awaagti", dir, uts));
+			f = new File(String.format("%s/%d."+Settings.DATA_EXTENSION, dir, uts));
 			dbFile = DBFile.read(f);
 		}
 
