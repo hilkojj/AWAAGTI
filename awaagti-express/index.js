@@ -24,7 +24,7 @@ require("./socket.js")(io)
 
 app.post("/api/repsbarrie", (req, res) => {
 
-    console.log(req.ip, req.apiKey)
+    console.log(req.body.ip, req.body.apiKey)
 
 })
 
