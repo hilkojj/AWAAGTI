@@ -1,3 +1,13 @@
+console.log(`
+▄▄▄· ▄▄▌ ▐ ▄▌ ▄▄▄·  ▄▄▄·  ▄▄ • ▄▄▄▄▄▪  
+▐█ ▀█ ██· █▌▐█▐█ ▀█ ▐█ ▀█ ▐█ ▀ ▪•██  ██ 
+▄█▀▀█ ██▪▐█▐▐▌▄█▀▀█ ▄█▀▀█ ▄█ ▀█▄ ▐█.▪▐█·
+▐█ ▪▐▌▐█▌██▐█▌▐█ ▪▐▌▐█ ▪▐▌▐█▄▪▐█ ▐█▌·▐█▌
+ ▀  ▀  ▀▀▀▀ ▀▪ ▀  ▀  ▀  ▀ ·▀▀▀▀  ▀▀▀ ▀▀▀
+ =============== Express ===============
+ Version 1.0
+`)
+
 const path = require('path')
 const express = require("express")
 const bodyParser = require("body-parser")
