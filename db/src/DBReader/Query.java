@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static DBReader.DBHelper.assertQuery;
+import static DBReader.DBHelper.getNth2pair;
+import static DBReader.DBHelper.timestampToFolder;
+
 public class Query {
     private final static String FILE_NAME = "export_";
     private final static String FILE_EXTENSION = "xml";
@@ -46,7 +50,7 @@ public class Query {
                     case "limit": limit = Integer.parseInt(data); break;
                     case "filter": this.filter = new QueryFilter(data); break;
                     default:
-                        System.out.println("throw new NotImplementedException(): " + line); // TODO:
+                        Logger.log("throw new NotImplementedException(): " + line); // TODO:
                 }
             }
         }
@@ -55,27 +59,22 @@ public class Query {
             throw new Exception("Your query does not have the proper syntax");
         }
 
+
+        // Correct -1 inputs to there meaning
         if (to == -1)
             to = System.currentTimeMillis() / 1000;
 
         if (limit == -1)
             limit = Integer.MAX_VALUE;
-    }
 
-    // TEST Helper
-    public static boolean assertQuery(Iterable it, boolean print, int value) {
-        int i = 0;
-        Iterator iterator = it.iterator();
-        while(iterator.hasNext()) {
-            i++;
-            if (print)
-                System.out.println(iterator.next());
-            else
-                iterator.next();
-        }
 
-        System.out.println(i + " == " + value);
-        return (i == value);
+        // Tell the client about wrong queries
+        if(interval > 1 && sortBy.length() > 0)
+            throw new Exception("Interval > 1 does not have any meaning when processing a sorted query.");
+
+        if(to < from)
+            throw new Exception("to < from does not have any meaning.");
+
     }
 
     // TEST
@@ -83,34 +82,45 @@ public class Query {
         try {
             boolean DEBUG = false;
 
-//            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
-//            System.out.println("Syntax: 1");
-//
-//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
-//            System.out.println("Syntax: 2");
-//
-//            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
-//            System.out.println("Syntax: 3");
-//
-//
-//            Query q1 = new Query("stations=1234,1356;\n");
-//            System.out.println("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
-//
-//            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
-//            System.out.println("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
-//
-//            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
-//            System.out.println("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
-//
-//            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
-//            System.out.println("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
-//
-//
-//            Query qs1 = new Query("stations=50,7950;sortedBy=temp;limit=1\n");
-//            System.out.println("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 5));
+            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
+            Logger.log("Syntax: 1");
 
-            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortedBy=temp;limit=1\n");
-            System.out.println("PARSE SORTED: 1 " + qs2.getDataFilesSorted().iterator().hasNext());
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
+            Logger.log("Syntax: 2");
+
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+            Logger.log("Syntax: 3");
+
+
+            Query q1 = new Query("stations=1234,1356;\n");
+            Logger.log("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
+
+            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
+            Logger.log("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
+
+            Query q3 = new Query("stations=50,7950;from=1548348440;to=1548348442\n");
+            Logger.log("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
+
+            Query q4 = new Query("stations=50,7950;from=1548348442;to=1548348442;filter=temp,<,-999\n");
+            Logger.log("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
+
+            Query q5 = new Query("stations=50,7950;from=0;to=-1;interval=2;\n");
+            Logger.log("PARSE: 5 " + assertQuery(q5.getDataFilesNormal(), DEBUG, 4));
+
+
+
+            Query qs1 = new Query("stations=50,7950;sortBy=temp;limit=1\n");
+            Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
+
+            Query qs2 = new Query("stations=50,7950;from=1548348440;to=1548348442;sortBy=temp;limit=1\n");
+            File file = qs2.getDataFilesSorted().iterator().next();
+            boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
+            Logger.log("PARSE SORTED: 2 " + works);
+
+            Query qs3 = new Query("stations=50,7950;from=1548348440;to=1647348642;sortBy=temp;limit=1\n");
+            File file3 = qs3.getDataFilesSorted().iterator().next();
+            boolean works3 = DBFile.read(file3, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
+            Logger.log("PARSE SORTED: 3 " + works3);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,7 +165,7 @@ public class Query {
                 while (cur <= to) {
                     if (!findDir()) return false;
 
-                    String filename = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/") + "/" + cur + ".txt";
+                    String filename = timestampToFolder(currentPath) + cur + ".txt";
 
                     nextVal = new File(filename);
                     cur += interval;
@@ -201,7 +211,9 @@ public class Query {
 
                         int antiDeepness = 4 - currentPath.length() / 2;
                         long minimalTimestamp = cur + (int) Math.pow(100, antiDeepness);
-                        while (cur < minimalTimestamp) cur += interval;
+
+                        if (cur < minimalTimestamp)
+                            cur += Math.ceil((minimalTimestamp - cur) / (float) interval) * interval;
 
                         return findDir();
                     } else currentPath = currentPath.substring(0, currentPath.length() - 2);
@@ -218,52 +230,129 @@ public class Query {
     private Iterable<File> getDataFilesSorted() {
         return () -> new Iterator<File>() {
             long cur = from;
-            long iteration = 0;
-            File nextVal = null;
-            String type = "temp_min.txt";
+            String summaryFileName = "temp_min";
+            Boolean hasExported = false;
+            DataPoint.SummaryType summaryType = DataPoint.SummaryType.TEMP;
 
-            private int get2pair(long value, int nth) {
-                return (int) ((value / (int) Math.pow(10, 8 - (nth * 2))) % 100);
+            /*
+                Get the query answer by combining index files
+             */
+            private ArrayList<DataPoint> getIndexResults(long from, long to) {
+                hasExported = true;
+                Map<Integer, DataPoint> indexResultMap = new HashMap<>();
+
+                for (int n = 4; n >= 0; n--) { // /15/48/34/85/ file.txt loop every depth [0-4]
+                    for (int a = getNth2pair(from, n); a % 100 != 0 && cur < to; a++) // loop from cur to 00 until we surpass TO
+                        processCurPosition(n, indexResultMap);
+
+                    if (cur > to) { // We are to far we need to jump back and slowly go back down in depth
+                        cur -= distanceToNextCur(n);
+                        break;
+                    }
+                }
+
+                for (int n = 0; n <= 4; n++)   // /15/48/34/85/ file.txt loop every depth [0-4]
+                    for (int a = getNth2pair(cur, n); a != getNth2pair(to, n) && cur < to; a++) // Go from 00 towards TO
+                        processCurPosition(n, indexResultMap);
+
+                return new ArrayList<>(indexResultMap.values());
             }
 
-//          1548348440
-            public ArrayList<DataPoint> sortMagic(long from, long to) {
-                ArrayList<DataPoint> list = new ArrayList<>();
-                System.out.println(get2pair(from, 4));
 
-                for(int a=get2pair(from, 4); a%100 != 0; a++) {
-//                    String filename = Settings.DATA_PATH + "/" + cur + "/" + type;
-//                    File file = new File(filename);
-//                    if (file.exists()) {
-//                        try {
-//                            DBFile dbFile = DBFile.read(file, DataPoint.SummaryType.TEMP);
-//                            list.addAll(dbFile.getDataPoints());
-//                        } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
-//                    }
-                    cur += 1;
-                    System.out.println(from +" "+ cur +" "+ to);
+            /*
+                Get the current file or summary based on the cur variable and process it based on the depth given
+             */
+            private void processCurPosition(int n, Map<Integer, DataPoint> indexResultMap) {
+                String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
+                File file = new File(filename);
+//                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
+                cur += distanceToNextCur(n);
+
+                if (file.exists()) {
+                    Logger.log("_FOUND_:" + filename);
+                    if (cur <= to)
+                        updateIndexResult(indexResultMap, getAllDataPointsFromFile(file, summaryType));
                 }
-                return list;
+            }
+
+            /*
+                How far do we need to increment based on the depth
+             */
+            private long distanceToNextCur(int n) {
+                return (long) Math.pow(10, (4-n) * 2);
+            }
+
+            /*
+                This updates our index results based on new DataPoint's
+             */
+            private void updateIndexResult(Map<Integer, DataPoint> indexResult, ArrayList<DataPoint> newItems) {
+                for (DataPoint dp : newItems) {
+                    indexResult.putIfAbsent(dp.clientID, dp);
+                    DataPoint old = indexResult.get(dp.clientID);
+
+                    switch (sortBy) {
+                        case "temp": // TODO make it workable for more cases
+                            if (old.temp < dp.temp) {
+//                                Logger.log("UPDATE: " + old.temp + " < " +dp.temp);
+                                indexResult.put(dp.clientID, dp);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Exceptions take up a lot of code
+            private ArrayList<DataPoint> getAllDataPointsFromFile(File file, DataPoint.SummaryType type) {
+//                try {
+//                    DBFile dbFile = DBFile.read(file, type);
+
+                    ArrayList<DataPoint> list = new ArrayList<>();
+                    Random r = new Random();
+
+                    for (int i = 0; i < 8000; i++)
+                        list.add(new DataPoint("JUST FOR TESTING", 8000, r.nextInt(100)));
+
+                    return list;
+
+
+//                    return dbFile.getDataPoints();
+//                } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
+
+//                return new ArrayList<>();
             }
 
             @Override
             public boolean hasNext() {
-                if (iteration >= limit)
-                    return false;
-
-                System.out.println(sortMagic(from, to));
-
-
-                return false;
+                return !hasExported;
             }
 
             public File next() {
-                if(nextVal == null)
+                if (hasExported)
                     throw new NoSuchElementException();
 
-                iteration ++;
-                return nextVal;
+                ArrayList<DataPoint> dps = getIndexResults(from, to);
+                hasExported = true;
+
+                DBFile dbFile = new DBFile();
+                String fileName = Settings.DATA_PATH+"/sortedQuery_cache_" + hash +"."+Settings.DATA_EXTENSION;
+                dbFile.setFileName(fileName); // todo: file trick
+
+                if (dps.size() > limit)
+                    dbFile.setDataPoints(new ArrayList<>(dps.subList(0, limit)));
+                else if (dps.size() != 0)
+                    dbFile.setDataPoints(new ArrayList<>(dps.subList(0, limit)));
+                else
+                    return new File(fileName); //TODO: NO DATA WAS FOUND
+
+                try {
+                    dbFile.write();
+                } catch (IOException e) {
+                    Logger.error("Our sorted index query has not been saved");
+                    e.printStackTrace();
+                }
+
+                return new File(fileName);
             }
         };
     }
@@ -283,7 +372,7 @@ public class Query {
     }
 
 
-    public boolean inSelect(String temp) { // TODO:
+    public boolean inSelect(String temp) { // TODO: IMPLEMENT WHAT
         return true;
     }
 
@@ -292,7 +381,7 @@ public class Query {
             long time = FILE_FORMATTER.parse(file.getName()).getTime() / 1000;
 
 //                System.out.print("FROM " + from + " < " + time + " && " + time + " > " + to + " = ");
-//                System.out.println((from < time && time > to) == false);
+//                Logger.log((from < time && time > to) == false);
 
             if (to == -1)
                 return (from < time);

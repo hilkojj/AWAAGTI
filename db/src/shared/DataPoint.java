@@ -38,6 +38,14 @@ public class DataPoint implements Comparable<DataPoint>
 		TEMP
 	}
 
+	public DataPoint(){ }
+	public DataPoint(String proof, int clientID, int temp) {
+		if(proof.equals("JUST FOR TESTING")) {
+			this.clientID = clientID;
+			this.temp = temp;
+		} else { Logger.error("This is just for testing"); }
+	}
+
 	public static DataPoint fromLine(byte[] line)
 	{
 		return fromDBLine(line, null);
