@@ -32,7 +32,7 @@ module.exports.registerIp = (req, res) => {
 
         res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
 
-        prevId != id && bot.sendMessage(telegramTokenAndChatId[1], `Wowie dit is het IP van ${name}:\n${ip}`)
+        prevId != ip && bot.sendMessage(telegramTokenAndChatId[1], `Wowie dit is het IP van ${name}:\n${ip}`)
 
     } else res.send("fuck you i dont know you\n")
 }
