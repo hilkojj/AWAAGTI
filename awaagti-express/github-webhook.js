@@ -25,15 +25,12 @@ module.exports = (req, res) => {
 
                 console.log("lets use 100% CPU (lets build the angular app)")
 
+                console.log("node server will restart before ng build is done")
+                
                 exec("ng build --prod --aot", {
                     cwd: path.resolve("../awaagular/")
-                }, () => {
-                    console.log(err, stderr, stdout)
-
-                    console.log("wowie now restart the node server")
-                    exec("sudo pm2 restart 0")
                 })
-
+                exec("sudo pm2 restart 0")
             })
 
 
