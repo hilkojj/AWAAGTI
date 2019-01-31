@@ -41,7 +41,7 @@ app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
 
-app.post("/github-webhook", require("./github-webhook"))
+app.post("/api/github-webhook", require("./github-webhook"))
 
 console.log("Exports are saved in?", exportsFolder)
 app.use("/exports",
