@@ -1,7 +1,5 @@
 package shared;
 
-import shared.QueryFilter.Operand;
-
 /**
  * QueryFilterTest unit tests QueryFilter.
  * 
@@ -12,7 +10,7 @@ class QueryFilterTest
 	public static void main(String[] args) throws Exception
 	{
 		QueryFilter q = new QueryFilter();
-		a(q.originalInput.equals(""));
+		a(q.getOriginalInput().equals(""));
 
 		q = new QueryFilter("temp,<,10");
 		a(q.execute(15) == false);
