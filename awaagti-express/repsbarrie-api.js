@@ -6,7 +6,8 @@ const telegramTokenAndChatId = fs.readFileSync("./telegram-token.txt").toString(
 
 const bot = new TelegramBot(telegramTokenAndChatId[0], { polling: true })
 
-const ips = {}
+const ipsFile = "./ips.json"
+const ips = fs.existsSync(ipsFile) ? JSON.parse(fs.readFileSync(ipsFile).toString()) : {}
 
 const bird = `
     \\
@@ -31,6 +32,8 @@ module.exports.registerIp = (req, res) => {
             ip,
             timeRegisterd: new Date().toTimeString()
         }
+
+        fs.writeFile("./ips.json", JSON.stringify(ips))
 
         res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
 
