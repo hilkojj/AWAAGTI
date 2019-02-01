@@ -152,11 +152,11 @@ public class WorkerThread implements Runnable
      */
     public void collectStation(DataPoint station, BufferedWriter xmlWriter, Query query) throws IOException
     {
-        xmlWriter.write("\t\t\t<station id=\""+station.clientID+"\">\n");
+        xmlWriter.write("\t\t\t<station id=\""+station.getClientID()+"\">\n");
 
         for (DBValue e : query.getWhat())
             if (query.inSelect(e))
-                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
+                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.getTemp()+"</"+e.toString()+">\n"); // TODO: get selected
 
         if(query.isIndexedQuery())
             xmlWriter.write("\t\t\t\t<when>"+station.getSummaryDateTime()+"</when>\n");
