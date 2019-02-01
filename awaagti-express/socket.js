@@ -35,9 +35,15 @@ const initClient = (socket, user) => {
                 console.log("Export progress " + config.id, progress)
                 socket.emit("export progress " + config.id, progress)
             },
-            file => {
+            (file, size) => {
                 console.log("Export can be found in", file)
+                console.log("Export size:", size)
                 socket.emit("export done " + config.id, file)
+                socket.emit("export size " + config.id, size)
+            },
+            warn => {
+                console.log("Export warning " + config.id)
+                socket.emit("export warning " + config.id, warn)
             },
             err => {
                 console.log("Export error " + config.id)

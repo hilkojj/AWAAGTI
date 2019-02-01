@@ -1,8 +1,11 @@
 package shared;
 
-import DBReader.QueryFilter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -38,8 +41,6 @@ public class DBFile
 	
 	private void readFile(File file, DBValue summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
 	{
-
-
 		this.dataPoints = new ArrayList<DataPoint>();
 
         InputStream inputStream = new FileInputStream(file);
@@ -61,19 +62,20 @@ public class DBFile
         	
         	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
 
+
 			IntStream clientIDs = null;
 			if (filterClientIDs != null) {
 				clientIDs = IntStream.of(filterClientIDs);
 			}
 
 			if (clientIDs != null) {
-				boolean match = clientIDs.anyMatch(x -> x == dp.clientID);
+				boolean match = clientIDs.anyMatch(x -> x == dp.getClientID());
 //				Logger.error("MATCH: " + match);
 				if (!match) {
 					continue;
 				}
 			}
-        	
+
         	if (filter != null && !filter.execute(dp)) {
         		continue;
         	}

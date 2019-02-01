@@ -2,7 +2,6 @@ package shared;
 
 
 import java.text.DecimalFormat;
-import java.util.Map;
 
 /**
  * DataPoint is a single state of a specific weather station.
@@ -15,13 +14,42 @@ public class DataPoint implements Comparable<DataPoint>
 {
 	public int clientID;
 	public int temp;
-	public int wind; // TODO: we should have wind too
-	public Map<DBValue, Integer> dataStore = null; // new HashMap<>(); // TODO: or we should have something like this
+
+	private DBValue summaryType;
+	private long summaryDateTime;
+
 	
-	public DBValue summaryType;
-	public long summaryDateTime;
-	
-		
+	public int getClientID() {
+		return clientID;
+	}
+
+	public void setClientID(int clientID) {
+		this.clientID = clientID;
+	}
+
+	public int getTemp() {
+		return temp;
+	}
+
+	public void setTemp(int temp) {
+		this.temp = temp;
+	}
+
+	public DBValue getSummaryType() {
+		return summaryType;
+	}
+	public void setSummaryType(DBValue summaryType) {
+		this.summaryType = summaryType;
+	}
+
+	public long getSummaryDateTime() {
+		return summaryDateTime;
+	}
+	public void setSummaryDateTime(long summaryDateTime) {
+		this.summaryDateTime = summaryDateTime;
+	}
+
+
 	private byte[] dbLine;
 
 	DecimalFormat df = new DecimalFormat("#.#");
@@ -46,13 +74,12 @@ public class DataPoint implements Comparable<DataPoint>
 	}
 	
 	/**
-	 * makeDBLine formats the DataPoint to a string in the format of
-	 * the db_writer database files.
+	 * makeDBLine formats the DataPoint to a byte array in the format of
+	 * the .awaagti database files.
 	 * 
-	 * The string is formatted as:
-	 * {clientID}={temp in always one decimal}
+	 * View the provided documentation on the binary file format.
 	 * 
-	 * @return String Formatted string
+	 * @return byte[] binary data for this datapoint
 	 */
 	public byte[] makeDBLine()
 	{
@@ -61,7 +88,7 @@ public class DataPoint implements Comparable<DataPoint>
 				this.dbLine = new byte[5+8];
 				switch (this.summaryType) {
 				case TEMP:
-					short temp = (short) (this.temp+100);
+					int temp = (this.temp+100);
 					
 					this.dbLine[3] = (byte)(temp >> 8);
 					this.dbLine[4] = (byte)(temp);
@@ -80,19 +107,17 @@ public class DataPoint implements Comparable<DataPoint>
 					this.dbLine[8] = (byte)uts;
 				}
 			} else {
-				//this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
-				
 				this.dbLine = new byte[5];
 				
-				short temp = (short) (this.temp+100);
+				int temp = this.temp+100;
 				
-				this.dbLine[3] = (byte)((short)temp >> 8);
-				this.dbLine[4] = (byte)((short)temp);
+				this.dbLine[3] = (byte)(temp >> 8);
+				this.dbLine[4] = (byte)(temp);
 			}
 			
-			this.dbLine[0] = (byte)((short)this.clientID >> 16);
-			this.dbLine[1] = (byte)((short)this.clientID >> 8);
-			this.dbLine[2] = (byte)((short)this.clientID);
+			this.dbLine[0] = (byte)(this.clientID >> 16);
+			this.dbLine[1] = (byte)(this.clientID >> 8);
+			this.dbLine[2] = (byte)(this.clientID);
 		}
 		
 		return this.dbLine;

@@ -1,36 +1,51 @@
 const net = require('net')
 const fs = require('fs')
+const promisify = require("util").promisify
 const exportsFolder = require("./index").exportsFolder
 
 //stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
 
 const configToQuery = config => {
     let q = `stations=${config.stationIds.join(",")};from=${config.timeFrame.from};to=${config.timeFrame.to};`
-        + `interval=${config.timeFrame.interval};what=${config.what.join(",")};`
+        + `interval=${config.timeFrame.interval};what=${config.what.map(t => t.slice(0, 4)).join(",")};`
 
-    if (config.sortBy)
-        q += `sortBy=${config.sortBy};`
+    if (typeof config.sortBy == "object")
+        q += `sortBy=${config.sortBy[0].slice(0, 4)}_${config.sortBy[1] == 'min' ? 'min' : 'max'};`
     if (config.limit)
         q += `limit=${config.limit};`
+    if (config.filterThing && config.filterMode) {
+
+        let filterThing = String(config.filterThing).slice(0, 4)
+
+        switch (config.filterMode) {
+            case "between":
+                q += `filter=${filterThing},between,${config.betweenLower},${config.betweenUpper};`
+                break
+            default:
+                let operand = { "greaterThan": ">", "smallerThan": "<", "equals": "==", "notEquals": "!=", "equalsOrGreaterThan": ">=", "equalsOrSmallerThan": "<=" }[config.filterMode]
+                if (operand)
+                    q += `filter=${filterThing},${operand},${config.filterValue};`
+        }
+    }
+
     return q + "\r\n"
 }
 
-module.exports = (config, onProgress, onDone, onError) => {
+module.exports = async (config, onProgress, onDone, onWarning, onError) => {
 
     let client = new net.Socket()
     let file = null
 
-    let interval = setInterval(() => {
+    let interval = setInterval(async () => {
         if (!file) return
         let path = exportsFolder + file
 
-        fs.exists(path, exists => {
-            console.log(path, "DOES NOT EXIST")
-            if (!exists) return
+        if (await promisify(fs.exists)(path)) {
             console.log(path, "DOES EXIST !! !!!! !! WOWIE")
-            onDone(file)
+            onDone(file, (await promisify(fs.stat)(path)).size)
             clearInterval(interval)
-        })
+        }
+
     }, 1000)
 
     let handleData = data => {
@@ -44,6 +59,9 @@ module.exports = (config, onProgress, onDone, onError) => {
 
         if (data.startsWith("error="))
             onError(data.split("error=")[1])
+
+        if (data.startsWith("warning="))
+            onWarning(data.split("warning=")[1])
 
         if (data.startsWith("progress="))
             onProgress(Number(data.split("progress=")[1]))

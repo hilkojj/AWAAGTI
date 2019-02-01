@@ -24,7 +24,7 @@ public class Server
         Socket connection;
         try {
             ServerSocket server = new ServerSocket(PORT);
-            System.err.println("db_reader started");
+            System.err.println("db_reader startedi lol");
 
             while (true) {
                 connection = server.accept();

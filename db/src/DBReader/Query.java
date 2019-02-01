@@ -313,8 +313,8 @@ public class Query
                         DBFile dbFile = DBFile.read(file);
                         ArrayList<DataPoint> list = dbFile.getDataPoints();
                         for (DataPoint dp : list) {
-                            dp.summaryType = summaryType;
-                            dp.summaryDateTime = cur;
+                            dp.setSummaryType(summaryType);
+                            dp.setSummaryDateTime(cur);
                         }
                     } else {
                         DBFile dbFile = DBFile.read(file, type);

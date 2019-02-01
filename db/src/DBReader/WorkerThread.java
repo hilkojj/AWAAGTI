@@ -159,7 +159,7 @@ public class WorkerThread implements Runnable
                 xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
 
         if(query.isIndexedQuery())
-            xmlWriter.write("\t\t\t\t<when>"+station.summaryDateTime+"</when>\n");
+            xmlWriter.write("\t\t\t\t<when>"+station.getSummaryDateTime()+"</when>\n");
 
         xmlWriter.write("\t\t\t</station>\n");
     }

@@ -1,4 +1,4 @@
-package DBReader;
+package shared;
 
 /**
  * QueryFilterTest unit tests QueryFilter.

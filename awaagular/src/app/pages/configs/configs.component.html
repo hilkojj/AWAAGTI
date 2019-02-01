@@ -1,5 +1,12 @@
 <div class="wrapper" fxLayout="row wrap">
 
+    <div fxFlex="100%">
+        <button mat-raised-button routerLink="/export">
+            <mat-icon>add</mat-icon>
+            New configuration
+        </button>
+    </div>
+
     <div class="config" *ngFor="let config of configs.array; let i = index"
         fxFlex.gt-sm="33.3%" fxFlex.gt-md="25%" fxFlex.sm="50%"
         fxFlex="100%">

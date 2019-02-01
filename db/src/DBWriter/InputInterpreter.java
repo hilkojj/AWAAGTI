@@ -92,9 +92,9 @@ public class InputInterpreter
 		}
 
 		DataPoint dp = new DataPoint();
-		dp.clientID = Integer.parseInt(parts[0]);
+		dp.setClientID(Integer.parseInt(parts[0]));
 		float temp =  Float.parseFloat(parts[1]);
-		dp.temp = (int) (temp*10);
+		dp.setTemp((int) (temp*10));
 		
 		list.add(dp);
 	}

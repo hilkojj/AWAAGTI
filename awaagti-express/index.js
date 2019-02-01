@@ -1,3 +1,13 @@
+console.log(`
+▄▄▄· ▄▄▌ ▐ ▄▌ ▄▄▄·  ▄▄▄·  ▄▄ • ▄▄▄▄▄▪  
+▐█ ▀█ ██· █▌▐█▐█ ▀█ ▐█ ▀█ ▐█ ▀ ▪•██  ██ 
+▄█▀▀█ ██▪▐█▐▐▌▄█▀▀█ ▄█▀▀█ ▄█ ▀█▄ ▐█.▪▐█·
+▐█ ▪▐▌▐█▌██▐█▌▐█ ▪▐▌▐█ ▪▐▌▐█▄▪▐█ ▐█▌·▐█▌
+ ▀  ▀  ▀▀▀▀ ▀▪ ▀  ▀  ▀  ▀ ·▀▀▀▀  ▀▀▀ ▀▀▀
+ =============== Express ===============
+ Version 1.0
+`)
+
 const path = require('path')
 const express = require("express")
 const bodyParser = require("body-parser")
@@ -17,7 +27,11 @@ app.use((_req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200")
     res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization")
     next()
-});
+})
+
+const repsbarrieApi = require("./repsbarrie-api")
+app.post("/api/register-repsbarrie-ip", repsbarrieApi.registerIp)
+app.get("/api/repsbarries", repsbarrieApi.showIps)
 
 const auth = require("./auth.js")
 const passport = require('passport')
@@ -26,6 +40,8 @@ app.use(passport.initialize())
 app.post("/api/login", auth.login)
 app.post("/api/register", auth.register)
 app.get("/api/me", auth.jwt, auth.me)
+
+app.post("/api/github-webhook", require("./github-webhook"))
 
 console.log("Exports are saved in?", exportsFolder)
 app.use("/exports",
@@ -40,7 +56,7 @@ app.use("/exports",
 
     express.static(exportsFolder))
 
-app.use("/", express.static(path.join(__dirname, "/../build/")))
-app.use("/*", (req, res) => res.sendFile(path.resolve("../build/index.html")))
+app.use("/", express.static(path.join(__dirname, "../awaagular/dist/awaagular/")))
+app.use("/*", (req, res) => res.sendFile(path.resolve("../awaagular/dist/awaagular/index.html")))
 
 http.listen(port, () => console.log("AWAAGTI-express & socket.io svr running on port " + port))

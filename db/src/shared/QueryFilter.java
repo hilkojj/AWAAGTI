@@ -1,4 +1,4 @@
-package DBReader;
+package shared;
 
 import shared.DBValue;
 import shared.DataPoint;
