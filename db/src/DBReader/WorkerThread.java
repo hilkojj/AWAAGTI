@@ -14,7 +14,6 @@ public class WorkerThread implements Runnable
     public WorkerThread(Socket connection) throws SocketException { this.connection = connection; connection.setKeepAlive(Settings.KEEP_SOCKETS_ALIVE); }
     private BufferedReader conReader = null;
     private ConWriter conWriter = null;
-    private int progress = 0;
 
     @Override
     public void run()
@@ -33,13 +32,13 @@ public class WorkerThread implements Runnable
                 conWriter.write(ConWriter.Types.error, e.getMessage());
             }
 
-            System.out.println("NEEEE");
+            System.out.println("DONE");
 
             conReader.close();
             conWriter.close();
             connection.close();
 
-        } catch (IOException e) { e.printStackTrace(); /*We are done just ignore connection from now on*/ }
+        } catch (IOException e) { e.printStackTrace(); /* We are done just ignore the connection from now on */ }
     }
 
 
@@ -48,6 +47,9 @@ public class WorkerThread implements Runnable
      */
     private void process(Query query)
     {
+        if (!query.parseWarning.equals(""))
+            conWriter.write(ConWriter.Types.error, query.parseWarning);
+
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
         conWriter.write(ConWriter.Types.file, fileName);
@@ -55,8 +57,8 @@ public class WorkerThread implements Runnable
         if(tmpFile.exists() && Settings.CACHE == true) {
             Logger.log("Cached request: "+fileName);
         } else { // We only create files if there is not already one when cache is enabled
-            BufferedWriter writer = createFile(query);
-            collectData(writer, query);
+            BufferedWriter xmlWriter = createFile(query);
+            collectData(xmlWriter, query);
             moveFile(query);
         }
     }
@@ -91,11 +93,11 @@ public class WorkerThread implements Runnable
     /*
         Loop through all files we need
      */
-    private void collectData(BufferedWriter writer, Query query)
+    private void collectData(BufferedWriter xmlWriter, Query query)
     {
         try {
-            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            writer.write("<export>\n");
+            xmlWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            xmlWriter.write("<export>\n");
 
             int oldProgress = 0;
 
@@ -107,11 +109,11 @@ public class WorkerThread implements Runnable
                 }
 
 //                Logger.log("Collecting from: " +file.getName());
-                collectDatePoint(file, writer, query);
+                collectDatePoint(file, xmlWriter, query);
             }
 
-            writer.write("</export>\n");
-            writer.close();
+            xmlWriter.write("</export>\n");
+            xmlWriter.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,38 +123,38 @@ public class WorkerThread implements Runnable
     /*
         Collect all data from a single file
      */
-    private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException
+    private void collectDatePoint(File file, BufferedWriter xmlWriter, Query query) throws IOException
     {
         ArrayList<DataPoint> stations = query.getStations(file);
         if (stations.size() > 0) {
 
-            writer.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
-            writer.write("\t\t<stations>\n");
+            xmlWriter.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
+            xmlWriter.write("\t\t<stations>\n");
 
             for (DataPoint station : stations) {
-                collectStation(station, writer, query);
+                collectStation(station, xmlWriter, query);
             }
 
-            writer.write("\t\t</stations>\n");
-            writer.write("\t</datepoint>\n");
+            xmlWriter.write("\t\t</stations>\n");
+            xmlWriter.write("\t</datepoint>\n");
         }
     }
 
     /*
         Collect all station data we need from a row
      */
-    public void collectStation(DataPoint station, BufferedWriter writer, Query query) throws IOException
+    public void collectStation(DataPoint station, BufferedWriter xmlWriter, Query query) throws IOException
     {
-        writer.write("\t\t\t<station id=\""+station.clientID+"\">\n");
+        xmlWriter.write("\t\t\t<station id=\""+station.clientID+"\">\n");
 
-        for (DBValue e : query.getSelection())
+        for (DBValue e : query.getWhat())
             if (query.inSelect(e))
-                writer.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
+                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
 
-//        if(query.is)
-//            writer.write("\t\t\t\t<when>"+station.temp+"</temp>\n");
+        if(query.isIndexedQuery())
+            xmlWriter.write("\t\t\t\t<when>"+station.summaryDateTime+"</temp>\n");
 
-        writer.write("\t\t\t</station>\n");
+        xmlWriter.write("\t\t\t</station>\n");
     }
 
 

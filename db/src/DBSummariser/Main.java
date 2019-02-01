@@ -1,23 +1,19 @@
 package DBSummariser;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-
 import shared.DBFile;
 import shared.DBValue;
 import shared.DataPoint;
 import shared.Settings;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class Main
 {
 	public static void main(String[] args)
 	{
-		LocalDateTime from;
-		LocalDateTime to;
-		
+
 		if (args.length < 1) {
 			System.out.println("Usage: db_summariser {unix time stamp: from} [unix time stamp: to, defaults to Now if not specified]");
 			System.out.println("Generates summary files for every 100, 10*100, 100*100, etc between the given timestamps.");

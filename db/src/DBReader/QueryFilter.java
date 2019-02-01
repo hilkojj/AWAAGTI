@@ -1,4 +1,8 @@
-package shared;
+package DBReader;
+
+import shared.DBValue;
+import shared.DataPoint;
+import shared.Logger;
 
 /**
  * QueryFilter parses query filter string formats and allows for
@@ -8,24 +12,52 @@ package shared;
  */
 public class QueryFilter
 {
-	
+	public static void main(String[] args)
+    {
+		// allowed
+	    Logger.error(Operand.EQUALS);
+        Logger.error(Operand.fromString("=="));
+
+        // NOT allowed
+        Logger.error(Operand.valueOf("=="));
+	}
+
+
 	enum Operand
 	{
-		EQUALS,
-		LESS_THAN,
-		LESS_THAN_OR_EQUALS,
-		GREATER_THAN,
-		GREATER_THAN_OR_EQUALS,
-		NOT_EQUALS
-	}
-	
+		EQUALS("=="),
+		LESS_THAN("<"),
+		LESS_THAN_OR_EQUALS("<="),
+		GREATER_THAN(">"),
+		GREATER_THAN_OR_EQUALS(">="),
+		NOT_EQUALS("!=");
+
+		String key;
+		Operand(String key) { this.key = key; }
+        public String getKey() { return key; }
+
+        public static Operand fromString(String str) {
+            for (Operand type : Operand.values())
+                if (type.getKey().equals(str))
+                    return type;
+            return null;
+        }
+    }
+
+	public String originalInput = "";
+
 	private DBValue variable;
 	private Operand operand;
 	private int b;
 
-	public QueryFilter(String filter) throws Exception
+    /**
+     * @param input the comma separated String that will get parsed to a filter
+     * @throws Exception
+     */
+	public QueryFilter(String input) throws Exception
 	{
-		this.parseFilter(filter);
+        originalInput = input;
+		this.parseFilter(input);
 	}
 	
 	/**
@@ -59,18 +91,12 @@ public class QueryFilter
 	public boolean execute(int a)
 	{
 		switch (this.operand) {
-		case EQUALS:
-			return a == this.b;
-		case LESS_THAN:
-			return a < this.b;
-		case LESS_THAN_OR_EQUALS:
-			return a <= this.b;
-		case GREATER_THAN:
-			return a > this.b;
-		case GREATER_THAN_OR_EQUALS:
-			return a >= this.b;
-		case NOT_EQUALS:
-			return a != this.b;
+            case EQUALS:                    return a == this.b;
+            case LESS_THAN:                 return a < this.b;
+            case LESS_THAN_OR_EQUALS:       return a <= this.b;
+            case GREATER_THAN:              return a > this.b;
+            case GREATER_THAN_OR_EQUALS:    return a >= this.b;
+            case NOT_EQUALS:                return a != this.b;
 		}
 
 		return false;
@@ -89,7 +115,7 @@ public class QueryFilter
 			throw new Exception("incorrect filter variable");
 		}
 		
-		this.operand = this.parseOperand(items[1]);
+		this.operand = Operand.fromString(items[1]);
 		if (this.operand == null) {
 			throw new Exception("incorrect filter operand");
 		}
@@ -103,26 +129,6 @@ public class QueryFilter
 		case "temp":
 			return DBValue.TEMP;
 		}
-		
-		return null;
-	}
-	
-	private Operand parseOperand(String str)
-	{
-		switch (str) {
-		case "==":
-			return Operand.EQUALS;
-		case ">":
-			return Operand.GREATER_THAN;
-		case ">=":
-			return Operand.GREATER_THAN_OR_EQUALS;
-		case "<":
-			return Operand.LESS_THAN;
-		case "<=":
-			return Operand.LESS_THAN_OR_EQUALS;
-		case "!=":
-			return Operand.NOT_EQUALS;
-		}	
 		
 		return null;
 	}

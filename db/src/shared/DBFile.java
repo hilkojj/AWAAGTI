@@ -1,5 +1,7 @@
 package shared;
 
+import DBReader.QueryFilter;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 public class SpeedTest
 {
-
     public static void main(String[] args)
     {
 //        new SpeedTest();
@@ -16,6 +15,9 @@ public class SpeedTest
 
     public static final int SKIP = 100;
 
+    /**
+     * This tests how to read a nth line from a txt file as fast as possible
+     */
     public SpeedTest()
     {
         String url = "data/test.txt";

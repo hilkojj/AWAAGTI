@@ -8,9 +8,15 @@ import java.io.File;
 import java.util.Iterator;
 
 
-public class QueryTest {
-
-    public static boolean assertQuery(Iterable it, boolean print, int value)
+/**
+ * Syntax check, parse check normal queries and parse check sorted queries
+ *
+ * @author Timo
+ *
+ */
+public class QueryTest
+{
+    private static boolean assertQuery(Iterable it, boolean print, int value)
     {
         int i = 0;
         Iterator iterator = it.iterator();
@@ -26,18 +32,18 @@ public class QueryTest {
         return (i == value);
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args)  // THESE ASSERTS DEPEND ON WHAT DATA YOU USE
     {
         try {
             boolean DEBUG = false;
 
-            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
+            new Query("limit=10;stations=1234,1356;what=temp;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
             Logger.log("Syntax: 1");
 
             new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
             Logger.log("Syntax: 2");
 
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
+            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,wind;sortBy=32432432;limit=10;filter=temp,<,10\n");
             Logger.log("Syntax: 3");
 
 

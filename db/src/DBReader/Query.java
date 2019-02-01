@@ -11,6 +11,12 @@ import java.util.stream.Stream;
 import static DBReader.DBHelper.getNth2pair;
 import static DBReader.DBHelper.timestampToFolder;
 
+/**
+ * Parse a Query and provide Iterators to loop the data.
+ *
+ * @author Timo
+ *
+ */
 public class Query
 {
     private final static String FILE_NAME = "export_";
@@ -18,7 +24,8 @@ public class Query
     private final static String FILE_NAME_FORMAT = "yyyyMMdd_HHmmss";
     private final static SimpleDateFormat FILE_FORMATTER = new SimpleDateFormat(FILE_NAME_FORMAT);
 
-    public int hash = -1;
+    private int hash = -1;
+    String parseWarning = ""; // Package private
 
     private int[] stations = {};
     private long from = 0;
@@ -30,10 +37,11 @@ public class Query
     private int limit = -1;
     private QueryFilter filter;
 
+
     public Query(String options) throws Exception
     {
         try {
-            hash = Arrays.hashCode(options.toCharArray());
+//            hash = Arrays.hashCode(options.toCharArray());  // stupid hash
             for (String line : options.split(";")) {
                 if(line.length() < 3)
                     continue;
@@ -41,18 +49,26 @@ public class Query
                 String data = line.substring(line.indexOf("=") + 1).replace("\n", "" );
 
                 switch (line.substring(0, line.indexOf("="))) {
-                    case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break; // TESTED
-                    case "from":  from = Long.parseLong(data); break; // TESTED
-                    case "to": to = Long.parseLong(data); break; // TESTED
-                    case "interval": interval = Integer.parseInt(data); break; // TESTED
-                    case "what": for (String s : Arrays.asList(data.split(",")))  what.add(DBValue.valueOf(s)); break;
-                    case "sortBy": sortBy = data; break;
-                    case "limit": limit = Integer.parseInt(data); break; // TESTED
-                    case "filter": this.filter = new QueryFilter(data); break; // TESTED
+                    case "stations":    stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).sorted().toArray(); break;
+                    case "from":        from = Long.parseLong(data); cur = from; break;
+                    case "to":          to = Long.parseLong(data); break;
+                    case "interval":    interval = Integer.parseInt(data); break;
+                    case "sortBy":      sortBy = data; break;
+                    case "limit":       limit = Integer.parseInt(data); break;
+                    case "filter":      filter = new QueryFilter(data); break;
+                    case "what":
+                        if (data.equals("*"))
+                            what.addAll(Arrays.asList(DBValue.values()));
+                        else
+                            for (String s : Arrays.asList(data.split(",")))
+                                what.add(DBValue.valueOf(s.toUpperCase()));
+                        break;
                     default:
-                        Logger.log("throw new NotImplementedException(): " + line);
+                        parseWarning = "throw new NotImplementedException(): " + line;
+                        Logger.log(parseWarning);
                 }
             }
+            hash = Arrays.hashCode( (Arrays.toString(stations) + from + to + interval + sortBy + limit + filter.originalInput + Arrays.toString(what.toArray()) ).toCharArray());
         }
         catch (Exception e) {
             Logger.error(e.getMessage());
@@ -67,9 +83,8 @@ public class Query
         if (limit == -1)
             limit = Integer.MAX_VALUE;
 
-        for (DBValue v : what) {
-            Logger.error(v);
-        }
+        if (what.size() == 0)
+            parseWarning = "You did not select what data you would like back from the query. By default you only select the ID.";
 
 
         // Tell the client about wrong queries
@@ -81,7 +96,7 @@ public class Query
 
     }
 
-    public ArrayList<DBValue> getSelection() {
+    public ArrayList<DBValue> getWhat() {
         return what;
     }
 
@@ -91,6 +106,9 @@ public class Query
     }
 
 
+    /**
+     * @return Iterator that loops all Files that pass the Query rules
+     */
     public Iterable<File> getDataFiles()
     {
         try {
@@ -106,7 +124,13 @@ public class Query
     }
 
     /*
-        Answer Queries iteratively over all the data
+
+     */
+
+    /**
+     * Answer Queries iteratively over all the data
+     *
+     * @return result files
      */
     private Iterable<File> getDataFilesNormal()
     {
@@ -194,8 +218,11 @@ public class Query
         };
     }
 
-    /*
-        Answer to Queries with index results
+
+    /**
+     * Answer to Queries with index results
+     *
+     * @return 1 result file
      */
     private Iterable<File> getDataFilesSorted()
     {
@@ -238,7 +265,7 @@ public class Query
                 String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
                 filename = filename.replace("//", "/");
                 File file = new File(filename);
-                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
+//                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
                 cur += distanceToNextCur(n);
 
@@ -325,8 +352,8 @@ public class Query
 //                else
 //                    return new File(fileName); //TODO: NO DATA WAS FOUND
 
-                Logger.error(fileName);
-                Logger.error(dps.size());
+//                Logger.error(fileName);
+//                Logger.error(dps.size());
 
                 try {
                     dbFile.write();
