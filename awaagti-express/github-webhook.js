@@ -25,7 +25,7 @@ module.exports = (req, res) => {
                 console.log("npm modules for node installed")
                 console.log("node server will restart before ng build is done")
 
-                exec("du -d 0 awaagular/", {
+                exec("du -s -B1 awaagular/", {
                     cwd: path.resolve("../")
                 }, (err, stdout, stderr) => {
                     let size = Number(stdout.replace(/\D/g,''))
