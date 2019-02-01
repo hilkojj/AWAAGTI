@@ -31,7 +31,7 @@ const configToQuery = config => {
     return q + "\r\n"
 }
 
-module.exports = async (config, onProgress, onDone, onError) => {
+module.exports = async (config, onProgress, onDone, onWarning, onError) => {
 
     let client = new net.Socket()
     let file = null
@@ -59,6 +59,9 @@ module.exports = async (config, onProgress, onDone, onError) => {
 
         if (data.startsWith("error="))
             onError(data.split("error=")[1])
+
+        if (data.startsWith("warning="))
+            onWarning(data.split("warning=")[1])
 
         if (data.startsWith("progress="))
             onProgress(Number(data.split("progress=")[1]))

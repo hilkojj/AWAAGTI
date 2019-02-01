@@ -41,6 +41,10 @@ const initClient = (socket, user) => {
                 socket.emit("export done " + config.id, file)
                 socket.emit("export size " + config.id, size)
             },
+            warn => {
+                console.log("Export warning " + config.id)
+                socket.emit("export warning " + config.id, warn)
+            },
             err => {
                 console.log("Export error " + config.id)
                 socket.emit("export error " + config.id, err)
