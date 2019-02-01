@@ -6,9 +6,11 @@ const exportsFolder = require("./index").exportsFolder
 //stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n
 
 const configToQuery = config => {
-    let q = `stations=${config.stationIds.join(",")};from=${config.timeFrame.from};to=${config.timeFrame.to};`
+    let q = `from=${config.timeFrame.from};to=${config.timeFrame.to};`
         + `interval=${config.timeFrame.interval};what=${config.what.map(t => t.slice(0, 4)).join(",")};`
 
+    if (typeof config.stations == "object" && config.stations.length)
+        q += `stations=${config.stationIds.join(",")};`
     if (typeof config.sortBy == "object")
         q += `sortBy=${config.sortBy[0].slice(0, 4)}_${config.sortBy[1] == 'min' ? 'min' : 'max'};`
     if (config.limit)
