@@ -28,7 +28,7 @@ module.exports = (req, res) => {
                 exec("du -d 0 awaagular/", {
                     cwd: path.resolve("../")
                 }, (err, stdout, stderr) => {
-                    let size = Number(stdout.replace( /^\D+/g, '').split(" ")[0])
+                    let size = Number(stdout.replace(/\D/g,''))
 
                     let lastSize = 0
                     try {
