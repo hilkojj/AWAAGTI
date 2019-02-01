@@ -286,20 +286,20 @@ public class Query
              */
             private void updateIndexResult(Map<Integer, DataPoint> indexResult, ArrayList<DataPoint> newItems) {
                 for (DataPoint dp : newItems) {
-                    indexResult.putIfAbsent(dp.clientID, dp);
-                    DataPoint old = indexResult.get(dp.clientID);
+                    indexResult.putIfAbsent(dp.getClientID(), dp);
+                    DataPoint old = indexResult.get(dp.getClientID());
 
                     switch (sortBy) {
                         case "temp_min":
-                            if (old.temp < dp.temp) {
+                            if (old.getTemp() < dp.getTemp()) {
 //                                Logger.log("UPDATE: " + old.temp + " < " +dp.temp);
-                                indexResult.put(dp.clientID, dp);
+                                indexResult.put(dp.getClientID(), dp);
                             }
                             break;
                         case "temp_max":
-                            if (old.temp > dp.temp) {
+                            if (old.getTemp() > dp.getTemp()) {
 //                                Logger.log("UPDATE: " + old.temp + " > " +dp.temp);
-                                indexResult.put(dp.clientID, dp);
+                                indexResult.put(dp.getClientID(), dp);
                             }
                             break;
                     }

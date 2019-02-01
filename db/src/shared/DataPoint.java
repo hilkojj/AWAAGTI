@@ -12,8 +12,8 @@ import java.text.DecimalFormat;
  */
 public class DataPoint implements Comparable<DataPoint>
 {
-	public int clientID;
-	public int temp;
+	private int clientID;
+	private int temp;
 
 	private DBValue summaryType;
 	private long summaryDateTime;
