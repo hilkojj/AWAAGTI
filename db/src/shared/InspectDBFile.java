@@ -8,26 +8,21 @@ public class InspectDBFile
 	public static void main(String[] args) throws IOException
 	{
 		if (args.length == 0) {
-			System.out.println("Provide unix time pl0x");
-			System.out.println("Usage: InspectDBFile {unix time} [summaryType (temp) (optional)] [summaryType (max) (optional)]");
+			System.out.println("Usage: InspectDBFile {path to .awaagti file} [summaryType (temp) (optional)]");
 			return;
 		}
 		
-		long uts = Long.parseLong(args[0]);
-		String dir = DBFile.dirForUTS(uts);
-		
-		File f;
-		DBFile dbFile;
-		if (args.length == 3) {
-			f = new File(String.format("%s/%s_%s_sum."+Settings.DATA_EXTENSION, dir, args[1], args[2]));
-			dbFile = DBFile.read(f, DBValue.TEMP);
-		} else {
-			f = new File(String.format("%s/%d."+Settings.DATA_EXTENSION, dir, uts));
-			dbFile = DBFile.read(f);
+		DBValue summaryType = null;
+
+		File f = new File(args[0]);
+		if (args.length >= 2) {
+			summaryType = DBValue.valueOf(args[1]);
 		}
 
-		for (DataPoint db: dbFile.getDataPoints()) {
-			System.out.println(db.getClientID() + ": " + db.getTemp());
+		DBFile dbFile = DBFile.read(f, summaryType);
+
+		for (DataPoint dp: dbFile.getDataPoints()) {
+			System.out.println(dp);
 		}
 	}
 }

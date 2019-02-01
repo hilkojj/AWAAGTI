@@ -52,47 +52,49 @@ public class DataPoint implements Comparable<DataPoint>
 	 */
 	public byte[] makeDBLine()
 	{
-		if (this.dbLine == null) {
-			if (this.summaryType != null) {
-				this.dbLine = new byte[5+8];
-				switch (this.summaryType) {
-				case TEMP:
-					int temp = (this.temp+100);
-					
-					this.dbLine[3] = (byte)(temp >> 8);
-					this.dbLine[4] = (byte)(temp);
-					break;
-				case WIND:
-					this.dbLine[3] = (byte)this.windSpeed;
-					break;
-				default:
-					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
-				}
-				
-				if (this.summaryDateTime != 0) {
-					// RIP 2038
-					int uts = (int) this.summaryDateTime;
-					
-					this.dbLine[5] = (byte)(uts >>> 24);
-					this.dbLine[6] = (byte)(uts >>> 16);
-					this.dbLine[7] = (byte)(uts >>> 8);
-					this.dbLine[8] = (byte)uts;
-				}
-			} else {
-				this.dbLine = new byte[6];
-				
-				int temp = this.temp+100;
+		if (this.dbLine != null) {
+			return this.dbLine;
+		}
+		
+		if (this.summaryType != null) {
+			this.dbLine = new byte[5+8];
+			switch (this.summaryType) {
+			case TEMP:
+				int temp = (this.temp+100);
 				
 				this.dbLine[3] = (byte)(temp >> 8);
 				this.dbLine[4] = (byte)(temp);
-				
-				this.dbLine[5] = (byte)this.windSpeed;
+				break;
+			case WIND:
+				this.dbLine[3] = (byte)this.windSpeed;
+				break;
+			default:
+				System.out.println("ERROR: invalid summaryType: " + this.summaryType);
 			}
 			
-			this.dbLine[0] = (byte)(this.clientID >> 16);
-			this.dbLine[1] = (byte)(this.clientID >> 8);
-			this.dbLine[2] = (byte)(this.clientID);
+			if (this.summaryDateTime != 0) {
+				// RIP 2038
+				int uts = (int) this.summaryDateTime;
+				
+				this.dbLine[5] = (byte)(uts >>> 24);
+				this.dbLine[6] = (byte)(uts >>> 16);
+				this.dbLine[7] = (byte)(uts >>> 8);
+				this.dbLine[8] = (byte)uts;
+			}
+		} else {
+			this.dbLine = new byte[6];
+			
+			int temp = this.temp+100;
+			
+			this.dbLine[3] = (byte)(temp >> 8);
+			this.dbLine[4] = (byte)(temp);
+			
+			this.dbLine[5] = (byte)this.windSpeed;
 		}
+		
+		this.dbLine[0] = (byte)(this.clientID >> 16);
+		this.dbLine[1] = (byte)(this.clientID >> 8);
+		this.dbLine[2] = (byte)(this.clientID);
 		
 		return this.dbLine;
 	}
@@ -120,28 +122,29 @@ public class DataPoint implements Comparable<DataPoint>
 				return null;
 			}
 			// Regular DB file, not a summary file.
-			dp.temp = ((line[3] << 8) | (line[4]))-100;
+			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
 			
 			if (line.length < 6) {
 				return dp;
 			}
+			
+			dp.windSpeed = (line[5] & 0xff);
 
-			dp.windSpeed = line[5];
 			return dp;
 		}
 		
 		switch (summaryType) {
 		case TEMP:
-			dp.temp = ((line[3] << 8) | (line[4]))-100;
+			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
 			break;
 		case WIND:
-			dp.windSpeed = line[3];
+			dp.windSpeed = line[3] & 0xff;
 			break;
 		default:
 			System.out.println("ERROR: unknown summaryType in fromDBLine: " + summaryType);
 		}
 		
-		long uts = line[5] << 24 | (line[6] & 0xFF) << 16 | (line[7] & 0xFF) << 8 | (line[8] & 0xFF);
+		long uts = (line[5] & 0xff) << 24 | (line[6] & 0xFF) << 16 | (line[7] & 0xFF) << 8 | (line[8] & 0xFF);
 		
 		dp.summaryDateTime = uts;
 		
@@ -210,5 +213,10 @@ public class DataPoint implements Comparable<DataPoint>
 	public void setSummaryDateTime(long summaryDateTime)
 	{
 		this.summaryDateTime = summaryDateTime;
+	}
+	
+	public String toString()
+	{
+		return String.format("%s: (%s %d) %d %d", this.clientID, this.summaryType, this.summaryDateTime, this.temp, this.windSpeed);
 	}
 }

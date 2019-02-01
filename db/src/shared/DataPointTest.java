@@ -57,7 +57,7 @@ class DataPointTest
 		
 		
 		DataPoint dp7 = new DataPoint();
-		dp7.setWindSpeed(100);
+		dp7.setWindSpeed(199);
 		dp7.setTemp(-20);
 		
 		DataPoint dp8 = DataPoint.fromDBLine(dp7.makeDBLine(), null);
@@ -67,7 +67,7 @@ class DataPointTest
 		a(dp7.getSummaryDateTime() == dp8.getSummaryDateTime());
 		
 		DataPoint dp9 = new DataPoint();
-		dp9.setWindSpeed(100);
+		dp9.setWindSpeed(230);
 		dp9.setTemp(-20);
 		dp9.setSummaryType(DBValue.WIND);
 		dp9.setSummaryDateTime(1548596433);
