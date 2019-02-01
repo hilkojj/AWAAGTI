@@ -21,6 +21,8 @@ module.exports.registerIp = (req, res) => {
     let ip = String(req.body.ip).trim()
     let apiKey = String(req.body.apiKey)
 
+    if (ip.length == 0) return res.send("fuck you pls send your ip pls")
+
     if (apiKeys[apiKey]) {
 
         let name = apiKeys[apiKey]
