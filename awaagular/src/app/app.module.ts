@@ -17,6 +17,7 @@ import { TimestampPipe } from './pipes/timestamp.pipe';
 import { ConfigsComponent } from './pages/configs/configs.component';
 import { ConfigMapComponent } from './pages/configs/config-map/config-map.component';
 import { ExportsComponent } from './components/exports/exports.component';
+import { ExportTableComponent } from './pages/export-table/export-table.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +29,8 @@ import { ExportsComponent } from './components/exports/exports.component';
         LoginRegisterComponent,
         ConfigsComponent,
         ConfigMapComponent,
-        ExportsComponent
+        ExportsComponent,
+        ExportTableComponent
     ],
     imports: [
         FormsModule,
