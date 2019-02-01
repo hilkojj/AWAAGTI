@@ -2,11 +2,7 @@ package shared;
 
 
 import java.text.DecimalFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+
 
 /**
  * DataPoint is a single state of a specific weather station.

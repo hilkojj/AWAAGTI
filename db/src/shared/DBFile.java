@@ -5,11 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class DBFile
 {
@@ -18,9 +16,6 @@ public class DBFile
 	private String fileName;
 	
 	private long dateTime;
-	
-	private int[] readFilterClientIDs;
-	private String readFileName;
 	
 	public static DBFile read(File file) throws IOException
 	{

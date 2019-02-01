@@ -1,7 +1,5 @@
 package DBSummariser;
 
-import shared.DataPoint;
-
 public class IntermediateSummariser extends Summariser
 {
 	public IntermediateSummariser(long unixTime, long dir)
