@@ -30,7 +30,7 @@ module.exports = (req, res) => {
                 try {
                     lastNgModTime = Number(fs.readFileSync("./ng-mod-time.txt").toString())
                 } catch (e) {
-                    console.err(e)
+                    console.error(e)
                 }
                 
                 if (ngModTime != lastNgModTime) {
