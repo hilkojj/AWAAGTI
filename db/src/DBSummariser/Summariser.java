@@ -99,7 +99,7 @@ public class Summariser
 			dbFile = null;
 			try {
 				File f = new File(fileName);
-				dbFile = DBFile.read(f);
+				dbFile = DBFile.read(f, this.s2Type);
 				// TODO: check why this is needed.
 				dbFile.setDateTime(this.unixTime+second);
 				exists++;
@@ -201,7 +201,7 @@ public class Summariser
 			dp.setClientID(clientID);
 			
 			if (maxDateTime != 0) {
-				dp.setTemp(val);
+				dp.setVal(val, this.s2Type);
 				dp.setSummaryDateTime(maxDateTime);
 			}
 			

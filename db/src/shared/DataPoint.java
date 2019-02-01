@@ -60,7 +60,10 @@ public class DataPoint implements Comparable<DataPoint>
 			this.dbLine = new byte[5+8];
 			switch (this.summaryType) {
 			case TEMP:
-				int temp = (this.temp+100);
+				int temp = (this.temp+1000);
+				if (temp < 0) {
+					temp = 0;
+				}
 				
 				this.dbLine[3] = (byte)(temp >> 8);
 				this.dbLine[4] = (byte)(temp);
@@ -84,7 +87,10 @@ public class DataPoint implements Comparable<DataPoint>
 		} else {
 			this.dbLine = new byte[6];
 			
-			int temp = this.temp+100;
+			int temp = this.temp+1000;
+			if (temp < 0) {
+				temp = 0;
+			}
 			
 			this.dbLine[3] = (byte)(temp >> 8);
 			this.dbLine[4] = (byte)(temp);
@@ -122,7 +128,8 @@ public class DataPoint implements Comparable<DataPoint>
 				return null;
 			}
 			// Regular DB file, not a summary file.
-			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			//dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			dp.temp = (((line[3]) << 8) | (line[4] & 0xff))-1000;
 			
 			if (line.length < 6) {
 				return dp;
@@ -135,7 +142,7 @@ public class DataPoint implements Comparable<DataPoint>
 		
 		switch (summaryType) {
 		case TEMP:
-			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-1000;
 			break;
 		case WIND:
 			dp.windSpeed = line[3] & 0xff;
@@ -162,6 +169,20 @@ public class DataPoint implements Comparable<DataPoint>
 			return this.windSpeed;
 		default:
 			return 0;
+		}
+	}
+	
+	public void setVal(int val, DBValue sType)
+	{
+		switch (sType) {
+		case TEMP:
+			this.temp = val;
+			break;
+		case WIND:
+			this.windSpeed = val;
+			break;
+		default:
+			Logger.error("DBValue not implemented");
 		}
 	}
 

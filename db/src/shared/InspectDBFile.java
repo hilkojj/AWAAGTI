@@ -16,13 +16,13 @@ public class InspectDBFile
 
 		File f = new File(args[0]);
 		if (args.length >= 2) {
-			summaryType = DBValue.valueOf(args[1]);
+			summaryType = DBValue.valueOf(args[1].toUpperCase());
 		}
 
 		DBFile dbFile = DBFile.read(f, summaryType);
 
 		for (DataPoint dp: dbFile.getDataPoints()) {
-			System.out.println(dp);
+			System.out.println(dp.toString());
 		}
 	}
 }
