@@ -38,7 +38,7 @@ func main() {
 		}
 
 		for i := 1000; i < 9000; i++ {
-			_, err = c.Write([]byte(strconv.Itoa(i) + "," + fmt.Sprintf("%.02f", float32(rand.Intn(1000))/10-20) + "," + fmt.Sprintf("%.02f", float32(rand.Intn(255)/10)) + "\n"))
+			_, err = c.Write([]byte(strconv.Itoa(i) + "," + fmt.Sprintf("%.02f", float32(rand.Intn(1000))/10-20) + "," + fmt.Sprintf("%.02f", float32(rand.Intn(255))/10) + "\n"))
 			if err != nil {
 				log.Fatal(err)
 			}
