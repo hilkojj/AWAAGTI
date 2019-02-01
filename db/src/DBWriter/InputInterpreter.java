@@ -96,7 +96,12 @@ public class InputInterpreter
 		float temp =  Float.parseFloat(parts[1]);
 		dp.setTemp((int) (temp*10));
 		
-		list.add(dp);
+		if (parts.length >= 3) {
+			float wind =  Float.parseFloat(parts[2]);
+			dp.setWindSpeed((int) (wind*10));
+		}
+		
+		this.list.add(dp);
 	}
 	
 	private void stateFinish()

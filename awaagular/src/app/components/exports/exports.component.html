@@ -1,6 +1,6 @@
 <div class="export mat-elevation-z10" *ngFor="let export of configs.exports">
 
-    <mat-progress-spinner class="example-margin" [mode]="export.progress || export.error ? 'determinate' : 'indeterminate'"
+    <mat-progress-spinner class="example-margin" [mode]="export.progress || export.error || export.downloadUrl ? 'determinate' : 'indeterminate'"
         [value]="export.error || export.downloadUrl ? 100 : export.progress"
         [color]="export.error ? 'warn' : 'primary'">
     </mat-progress-spinner>
@@ -26,7 +26,7 @@
             Download XML
         </a>
 
-        <button mat-button>
+        <button mat-button [routerLink]="'/show-in-table/' + export.downloadUrl.split('/')[1]">
             <mat-icon>table_chart</mat-icon>
             Show in table
         </button>

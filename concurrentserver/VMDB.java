@@ -32,10 +32,10 @@ public class VMDB {
 		this.output.format("%d,%.01f\n", station, temp);
 	}
 
-	public synchronized void sendData(float[] data, int len, String date, String time) {
+	public synchronized void sendData(float[] temperatures, float[] windSpeeds, int len, String date, String time) {
 		sendBegin(date, time);
 		for (int i = 0; i < len; i++) {
-			output.format("%d,%.01f\n", Server.revStation[i], data[i]);
+			output.format("%d,%.01f,%.01f\n", Server.revStation[i], temperatures[i], windSpeeds[i]);
 		}
 		sendEnd();
 	}

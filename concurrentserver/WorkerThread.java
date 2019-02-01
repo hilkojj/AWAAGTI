@@ -26,7 +26,8 @@ class WorkerThread implements Runnable {
 
 			String[] input = new String[14];
 			boolean fill = false;
-			float data[] = new float[8010];
+			float temperatureSecond[] = new float[8010];
+			float windSpeedSecond[] = new float[8010];
 
 			Map<String, Integer> lookup = new HashMap<String, Integer>();
 			lookup.put("STN", 0);
@@ -47,43 +48,48 @@ class WorkerThread implements Runnable {
 
 			while ((s = bin.readLine()) != null) {
 				if (s.equals("\t</MEASUREMENT>")) {
+					int stationID = Integer.parseInt(input[0]);
+					Integer mappedStationID = Server.stations.get(stationID);
+					float temperature = Float.parseFloat(input[3]);
+					float windSpeed = Float.parseFloat(input[8]);
 
-					mapIncrement(Integer.parseInt(input[0]));
-					print(Server.stations.size());
-					if (Server.stations.get(Integer.parseInt(input[0])) != null) {
+					mapIncrement(stationID);
+					if (mappedStationID != null) {
 						if (!fill) {
-							Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
-							// System.out.printf("nfill: %s", Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
+							Server.temperatures[mappedStationID].put(temperature);
+							Server.windSpeeds[mappedStationID].put(windSpeed);
+							if(Server.temperatures[mappedStationID].hasBeanRound)
+								fill = true;
 						}
-						if (Server.queues[Server.stations.get(Integer.parseInt(input[0]))].hasBeanRound || fill) {
-							fill = true;
-							float avg30 = 0;
+						else {
+							float avg30temp = 0;
+							float avg30windSpeed = 0;
 							for (int i = 0; i < 30; i++) {//TODO: kan sneller!!!!
-								avg30 += Server.queues[Server.stations.get(Integer.parseInt(input[0]))].get(i);
+								avg30windSpeed += Server.windSpeeds[mappedStationID].get(i);
+								avg30temp += Server.temperatures[mappedStationID].get(i);
 							}
-							avg30 /= 30;
-							if (Math.abs(avg30) >= Math.abs(1.2 * Float.parseFloat(input[3])) || Math.abs(avg30) <= Math.abs(0.8 * Float.parseFloat(input[3]))) {
-								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(avg30);
-								// System.out.printf("Buiten marge: %f\n", Float.parseFloat(input[3]));
-								// System.out.printf("Avg last 10: %f\n", avg30);
+							avg30temp /= 30;
+							avg30windSpeed /= 30;
+
+							if (avg30windSpeed >= 1.2 * windSpeed || avg30windSpeed <= 0.8 * windSpeed) {
+								Server.windSpeeds[mappedStationID].put(avg30windSpeed);
 							} else {
-								Server.queues[Server.stations.get(Integer.parseInt(input[0]))].put(Float.parseFloat(input[3]));
-								// System.out.printf("Binnen marge: %f\n", Float.parseFloat(input[3]));
-								// System.out.printf("Avg last 10: %f\n", avg30);
+								Server.windSpeeds[mappedStationID].put(windSpeed);
 							}
-							// System.out.printf("Station: %d (%s), Temp: %s\n", Server.stations.get(Integer.parseInt(input[0])), input[0], Arrays.asList(Server.queues[Server.stations.get(Integer.parseInt(input[0]))]));
+
+							if (Math.abs(avg30temp) >= Math.abs(1.2 * temperature) || Math.abs(avg30temp) <= Math.abs(0.8 * temperature)) {
+								Server.temperatures[mappedStationID].put(avg30temp);
+							} else {
+								Server.temperatures[mappedStationID].put(temperature);
+							}
 							int currTime = Integer.parseInt(input[2].replaceAll(":", ""));
 							if (currTime > Server.lastTime && input[2] != null) {
-								// if(!Server.lastTime.equals(input[2]) && input[2] != null) {
 								Server.updateTime(currTime);
-								// Server.db.sendBegin(input[1], input[2]);
-								for (int i = 0; i < Server.stations.size(); i++)
-									data[i] = Server.queues[i].get(0);
-								// Server.db.sendDataPoint(Server.revStation[i+1], Server.queues[i].get(0));
-								Server.db.sendData(data, Server.stations.size(), input[1], input[2]);
-								// Server.db.sendEnd();
-								// System.out.printf("Volgende seconde: %s\n", Server.lastTime);
-
+								for (int i = 0; i < Server.stations.size(); i++) {
+									windSpeedSecond[i] = Server.windSpeeds[i].get(0);
+									temperatureSecond[i] = Server.temperatures[i].get(0);
+								}
+								Server.db.sendData(temperatureSecond, windSpeedSecond, Server.stations.size(), input[1], input[2]);
 							}
 						}
 					}
@@ -146,22 +152,9 @@ class WorkerThread implements Runnable {
 			System.err.println(o);
 	}
 
-	private static synchronized void putData(Integer station, float temp) {
-		String[] dataArray = Server.data[station];
-		for (int i = 0; i < dataArray.length; i++) {
-			if (dataArray[i] != null) {
-				dataArray[i] = Float.toString(temp);
-				break;
-			}
-		}
-	}
-
 	private static synchronized void mapIncrement(Integer station) {
 		if (Server.stations.get(station) == null) {
-			// Server.stations.putIfAbsent(station, num);
 			Server.stations.put(station, num);
-			// Add the stationID to a ArrayList.
-			// So we can do arraylist.get(index) to get the stationID.
 			Server.revStation[num++] = station;
 		}
 	}

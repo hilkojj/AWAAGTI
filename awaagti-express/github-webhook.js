@@ -22,14 +22,8 @@ module.exports = (req, res) => {
 
                 console.log(err, stderr, stdout)
                 console.log("npm modules for node installed")
-
-                console.log("lets use 100% CPU (lets build the angular app)")
-
-                console.log("node server will restart before ng build is done")
+                console.log("node server will restart")
                 
-                exec("sudo ng build --prod --aot &", {
-                    cwd: path.resolve("../awaagular/")
-                })
                 exec("sudo pm2 restart 0")
             })
 
