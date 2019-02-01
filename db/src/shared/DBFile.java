@@ -15,7 +15,6 @@ public class DBFile
 	private ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
 	
 	private String fileName;
-	
 	private long dateTime;
 	
 	public static DBFile read(File file) throws IOException
