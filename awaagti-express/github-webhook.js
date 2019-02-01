@@ -24,25 +24,30 @@ module.exports = (req, res) => {
                 console.log(err, stderr, stdout)
                 console.log("npm modules for node installed")
                 console.log("node server will restart before ng build is done")
-                
-                let ngModTime = new Date(fs.statSync("../awaagular").mtime).getTime()
-                let lastNgModTime = 0
-                try {
-                    lastNgModTime = Number(fs.readFileSync("./ng-mod-time.txt").toString())
-                } catch (e) {
-                    console.error(e)
-                }
-                
-                if (ngModTime != lastNgModTime) {
 
-                    console.log("Angular app source code changed\nlets use 100% CPU (lets build the angular app)")
+                exec("du -d 0 awaagular/", {
+                    cwd: path.resolve("../")
+                }, (err, stdout, stderr) => {
+                    let size = Number(stdout.split(" ")[0])
 
-                    fs.writeFileSync("./ng-mod-time.txt", ngModTime)
-                    exec("sudo ng build --prod --aot &", {
-                        cwd: path.resolve("../awaagular/")
-                    })
-                }   
-                exec("sudo pm2 restart 0")
+                    let lastSize = 0
+                    try {
+                        lastSize = Number(fs.readFileSync("./ng-prev-size.txt").toString())
+                    } catch (e) {
+                        console.error(e)
+                    }
+
+                    if (lastSize != size) {
+
+                        console.log("Angular app source code changed\nlets use 100% CPU (lets build the angular app)")
+
+                        fs.writeFileSync("./ng-prev-size.txt", size)
+                        exec("sudo ng build --prod --aot &", {
+                            cwd: path.resolve("../awaagular/")
+                        })
+                    }
+                    exec("sudo pm2 restart 0")
+                })
             })
 
 

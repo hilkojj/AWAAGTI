@@ -31,7 +31,7 @@ const configToQuery = config => {
     return q + "\r\n"
 }
 
-module.exports = async (config, onProgress, onDone, onWarning, onError) => {
+module.exports = (config, onProgress, onDone, onWarning, onError) => {
 
     let client = new net.Socket()
     let file = null
@@ -84,9 +84,7 @@ module.exports = async (config, onProgress, onDone, onWarning, onError) => {
         if (!file) clearInterval(interval)
         client.end()
     })
-    client.on('timeout', function () {
-        console.log('Client connection timeout.');
-    })
+    client.on('timeout', () => console.log('Client connection timeout.'))
 
     return {
         end: () => {
