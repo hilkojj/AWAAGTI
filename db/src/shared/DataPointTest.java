@@ -54,6 +54,31 @@ class DataPointTest
 		a(dp5.getTemp() == dp6.getTemp());
 		a(dp5.getSummaryType() == dp6.getSummaryType());	
 		a(dp5.getSummaryDateTime() == dp6.getSummaryDateTime());
+		
+		
+		DataPoint dp7 = new DataPoint();
+		dp7.setWindSpeed(100);
+		dp7.setTemp(-20);
+		
+		DataPoint dp8 = DataPoint.fromDBLine(dp7.makeDBLine(), null);
+		a(dp7.getTemp() == dp8.getTemp());
+		a(dp7.getWindSpeed() == dp8.getWindSpeed());
+		a(dp7.getSummaryType() == dp8.getSummaryType());	
+		a(dp7.getSummaryDateTime() == dp8.getSummaryDateTime());
+		
+		DataPoint dp9 = new DataPoint();
+		dp9.setWindSpeed(100);
+		dp9.setTemp(-20);
+		dp9.setSummaryType(DBValue.WIND);
+		dp9.setSummaryDateTime(1548596433);
+		
+		DataPoint dp10 = DataPoint.fromDBLine(dp9.makeDBLine(), DBValue.WIND);
+		a(dp9.getTemp() != dp10.getTemp());
+		System.out.println(dp9.getWindSpeed());
+		System.out.println(dp10.getWindSpeed());
+		a(dp9.getWindSpeed() == dp10.getWindSpeed());
+		a(dp9.getSummaryType() == dp10.getSummaryType());	
+		a(dp9.getSummaryDateTime() == dp10.getSummaryDateTime());
 	}
 	
 	public static void a(boolean b) throws Exception
