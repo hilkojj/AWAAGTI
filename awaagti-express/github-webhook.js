@@ -26,7 +26,13 @@ module.exports = (req, res) => {
                 console.log("node server will restart before ng build is done")
                 
                 let ngModTime = new Date(fs.statSync("../awaagular").mtime).getTime()
-                let lastNgModTime = Number(fs.readFileSync("./ng-mod-time.txt").toString())
+                let lastNgModTime = 0
+                try {
+                    lastNgModTime = Number(fs.readFileSync("./ng-mod-time.txt").toString())
+                } catch (e) {
+                    console.err(e)
+                }
+                
                 if (ngModTime != lastNgModTime) {
 
                     console.log("Angular app source code changed\nlets use 100% CPU (lets build the angular app)")
