@@ -9,7 +9,7 @@ const configToQuery = config => {
     let q = `from=${config.timeFrame.from};to=${config.timeFrame.to};`
         + `interval=${config.timeFrame.interval};what=${config.what.map(t => t.slice(0, 4)).join(",")};`
 
-    if (typeof config.stations == "object" && config.stations.length)
+    if (typeof config.stationIds == "object" && config.stationIds.length)
         q += `stations=${config.stationIds.join(",")};`
     if (typeof config.sortBy == "object")
         q += `sortBy=${config.sortBy[0].slice(0, 4)}_${config.sortBy[1] == 'min' ? 'min' : 'max'};`
