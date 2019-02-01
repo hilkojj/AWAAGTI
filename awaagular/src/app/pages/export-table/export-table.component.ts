@@ -12,7 +12,7 @@ export class ExportTableComponent {
 
     fileName: string
     private _page = -1
-    private pageSize = 1024 * 1024 * .5
+    private pageSize = 1024 * 5
 
     get page(): number {
         return this._page
@@ -24,11 +24,20 @@ export class ExportTableComponent {
 
         this.http.get(environment.socketUrl + 'exports/' + this.fileName, {
             headers: {
-                "Range": "bytes=0-10"
+                "Range": `bytes=${p * this.pageSize}-${(p + 1) * this.pageSize}`
             },
             responseType: "text"
         }).subscribe(res => {
-            console.log(res)
+            let endTag = "</datepoint>"
+            let lastEndTagI = res.lastIndexOf("</datepoint>")
+            res = res.slice(0, lastEndTagI) + endTag + "</export>"
+
+            let parser = new DOMParser()
+            let xml = parser.parseFromString(res, "text/xml")
+            let exportNode = xml.firstChild
+
+            Array.from(exportNode.childNodes).forEach(n => console.log(n.nodeName))
+            
         })
     }
 
