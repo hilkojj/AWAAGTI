@@ -19,42 +19,13 @@ public class DataPoint implements Comparable<DataPoint>
 	private DBValue summaryType;
 	private long summaryDateTime;
 
-	public int getClientID() {
-		return clientID;
-	}
-
-	public void setClientID(int clientID) {
-		this.clientID = clientID;
-	}
-
-	public int getTemp() {
-		return temp;
-	}
-	public void setTemp(int temp) {
-		this.temp = temp;
-	}
-
-	public DBValue getSummaryType() {
-		return summaryType;
-	}
-	public void setSummaryType(DBValue summaryType) {
-		this.summaryType = summaryType;
-	}
-
-	public long getSummaryDateTime() {
-		return summaryDateTime;
-	}
-	public void setSummaryDateTime(long summaryDateTime) {
-		this.summaryDateTime = summaryDateTime;
-	}
-
-
 	private byte[] dbLine;
 
-	DecimalFormat df = new DecimalFormat("#.#");
+	public DataPoint()
+	{ }
 
-	public DataPoint(){ }
-	public DataPoint(String proof, int clientID, int temp) {
+	public DataPoint(String proof, int clientID, int temp)
+	{
 		if(proof.equals("JUST FOR TESTING")) {
 			this.clientID = clientID;
 			this.temp = temp;
@@ -191,11 +162,53 @@ public class DataPoint implements Comparable<DataPoint>
 		}
 	}
 
-	public int getWindSpeed() {
+	public int getWindSpeed()
+	{
 		return windSpeed;
 	}
 
-	public void setWindSpeed(int windSpeed) {
+	public void setWindSpeed(int windSpeed)
+	{
 		this.windSpeed = windSpeed;
+	}
+	
+	public int getClientID()
+	{
+		return clientID;
+	}
+
+	public void setClientID(int clientID)
+	{
+		this.clientID = clientID;
+	}
+
+	public int getTemp()
+	{
+		return temp;
+	}
+
+	public void setTemp(int temp)
+	{
+		this.temp = temp;
+	}
+
+	public DBValue getSummaryType()
+	{
+		return summaryType;
+	}
+
+	public void setSummaryType(DBValue summaryType)
+	{
+		this.summaryType = summaryType;
+	}
+
+	public long getSummaryDateTime()
+	{
+		return summaryDateTime;
+	}
+
+	public void setSummaryDateTime(long summaryDateTime)
+	{
+		this.summaryDateTime = summaryDateTime;
 	}
 }

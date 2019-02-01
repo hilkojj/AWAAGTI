@@ -22,8 +22,12 @@ public class QueryFilter
 		NOT_EQUALS("!=");
 
 		String key;
-		Operand(String key) { this.key = key; }
-        public String getKey() { return key; }
+		Operand(String key) {
+			this.key = key;
+		}
+        public String getKey() {
+        	return key;
+        }
 
         public static Operand fromString(String str)
         {
@@ -37,21 +41,25 @@ public class QueryFilter
         }
     }
 
-	public String originalInput = "";
+	private String originalInput = "";
+
+	public String getOriginalInput() {
+		return originalInput;
+	}
 
 	private DBValue variable;
 	private Operand operand;
 	private int b;
 
-
 	public QueryFilter() { }
+
     /**
      * @param input the comma separated String that will get parsed to a filter
      * @throws Exception
      */
 	public QueryFilter(String input) throws Exception
 	{
-        originalInput = input;
+        this.originalInput = input;
 		this.parseFilter(input);
 	}
 	
@@ -74,6 +82,7 @@ public class QueryFilter
 		switch (this.variable) {
 		case TEMP:
 			a = dp.getTemp();
+			break;
 		default:
 		}
 
@@ -89,22 +98,29 @@ public class QueryFilter
 	 */
 	public boolean execute(int a)
 	{
-		if(originalInput.equals(""))
+		if (originalInput.equals("")) {
 			return true;
+		}
 
 		switch (this.operand) {
-            case EQUALS:                    return a == this.b;
-            case LESS_THAN:                 return a <  this.b;
-            case LESS_THAN_OR_EQUALS:       return a <= this.b;
-            case GREATER_THAN:              return a >  this.b;
-            case GREATER_THAN_OR_EQUALS:    return a >= this.b;
-            case NOT_EQUALS:                return a != this.b;
+            case EQUALS:
+            	return a == this.b;
+            case LESS_THAN:
+            	return a <  this.b;
+            case LESS_THAN_OR_EQUALS:
+            	return a <= this.b;
+            case GREATER_THAN:
+            	return a >  this.b;
+            case GREATER_THAN_OR_EQUALS:
+            	return a >= this.b;
+            case NOT_EQUALS:
+            	return a != this.b;
 		}
 
 		return false;
 	}
 
-	public void parseFilter(String filter) throws Exception
+	private void parseFilter(String filter) throws Exception
 	{
 		String[] items = filter.split(",");
 		
