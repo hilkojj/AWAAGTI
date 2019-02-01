@@ -4,7 +4,6 @@ import shared.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -21,8 +20,6 @@ public class Query
 {
     private final static String FILE_NAME = "export_";
     private final static String FILE_EXTENSION = "xml";
-    private final static String FILE_NAME_FORMAT = "yyyyMMdd_HHmmss";
-    private final static SimpleDateFormat FILE_FORMATTER = new SimpleDateFormat(FILE_NAME_FORMAT);
 
     private int hash = -1;
     String parseWarning = ""; // Package private
@@ -86,6 +83,9 @@ public class Query
         if (what.size() == 0)
             parseWarning = "You did not select what data you would like back from the query. By default you only select the ID.";
 
+        if ((sortBy.length() > 0 && what.size() > 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
+            throw new Exception("Sorted Index Queries do not support non indexed selections yet"); // TODO: implement
+
 
         // Tell the client about wrong queries
         if(interval > 1 && sortBy.length() > 0)
@@ -122,10 +122,6 @@ public class Query
             return (Iterable<File>) Collections.emptyIterator();
         }
     }
-
-    /*
-
-     */
 
     /**
      * Answer Queries iteratively over all the data
@@ -368,6 +364,10 @@ public class Query
     }
 
 
+    /**
+     * @param file the file
+     * @return gives all DataPoints from file
+     */
     public ArrayList<DataPoint> getStations(File file) {
         ArrayList<DataPoint> list = new ArrayList<>();
 
@@ -382,15 +382,25 @@ public class Query
         return list;
     }
 
+    /**
+     * @return if sortBy is used in Query
+     */
     public boolean isIndexedQuery()
     {
         return sortBy == null || sortBy.length() == 0;
     }
 
-    public boolean inSelect(DBValue select) { // TODO: IMPLEMENT WHAT
-        return what.contains(select.toString());
+    /**
+     * @param select what kind of value you have
+     * @return if user whats it.
+     */
+    public boolean inSelect(DBValue select) {
+        return what.contains(select);
     }
 
+    /**
+     * @return [1-100] as a percentage
+     */
     public int progress()
     {
         long diffFromStart = cur - from;
