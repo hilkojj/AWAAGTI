@@ -111,13 +111,20 @@ public class QueryFilter
 		}
 
 		switch (this.operand) {
-            case EQUALS:                    return a == this.b;
-            case LESS_THAN:                 return a <  this.b;
-            case LESS_THAN_OR_EQUALS:       return a <= this.b;
-            case GREATER_THAN:              return a >  this.b;
-            case GREATER_THAN_OR_EQUALS:    return a >= this.b;
-			case NOT_EQUALS:                return a != this.b;
-			case BETWEEN:                   return a >  this.b && a < this.c;
+            case EQUALS:
+            	return a == this.b;
+            case LESS_THAN:
+            	return a <  this.b;
+            case LESS_THAN_OR_EQUALS:
+            	return a <= this.b;
+            case GREATER_THAN:
+            	return a >  this.b;
+            case GREATER_THAN_OR_EQUALS:
+            	return a >= this.b;
+			case NOT_EQUALS:
+				return a != this.b;
+			case BETWEEN:
+				return a > this.b && a < this.c;
 		}
 
 		return false;
@@ -142,7 +149,7 @@ public class QueryFilter
 		}
 
 		this.b = Integer.parseInt(items[2]);
-		if (items.length == 4) {
+		if (this.operand == Operand.BETWEEN && items.length == 4) {
 			this.c = Integer.parseInt(items[3]);
 		}
 	}
