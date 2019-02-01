@@ -66,8 +66,6 @@ class WorkerThread implements Runnable {
 							float avg30windSpeed = 0;
 							for (int i = 0; i < 30; i++) {//TODO: kan sneller!!!!
 								avg30windSpeed += Server.windSpeeds[mappedStationID].get(i);
-							}
-							for (int i = 0; i < 30; i++) {//TODO: kan sneller!!!!
 								avg30temp += Server.temperatures[mappedStationID].get(i);
 							}
 							avg30temp /= 30;
@@ -152,16 +150,6 @@ class WorkerThread implements Runnable {
 	private static void error(Object o) {
 		if (SHOW_ERROR)
 			System.err.println(o);
-	}
-
-	private static synchronized void putData(Integer station, float temp) {
-		String[] dataArray = Server.data[station];
-		for (int i = 0; i < dataArray.length; i++) {
-			if (dataArray[i] != null) {
-				dataArray[i] = Float.toString(temp);
-				break;
-			}
-		}
 	}
 
 	private static synchronized void mapIncrement(Integer station) {
