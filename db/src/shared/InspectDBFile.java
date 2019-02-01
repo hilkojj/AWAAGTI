@@ -19,7 +19,7 @@ public class InspectDBFile
 		DBFile dbFile;
 		if (args.length == 3) {
 			f = new File(String.format("%s/%s_%s_sum."+Settings.DATA_EXTENSION, dir, args[1], args[2]));
-			dbFile = DBFile.read(f, DataPoint.SummaryType.TEMP);
+			dbFile = DBFile.read(f, DBValue.TEMP);
 		} else {
 			f = new File(String.format("%s/%d."+Settings.DATA_EXTENSION, dir, uts));
 			dbFile = DBFile.read(f);

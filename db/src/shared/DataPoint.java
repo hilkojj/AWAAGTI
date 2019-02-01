@@ -2,11 +2,6 @@ package shared;
 
 
 import java.text.DecimalFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 /**
  * DataPoint is a single state of a specific weather station.
@@ -20,17 +15,14 @@ public class DataPoint implements Comparable<DataPoint>
 	public int clientID;
 	public int temp;
 	
-	public SummaryType summaryType;
+	public DBValue summaryType;
 	public long summaryDateTime;
 	
 		
 	private byte[] dbLine;
 
 	DecimalFormat df = new DecimalFormat("#.#");
-	
-	public enum SummaryType {
-		TEMP
-	}
+
 
 	public DataPoint(){ }
 	public DataPoint(String proof, int clientID, int temp) {
@@ -103,7 +95,7 @@ public class DataPoint implements Comparable<DataPoint>
 		return this.dbLine;
 	}
 	
-	public static DataPoint fromDBLine(byte[] line, SummaryType summaryType)
+	public static DataPoint fromDBLine(byte[] line, DBValue summaryType)
 	{
 		DataPoint dp = new DataPoint();
 		
@@ -147,7 +139,7 @@ public class DataPoint implements Comparable<DataPoint>
 		return dp;
 	}
 	
-	public int getVal(SummaryType sType)
+	public int getVal(DBValue sType)
 	{
 		switch(sType) {
 		case TEMP:

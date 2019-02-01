@@ -1,15 +1,9 @@
 package shared;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class DBFile
 {
@@ -19,9 +13,6 @@ public class DBFile
 	
 	private long dateTime;
 	
-	private int[] readFilterClientIDs;
-	private String readFileName;
-	
 	public static DBFile read(File file) throws IOException
 	{
 		DBFile dbFile = new DBFile();
@@ -29,21 +20,21 @@ public class DBFile
 		return dbFile;
 	}
 	
-	public static DBFile read(File file, DataPoint.SummaryType summaryType) throws IOException
+	public static DBFile read(File file, DBValue summaryType) throws IOException
 	{
 		DBFile dbFile = new DBFile();
 		dbFile.readFile(file, summaryType, null, null);
 		return dbFile;
 	}
 	
-	public static DBFile read(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	public static DBFile read(File file, DBValue summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
 	{
 		DBFile dbFile = new DBFile();
 		dbFile.readFile(file, summaryType, filterClientIDs, filter);
 		return dbFile;
 	}
 	
-	private void readFile(File file, DataPoint.SummaryType summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
+	private void readFile(File file, DBValue summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
 	{
 
 

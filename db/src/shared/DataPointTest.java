@@ -29,11 +29,11 @@ public class DataPointTest
 		DataPoint dp3 = new DataPoint();
 		dp3.clientID = 5;
 		dp3.temp = 215;
-		dp3.summaryType = DataPoint.SummaryType.TEMP;
+		dp3.summaryType = DBValue.TEMP;
 
 		dbLine = dp3.makeDBLine();
 		
-		DataPoint dp4 = DataPoint.fromDBLine(dbLine, DataPoint.SummaryType.TEMP);
+		DataPoint dp4 = DataPoint.fromDBLine(dbLine, DBValue.TEMP);
 
 		a(dp3.clientID == dp4.clientID);
 		System.out.println(dp3.temp);
@@ -44,12 +44,12 @@ public class DataPointTest
 		DataPoint dp5 = new DataPoint();
 		dp5.clientID = 5;
 		dp5.temp = 215;
-		dp5.summaryType = DataPoint.SummaryType.TEMP;
+		dp5.summaryType = DBValue.TEMP;
 		dp5.summaryDateTime = 1548596433;
 
 		dbLine = dp5.makeDBLine();
 		
-		DataPoint dp6 = DataPoint.fromDBLine(dbLine, DataPoint.SummaryType.TEMP);
+		DataPoint dp6 = DataPoint.fromDBLine(dbLine, DBValue.TEMP);
 
 		a(dp5.clientID == dp6.clientID);
 		System.out.println(dp5.temp);

@@ -1,26 +1,9 @@
 package DBReader;
 
-import shared.Logger;
 import shared.Settings;
 
-import java.util.Iterator;
-
-public class DBHelper {
-    public static boolean assertQuery(Iterable it, boolean print, int value) {
-        int i = 0;
-        Iterator iterator = it.iterator();
-        while(iterator.hasNext()) {
-            i++;
-            if (print)
-                Logger.log(iterator.next());
-            else
-                iterator.next();
-        }
-
-        Logger.log(i + " == " + value);
-        return (i == value);
-    }
-
+public class DBHelper
+{
     static String timestampToFolder(long timestamp) {
         return timestampToFolder( padLeft(""+timestamp, 8).replace(' ', '0' ) );
     }

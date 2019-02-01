@@ -3,12 +3,12 @@ package DBReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
+public class Server
+{
     public static final int PORT = 12345;
 
-    public static void main(String[] args) {
-//        System.out.println("Working Directory = " +
-//                System.getProperty("user.dir"));
+    public static void main(String[] args)
+    {
         Socket connection;
         try {
             ServerSocket server = new ServerSocket(PORT);

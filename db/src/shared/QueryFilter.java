@@ -8,10 +8,6 @@ package shared;
  */
 public class QueryFilter
 {
-	enum Variable
-	{
-		TEMP
-	}
 	
 	enum Operand
 	{
@@ -23,7 +19,7 @@ public class QueryFilter
 		NOT_EQUALS
 	}
 	
-	private Variable variable;
+	private DBValue variable;
 	private Operand operand;
 	private int b;
 
@@ -101,11 +97,11 @@ public class QueryFilter
 		this.b = Integer.parseInt(items[2]);
 	}
 	
-	private Variable parseVariable(String str)
+	private DBValue parseVariable(String str) // TODO: use ToStrating() on DBValue
 	{
 		switch (str) {
 		case "temp":
-			return Variable.TEMP;
+			return DBValue.TEMP;
 		}
 		
 		return null;

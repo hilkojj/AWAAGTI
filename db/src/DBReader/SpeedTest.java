@@ -2,20 +2,22 @@ package DBReader;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.stream.Stream;
 
-public class SpeedTest {
+public class SpeedTest
+{
 
-    public static void main(String[] args){
+    public static void main(String[] args)
+    {
 //        new SpeedTest();
         System.out.println( new Date().getTime() / 1000 );
     }
 
     public static final int SKIP = 100;
 
-    public SpeedTest() {
+    public SpeedTest()
+    {
         String url = "data/test.txt";
         int MAX = 1000;
 
@@ -45,7 +47,8 @@ public class SpeedTest {
     /*
         java 9 Streams
      */
-    private void test1(String url) {
+    private void test1(String url)
+    {
         File file = new File(url);
 //        System.out.println(file.length());
 
@@ -64,7 +67,8 @@ public class SpeedTest {
     /*
         BufferedReader read
      */
-    private void test2(String url) {
+    private void test2(String url)
+    {
         File file = new File(url);
 
         try {
@@ -86,7 +90,8 @@ public class SpeedTest {
     /*
         BufferedReader readline
      */
-    private void test3(String url) {
+    private void test3(String url)
+    {
         File file = new File(url);
 
         try {
@@ -105,7 +110,8 @@ public class SpeedTest {
     /*
         BufferedReader readline
      */
-    private void test4(String url) {
+    private void test4(String url)
+    {
         File file = new File(url);
 
         try {

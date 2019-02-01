@@ -7,7 +7,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-public class WorkerThread implements Runnable {
+public class WorkerThread implements Runnable
+{
     private Socket connection;
 
     public WorkerThread(Socket connection) throws SocketException { this.connection = connection; connection.setKeepAlive(Settings.KEEP_SOCKETS_ALIVE); }
@@ -16,7 +17,8 @@ public class WorkerThread implements Runnable {
     private int progress = 0;
 
     @Override
-    public void run() {
+    public void run()
+    {
         Logger.log("Worker thread started");
 
         try {
@@ -44,8 +46,8 @@ public class WorkerThread implements Runnable {
     /*
         Start doing what the user requested to us.
      */
-    private void process(Query query) {
-
+    private void process(Query query)
+    {
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
         conWriter.write(ConWriter.Types.file, fileName);
@@ -62,7 +64,8 @@ public class WorkerThread implements Runnable {
     /*
         Create the file + hash
      */
-    private BufferedWriter createFile(Query query) {
+    private BufferedWriter createFile(Query query)
+    {
         String fileName = query.getFileName();
         Logger.log("Creating file: "+fileName);
         try {
@@ -76,7 +79,8 @@ public class WorkerThread implements Runnable {
     /*
         This moves the file to the exports directory
      */
-    private void moveFile(Query query) {
+    private void moveFile(Query query)
+    {
         String fileName = query.getFileName();
         Logger.log("Finished export: "+fileName);
         File exportReadyFile = new File(fileName);
@@ -87,7 +91,8 @@ public class WorkerThread implements Runnable {
     /*
         Loop through all files we need
      */
-    private void collectData(BufferedWriter writer, Query query) {
+    private void collectData(BufferedWriter writer, Query query)
+    {
         try {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<export>\n");
@@ -101,7 +106,7 @@ public class WorkerThread implements Runnable {
                     conWriter.write(ConWriter.Types.progress, ""+newProgress);
                 }
 
-                Logger.log("Collecting from: " +file.getName());
+//                Logger.log("Collecting from: " +file.getName());
                 collectDatePoint(file, writer, query);
             }
 
@@ -116,8 +121,8 @@ public class WorkerThread implements Runnable {
     /*
         Collect all data from a single file
      */
-    private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException {
-
+    private void collectDatePoint(File file, BufferedWriter writer, Query query) throws IOException
+    {
         ArrayList<DataPoint> stations = query.getStations(file);
         if (stations.size() > 0) {
 
@@ -136,11 +141,16 @@ public class WorkerThread implements Runnable {
     /*
         Collect all station data we need from a row
      */
-    public void collectStation(DataPoint station, BufferedWriter writer, Query query) throws IOException {
+    public void collectStation(DataPoint station, BufferedWriter writer, Query query) throws IOException
+    {
         writer.write("\t\t\t<station id=\""+station.clientID+"\">\n");
 
-        if(query.inSelect("temperature"))
-            writer.write("\t\t\t\t<temp>"+station.temp+"</temp>\n");
+        for (DBValue e : query.getSelection())
+            if (query.inSelect(e))
+                writer.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
+
+//        if(query.is)
+//            writer.write("\t\t\t\t<when>"+station.temp+"</temp>\n");
 
         writer.write("\t\t\t</station>\n");
     }

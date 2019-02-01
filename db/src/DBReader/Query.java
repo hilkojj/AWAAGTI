@@ -8,16 +8,15 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static DBReader.DBHelper.assertQuery;
 import static DBReader.DBHelper.getNth2pair;
 import static DBReader.DBHelper.timestampToFolder;
 
-public class Query {
+public class Query
+{
     private final static String FILE_NAME = "export_";
     private final static String FILE_EXTENSION = "xml";
     private final static String FILE_NAME_FORMAT = "yyyyMMdd_HHmmss";
     private final static SimpleDateFormat FILE_FORMATTER = new SimpleDateFormat(FILE_NAME_FORMAT);
-
 
     public int hash = -1;
 
@@ -26,12 +25,13 @@ public class Query {
     private long cur = from;
     private long to = -1;
     private int interval = 1;
-    private ArrayList<String> what = new ArrayList<>();
+    private ArrayList<DBValue> what = new ArrayList<>();
     private String sortBy = "";
     private int limit = -1;
     private QueryFilter filter;
 
-    public Query(String options) throws Exception {
+    public Query(String options) throws Exception
+    {
         try {
             hash = Arrays.hashCode(options.toCharArray());
             for (String line : options.split(";")) {
@@ -44,10 +44,10 @@ public class Query {
                     case "stations":  stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).toArray(); break; // TESTED
                     case "from":  from = Long.parseLong(data); break; // TESTED
                     case "to": to = Long.parseLong(data); break; // TESTED
-                    case "interval": interval = Integer.parseInt(data); break;
-                    case "what":  what.addAll(Arrays.asList(data.split(","))); break;
+                    case "interval": interval = Integer.parseInt(data); break; // TESTED
+                    case "what": for (String s : Arrays.asList(data.split(",")))  what.add(DBValue.valueOf(s)); break;
                     case "sortBy": sortBy = data; break;
-                    case "limit": limit = Integer.parseInt(data); break;
+                    case "limit": limit = Integer.parseInt(data); break; // TESTED
                     case "filter": this.filter = new QueryFilter(data); break; // TESTED
                     default:
                         Logger.log("throw new NotImplementedException(): " + line);
@@ -67,9 +67,8 @@ public class Query {
         if (limit == -1)
             limit = Integer.MAX_VALUE;
 
-        if (what.size() == 0) {
-            what.add("temp");
-            // TODO: add more
+        for (DBValue v : what) {
+            Logger.error(v);
         }
 
 
@@ -82,65 +81,20 @@ public class Query {
 
     }
 
-    // TEST
-    public static void main(String[] args) {
-        try {
-            boolean DEBUG = false;
-
-            new Query("limit=10;stations=1234,1356;from=23423423;sortBy=32432432;to=3453454353;interval=1;\n");
-            Logger.log("Syntax: 1");
-
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;sortBy=32432432;limit=10;filter=temp,>,-1;\n");
-            Logger.log("Syntax: 2");
-
-            new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,sfgfdgd;sortBy=32432432;limit=10;filter=temp,<,10\n");
-            Logger.log("Syntax: 3");
-
-
-            Query q1 = new Query("stations=1234,1356;\n");
-            Logger.log("PARSE: 1 " + assertQuery(q1.getDataFilesNormal(), DEBUG, 5));
-
-            Query q2 = new Query("stations=50,7950;from=0;to=-1\n");
-            Logger.log("PARSE: 2 " + assertQuery(q2.getDataFilesNormal(), DEBUG, 5));
-
-            Query q3 = new Query("stations=50,7950;from=1548690682;to=1548690699\n");
-            Logger.log("PARSE: 3 " + assertQuery(q3.getDataFilesNormal(), DEBUG, 3));
-
-            Query q4 = new Query("stations=50,7950;from=1548690682;to=1548690699;filter=temp,<,0\n");
-            Logger.log("PARSE: 4 " + assertQuery(q4.getDataFilesNormal(), DEBUG, 1));
-
-            Query q5 = new Query("stations=50,7950;from=0;to=-1;interval=2;\n");
-            Logger.log("PARSE: 5 " + assertQuery(q5.getDataFilesNormal(), DEBUG, 4));
-
-
-            Query qs1 = new Query("stations=50,7950;sortBy=temp_min;limit=1\n");
-            Logger.log("PARSE SORTED: 1 " + assertQuery(qs1.getDataFilesSorted(), DEBUG, 1));
-
-            Query qs2 = new Query("stations=50,7950;from=1548690682;to=1548690699;sortBy=temp_min;limit=1\n");
-            File file = qs2.getDataFilesSorted().iterator().next();
-            boolean works = DBFile.read(file, DataPoint.SummaryType.TEMP ).getDataPoints().size() == 8000;
-            Logger.log("PARSE SORTED: 2 " + works);
-
-            Query qs3 = new Query("stations=50,7950;from=0;to=1548692209;sortBy=temp_min;\n");
-            File file3 = qs3.getDataFilesSorted().iterator().next();
-            int works3 = DBFile.read(file3).getDataPoints().size(); // == 8000;
-            Logger.log("PARSE SORTED: 3 " + works3);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    public ArrayList<DBValue> getSelection() {
+        return what;
     }
 
-
-    public String getFileName() {
+    public String getFileName()
+    {
         return FILE_NAME + hash +"."+ FILE_EXTENSION;
     }
 
 
-    public Iterable<File> getDataFiles() {
+    public Iterable<File> getDataFiles()
+    {
         try {
-            if (sortBy == null || sortBy.length() == 0)
+            if (isIndexedQuery())
                 return getDataFilesNormal();
             else
                 return getDataFilesSorted();
@@ -154,14 +108,17 @@ public class Query {
     /*
         Answer Queries iteratively over all the data
      */
-    private Iterable<File> getDataFilesNormal() {
-        return () -> new Iterator<File>() {
+    private Iterable<File> getDataFilesNormal()
+    {
+        return () -> new Iterator<File>()
+        {
             long iteration = 0;
             File nextVal = null;
             String currentPath = "";
 
             @Override
-            public boolean hasNext() {
+            public boolean hasNext()
+            {
                 if (iteration >= limit)
                     return false;
 
@@ -169,7 +126,7 @@ public class Query {
                     if (!findDir()) return false;
 
                     String filename = timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION;
-                    Logger.error(filename);
+//                    Logger.error(filename);
 
                     nextVal = new File(filename);
                     cur += interval;
@@ -180,7 +137,8 @@ public class Query {
             }
 
             @Override
-            public File next() {
+            public File next()
+            {
                 if(nextVal == null)
                     throw new NoSuchElementException();
 
@@ -188,7 +146,8 @@ public class Query {
                 return nextVal;
             }
 
-            private boolean findDir() {
+            private boolean findDir()
+            {
                 searchForTheDir:
                 while (true) {
                       
@@ -238,16 +197,19 @@ public class Query {
     /*
         Answer to Queries with index results
      */
-    private Iterable<File> getDataFilesSorted() {
-        return () -> new Iterator<File>() {
+    private Iterable<File> getDataFilesSorted()
+    {
+        return () -> new Iterator<File>()
+        {
             String summaryFileName = sortBy+"_sum";
             Boolean hasExported = false;
-            DataPoint.SummaryType summaryType = DataPoint.SummaryType.TEMP;
+            DBValue summaryType = DBValue.TEMP;
 
             /*
                 Get the query answer by combining index files
              */
-            private ArrayList<DataPoint> getIndexResults() {
+            private ArrayList<DataPoint> getIndexResults()
+            {
                 hasExported = true;
                 Map<Integer, DataPoint> indexResultMap = new HashMap<>();
 
@@ -320,7 +282,7 @@ public class Query {
             }
 
             // Exceptions take up a lot of code
-            private ArrayList<DataPoint> getAllDataPointsFromFile(File file, DataPoint.SummaryType type) {
+            private ArrayList<DataPoint> getAllDataPointsFromFile(File file, DBValue type) {
                 try {
                     if (type == null) {
                         DBFile dbFile = DBFile.read(file);
@@ -339,11 +301,13 @@ public class Query {
             }
 
             @Override
-            public boolean hasNext() {
+            public boolean hasNext()
+            {
                 return !hasExported;
             }
 
-            public File next() {
+            public File next()
+            {
                 if (hasExported)
                     throw new NoSuchElementException();
 
@@ -391,12 +355,17 @@ public class Query {
         return list;
     }
 
-
-    public boolean inSelect(String temp) { // TODO: IMPLEMENT WHAT
-        return true;
+    public boolean isIndexedQuery()
+    {
+        return sortBy == null || sortBy.length() == 0;
     }
 
-    public int progress() {
+    public boolean inSelect(DBValue select) { // TODO: IMPLEMENT WHAT
+        return what.contains(select.toString());
+    }
+
+    public int progress()
+    {
         long diffFromStart = cur - from;
         long total = to - from;
         float proc = ((diffFromStart / (float)total) * 100);

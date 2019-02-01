@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 import shared.DBFile;
+import shared.DBValue;
 import shared.DataPoint;
 import shared.Settings;
 
@@ -67,7 +68,7 @@ public class Main
 	private static void summarise(String dir, long uts, boolean ofSummaries)
 	{
 		for (Summariser.SummaryType sType : Summariser.SummaryType.values()) {
-			for (DataPoint.SummaryType s2Type : DataPoint.SummaryType.values()) {
+			for (DBValue s2Type : DBValue.values()) {
 				String fileName = s2Type.toString().toLowerCase() + "_" + sType.toString().toLowerCase() + "_sum";
 				String sumFileName = dir + "/" + fileName + "."+ Settings.DATA_EXTENSION;
 
@@ -146,7 +147,7 @@ public class Main
 		return files;
 	}
 	
-	protected static ArrayList<DataPoint> summariseActually(DBFile[] files, Summariser.SummaryType sType, DataPoint.SummaryType s2Type)
+	protected static ArrayList<DataPoint> summariseActually(DBFile[] files, Summariser.SummaryType sType, DBValue s2Type)
 	{
 		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
 		
