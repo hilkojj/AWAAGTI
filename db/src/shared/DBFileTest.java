@@ -11,7 +11,7 @@ class DBFileTest
 		DBFile dbFile = DBFile.read(file);
 		int i = 0;
 		for (DataPoint db: dbFile.getDataPoints()) {
-			System.out.println(i + " -> " + db.clientID + ": " + db.temp);
+			System.out.println(i + " -> " + db.getClientID() + ": " + db.getTemp());
 			i++;
 		}
 

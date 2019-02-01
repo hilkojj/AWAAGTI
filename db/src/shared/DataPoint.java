@@ -13,12 +13,12 @@ import java.text.DecimalFormat;
 public class DataPoint implements Comparable<DataPoint>
 {
 	private int clientID;
-	private int temp;
+	private int temp = -1;
+	private int windSpeed = -1;
 
 	private DBValue summaryType;
 	private long summaryDateTime;
 
-	
 	public int getClientID() {
 		return clientID;
 	}
@@ -30,7 +30,6 @@ public class DataPoint implements Comparable<DataPoint>
 	public int getTemp() {
 		return temp;
 	}
-
 	public void setTemp(int temp) {
 		this.temp = temp;
 	}
@@ -53,7 +52,6 @@ public class DataPoint implements Comparable<DataPoint>
 	private byte[] dbLine;
 
 	DecimalFormat df = new DecimalFormat("#.#");
-
 
 	public DataPoint(){ }
 	public DataPoint(String proof, int clientID, int temp) {
@@ -93,6 +91,9 @@ public class DataPoint implements Comparable<DataPoint>
 					this.dbLine[3] = (byte)(temp >> 8);
 					this.dbLine[4] = (byte)(temp);
 					break;
+				case WIND:
+					this.dbLine[3] = (byte)this.windSpeed;
+					break;
 				default:
 					System.out.println("ERROR: invalid summaryType: " + this.summaryType);
 				}
@@ -107,12 +108,14 @@ public class DataPoint implements Comparable<DataPoint>
 					this.dbLine[8] = (byte)uts;
 				}
 			} else {
-				this.dbLine = new byte[5];
+				this.dbLine = new byte[6];
 				
 				int temp = this.temp+100;
 				
 				this.dbLine[3] = (byte)(temp >> 8);
 				this.dbLine[4] = (byte)(temp);
+				
+				this.dbLine[5] = (byte)this.windSpeed;
 			}
 			
 			this.dbLine[0] = (byte)(this.clientID >> 16);
@@ -147,12 +150,21 @@ public class DataPoint implements Comparable<DataPoint>
 			}
 			// Regular DB file, not a summary file.
 			dp.temp = ((line[3] << 8) | (line[4]))-100;
+			
+			if (line.length < 6) {
+				return dp;
+			}
+
+			dp.windSpeed = line[5];
 			return dp;
 		}
 		
 		switch (summaryType) {
 		case TEMP:
 			dp.temp = ((line[3] << 8) | (line[4]))-100;
+			break;
+		case WIND:
+			dp.windSpeed = line[3];
 			break;
 		default:
 			System.out.println("ERROR: unknown summaryType in fromDBLine: " + summaryType);
@@ -172,8 +184,18 @@ public class DataPoint implements Comparable<DataPoint>
 		switch(sType) {
 		case TEMP:
 			return this.temp;
+		case WIND:
+			return this.windSpeed;
 		default:
 			return 0;
 		}
+	}
+
+	public int getWindSpeed() {
+		return windSpeed;
+	}
+
+	public void setWindSpeed(int windSpeed) {
+		this.windSpeed = windSpeed;
 	}
 }

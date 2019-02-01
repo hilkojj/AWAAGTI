@@ -1,5 +1,7 @@
 package shared;
 
+import shared.QueryFilter.Operand;
+
 /**
  * QueryFilterTest unit tests QueryFilter.
  * 
@@ -46,6 +48,14 @@ class QueryFilterTest
 		a(q.execute(-1) == true);
 		
 		System.out.println("yey");
+		
+		// allowed
+	    Logger.error(Operand.EQUALS);
+        Logger.error(Operand.valueOf("EQUALS"));
+        Logger.error(Operand.fromString("=="));
+
+        // NOT allowed
+        Logger.error(Operand.valueOf("=="));
 	}
 	
 	private static void a(boolean b) throws Exception

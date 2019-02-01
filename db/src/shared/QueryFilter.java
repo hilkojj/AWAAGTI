@@ -12,18 +12,6 @@ import shared.Logger;
  */
 public class QueryFilter
 {
-	public static void main(String[] args)
-    {
-		// allowed
-	    Logger.error(Operand.EQUALS);
-        Logger.error(Operand.valueOf("EQUALS"));
-        Logger.error(Operand.fromString("=="));
-
-        // NOT allowed
-        Logger.error(Operand.valueOf("=="));
-    }
-
-
     enum Operand
 	{
 		EQUALS("=="),
@@ -37,10 +25,14 @@ public class QueryFilter
 		Operand(String key) { this.key = key; }
         public String getKey() { return key; }
 
-        public static Operand fromString(String str) {
-            for (Operand type : Operand.values())
-                if (type.getKey().equals(str))
-                    return type;
+        public static Operand fromString(String str)
+        {
+            for (Operand type : Operand.values()) {
+                if (!type.getKey().equals(str)) { 
+                	continue;
+                }
+                return type;
+            }
             return null;
         }
     }
@@ -74,13 +66,14 @@ public class QueryFilter
 	 */
 	public boolean execute(DataPoint dp)
 	{
-		if(originalInput.equals(""))
+		if (this.originalInput.equals("")) {
 			return true;
+		}
 
 		int a = 0;
 		switch (this.variable) {
 		case TEMP:
-			a = dp.temp;
+			a = dp.getTemp();
 		default:
 		}
 
