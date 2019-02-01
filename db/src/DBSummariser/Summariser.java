@@ -125,7 +125,7 @@ public class Summariser
 			//dpIndex++;
 
 			DataPoint dp = new DataPoint();
-			dp.summaryType = s2Type;
+			dp.setSummaryType(s2Type);
 			
 			// Determine next lowest clientID.
 			// (Because client can be missing from DBFiles)
@@ -141,7 +141,7 @@ public class Summariser
 					continue;
 				}
 				
-				int ourLowestClientID  = file.getDataPoints().get(fileDPSIndexes[i]).clientID;
+				int ourLowestClientID  = file.getDataPoints().get(fileDPSIndexes[i]).getClientID();
 				if (clientID != -1 && clientID <= ourLowestClientID) {
 					continue;
 				}
@@ -167,11 +167,11 @@ public class Summariser
 
 				DataPoint tDP = file.getDataPoints().get(fileDPSIndexes[i]);
 				
-				if (clientID != tDP.clientID) {
+				if (clientID != tDP.getClientID()) {
 					// ClientID is missing from this DBFile :(, but that's okay.
 					// All DPS's are sorted, so if the clientID is not .
 					
-					System.out.println("DEBUG: missing clientID " + clientID + ", got " + tDP.clientID + " at " + i);
+					System.out.println("DEBUG: missing clientID " + clientID + ", got " + tDP.getClientID() + " at " + i);
 					continue;
 				}
 				
@@ -183,8 +183,8 @@ public class Summariser
 				if (newVal != null) {
 					val = newVal;
 					
-					if (tDP.summaryDateTime != 0) {
-						maxDateTime = tDP.summaryDateTime;
+					if (tDP.getSummaryDateTime() != 0) {
+						maxDateTime = tDP.getSummaryDateTime();
 					} else {
 						maxDateTime = file.getDateTime();
 					}
@@ -196,11 +196,11 @@ public class Summariser
 				continue;
 			}
 
-			dp.clientID = clientID;
+			dp.setClientID(clientID);
 			
 			if (maxDateTime != 0) {
-				dp.temp = val;
-				dp.summaryDateTime = maxDateTime;
+				dp.setTemp(val);
+				dp.setSummaryDateTime(maxDateTime);
 			}
 			
 			dps.add(dp);

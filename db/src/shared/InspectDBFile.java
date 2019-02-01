@@ -27,7 +27,7 @@ public class InspectDBFile
 		}
 
 		for (DataPoint db: dbFile.getDataPoints()) {
-			System.out.println(db.clientID + ": " + db.temp);
+			System.out.println(db.getClientID() + ": " + db.getTemp());
 		}
 	}
 }

@@ -46,7 +46,8 @@ public class QueryFilter
 		int a = 0;
 		switch (this.variable) {
 		case TEMP:
-			a = dp.temp;
+			a = dp.getTemp();
+			break;
 		default:
 		}
 

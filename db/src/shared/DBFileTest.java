@@ -10,13 +10,13 @@ public class DBFileTest
 		File file = new File("15/48/69/06/1548690685.awaagti");
 		DBFile dbFile = DBFile.read(file);
 		for (DataPoint db: dbFile.getDataPoints()) {
-			System.out.println(db.clientID + ": " + db.temp);
+			System.out.println(db.getClientID() + ": " + db.getTemp());
 		}
 		
 		file = new File("15/48/69/06/temp_max_sum.awaagti");
 		dbFile = DBFile.read(file, DataPoint.SummaryType.TEMP);
 		for (DataPoint db: dbFile.getDataPoints()) {
-			System.out.println(db.clientID + ": " + db.temp + " " + db.summaryDateTime);
+			System.out.println(db.getClientID() + ": " + db.getTemp() + " " + db.getSummaryDateTime());
 		}
 	}
 }

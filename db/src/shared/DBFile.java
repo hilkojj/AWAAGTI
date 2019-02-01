@@ -64,7 +64,7 @@ public class DBFile
         	
         	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
 
-        	if (clientIDs != null && !clientIDs.anyMatch(x -> x == dp.clientID)) {
+        	if (clientIDs != null && !clientIDs.anyMatch(x -> x == dp.getClientID())) {
         		continue;
         	}
         	

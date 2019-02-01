@@ -13,12 +13,43 @@ import java.text.DecimalFormat;
  */
 public class DataPoint implements Comparable<DataPoint>
 {
-	public int clientID;
-	public int temp;
+	private int clientID;
+	private int temp;
 	
-	public SummaryType summaryType;
-	public long summaryDateTime;
-	
+	private SummaryType summaryType;
+	public int getClientID() {
+		return clientID;
+	}
+
+	public void setClientID(int clientID) {
+		this.clientID = clientID;
+	}
+
+	public int getTemp() {
+		return temp;
+	}
+
+	public void setTemp(int temp) {
+		this.temp = temp;
+	}
+
+	public SummaryType getSummaryType() {
+		return summaryType;
+	}
+
+	public void setSummaryType(SummaryType summaryType) {
+		this.summaryType = summaryType;
+	}
+
+	public long getSummaryDateTime() {
+		return summaryDateTime;
+	}
+
+	public void setSummaryDateTime(long summaryDateTime) {
+		this.summaryDateTime = summaryDateTime;
+	}
+
+	private long summaryDateTime;
 		
 	private byte[] dbLine;
 
@@ -39,13 +70,12 @@ public class DataPoint implements Comparable<DataPoint>
 	}
 	
 	/**
-	 * makeDBLine formats the DataPoint to a string in the format of
-	 * the db_writer database files.
+	 * makeDBLine formats the DataPoint to a byte array in the format of
+	 * the .awaagti database files.
 	 * 
-	 * The string is formatted as:
-	 * {clientID}={temp in always one decimal}
+	 * View the provided documentation on the binary file format.
 	 * 
-	 * @return String Formatted string
+	 * @return byte[] binary data for this datapoint
 	 */
 	public byte[] makeDBLine()
 	{
@@ -73,8 +103,6 @@ public class DataPoint implements Comparable<DataPoint>
 					this.dbLine[8] = (byte)uts;
 				}
 			} else {
-				//this.dbLine = String.format("%d=%.01f", this.clientID, ((float)this.temp)/10);
-				
 				this.dbLine = new byte[5];
 				
 				int temp = this.temp+100;
