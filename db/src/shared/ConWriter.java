@@ -33,9 +33,10 @@ public class ConWriter {
     }
 
     public enum Types {
-        file,
-        error,
-        progress,
+        file,       // The file url
+        error,      // We can not run the query
+        warning,    // We can run the query, but it has probably no meaning
+        progress,   // [1-100] percentage of how far we are
     }
 }
 

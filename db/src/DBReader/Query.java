@@ -22,7 +22,7 @@ public class Query
     private final static String FILE_EXTENSION = "xml";
 
     private int hash = -1;
-    String parseWarning = ""; // Package private
+    ArrayList<String> parseWarnings = new ArrayList<>(); // Package private
 
     private int[] stations = {};
     private long from = 0;
@@ -61,8 +61,8 @@ public class Query
                                 what.add(DBValue.valueOf(s.toUpperCase()));
                         break;
                     default:
-                        parseWarning = "throw new NotImplementedException(): " + line;
-                        Logger.log(parseWarning);
+                        parseWarnings.add("throw new NotImplementedException(): " + line);
+                        Logger.log(parseWarnings.get(parseWarnings.size() -1));
                 }
             }
             hash = Arrays.hashCode( (Arrays.toString(stations) + from + to + interval + sortBy + limit + filter.originalInput + Arrays.toString(what.toArray()) ).toCharArray());
@@ -81,19 +81,21 @@ public class Query
             limit = Integer.MAX_VALUE;
 
         if (what.size() == 0)
-            parseWarning = "You did not select what data you would like back from the query. By default you only select the ID.";
+            parseWarnings.add("You did not select what data you would like back from the query. By default you only select the ID.");
 
         if ((sortBy.length() > 0 && what.size() > 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
             throw new Exception("Sorted Index Queries do not support non indexed selections yet"); // TODO: implement
 
 
         // Tell the client about wrong queries
+        if (stations.length == 0)
+            throw new Exception("You did not Select which stations you want");
+
         if(interval > 1 && sortBy.length() > 0)
             throw new Exception("Interval > 1 does not have any meaning when processing a sorted query.");
 
         if(to < from)
             throw new Exception("to < from does not have any meaning.");
-
     }
 
     public ArrayList<DBValue> getWhat() {
@@ -113,9 +115,9 @@ public class Query
     {
         try {
             if (isIndexedQuery())
-                return getDataFilesNormal();
-            else
                 return getDataFilesSorted();
+            else
+                return getDataFilesNormal();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,8 +147,8 @@ public class Query
                 while (cur < to) {
                     if (!findDir()) return false;
 
-                    String filename = timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION;
-//                    Logger.error(filename);
+                    String filename = (timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION).replace("//","/" );
+                    Logger.log("_FOUND_:" + filename);
 
                     nextVal = new File(filename);
                     cur += interval;
@@ -387,7 +389,7 @@ public class Query
      */
     public boolean isIndexedQuery()
     {
-        return sortBy == null || sortBy.length() == 0;
+        return sortBy != null && sortBy.length() > 0;
     }
 
     /**

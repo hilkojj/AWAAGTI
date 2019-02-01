@@ -54,8 +54,8 @@ public class WorkerThread implements Runnable
      */
     private void process(Query query)
     {
-        if (!query.parseWarning.equals(""))
-            conWriter.write(ConWriter.Types.error, query.parseWarning);
+        for (String warning : query.parseWarnings)
+            conWriter.write(ConWriter.Types.error, warning);
 
         String fileName = query.getFileName();
         File tmpFile = new File(Settings.EXPORT_PATH+"/"+fileName);
@@ -159,7 +159,7 @@ public class WorkerThread implements Runnable
                 xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.temp+"</"+e.toString()+">\n"); // TODO: get selected
 
         if(query.isIndexedQuery())
-            xmlWriter.write("\t\t\t\t<when>"+station.summaryDateTime+"</temp>\n");
+            xmlWriter.write("\t\t\t\t<when>"+station.summaryDateTime+"</when>\n");
 
         xmlWriter.write("\t\t\t</station>\n");
     }

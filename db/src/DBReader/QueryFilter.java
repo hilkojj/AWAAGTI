@@ -16,14 +16,15 @@ public class QueryFilter
     {
 		// allowed
 	    Logger.error(Operand.EQUALS);
+        Logger.error(Operand.valueOf("EQUALS"));
         Logger.error(Operand.fromString("=="));
 
         // NOT allowed
         Logger.error(Operand.valueOf("=="));
-	}
+    }
 
 
-	enum Operand
+    enum Operand
 	{
 		EQUALS("=="),
 		LESS_THAN("<"),
