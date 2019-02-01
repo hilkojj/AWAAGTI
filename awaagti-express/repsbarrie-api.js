@@ -33,7 +33,7 @@ module.exports.registerIp = (req, res) => {
             timeRegisterd: new Date().toTimeString()
         }
 
-        fs.writeFile("./ips.json", JSON.stringify(ips))
+        fs.writeFile("./ips.json", JSON.stringify(ips), err => err && console.log(err))
 
         res.send(`${bird}\nThank you ${name} for your IP (${ip})\n`)
 
