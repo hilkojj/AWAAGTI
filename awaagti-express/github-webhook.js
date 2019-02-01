@@ -37,7 +37,7 @@ module.exports = (req, res) => {
 
                     console.log("Angular app source code changed\nlets use 100% CPU (lets build the angular app)")
 
-                    fs.writeFileSync("./ng-mod-time.txt", lastNgModTime)
+                    fs.writeFileSync("./ng-mod-time.txt", ngModTime)
                     exec("sudo ng build --prod --aot &", {
                         cwd: path.resolve("../awaagular/")
                     })
