@@ -8,10 +8,20 @@ import shared.Logger;
  * QueryFilter parses query filter string formats and allows for
  * checking if an integer complies with it.
  * 
- * @author remi
+ * @author remi, timo
  */
 public class QueryFilter
 {
+
+	/**
+	 * // allowed
+	 * Operand.EQUALS
+	 * Operand.valueOf("EQUALS")
+	 * Operand.fromString("==")
+	 *
+	 * // NOT allowed
+	 * Operand.valueOf("==")
+	 */
     enum Operand
 	{
 		EQUALS("=="),
@@ -19,7 +29,8 @@ public class QueryFilter
 		LESS_THAN_OR_EQUALS("<="),
 		GREATER_THAN(">"),
 		GREATER_THAN_OR_EQUALS(">="),
-		NOT_EQUALS("!=");
+		NOT_EQUALS("!="),
+		BETWEEN("between");
 
 		String key;
 		Operand(String key) { this.key = key; }
@@ -42,6 +53,7 @@ public class QueryFilter
 	private DBValue variable;
 	private Operand operand;
 	private int b;
+	private int c;
 
 
 	public QueryFilter() { }
@@ -98,31 +110,34 @@ public class QueryFilter
             case LESS_THAN_OR_EQUALS:       return a <= this.b;
             case GREATER_THAN:              return a >  this.b;
             case GREATER_THAN_OR_EQUALS:    return a >= this.b;
-            case NOT_EQUALS:                return a != this.b;
+			case NOT_EQUALS:                return a != this.b;
+			case BETWEEN:                   return a >  this.b && a < this.c;
 		}
 
 		return false;
 	}
 
-	public void parseFilter(String filter) throws Exception
-	{
+	public void parseFilter(String filter) throws Exception {
 		String[] items = filter.split(",");
-		
+
 		if (items.length < 3) {
 			throw new Exception("incorrect filter format");
 		}
-		
+
 		this.variable = this.parseVariable(items[0]);
 		if (this.variable == null) {
 			throw new Exception("incorrect filter variable");
 		}
-		
+
 		this.operand = Operand.fromString(items[1]);
 		if (this.operand == null) {
 			throw new Exception("incorrect filter operand");
 		}
-		
+
 		this.b = Integer.parseInt(items[2]);
+		if (items.length == 4) {
+			this.c = Integer.parseInt(items[3]);
+		}
 	}
 	
 	private DBValue parseVariable(String str)
