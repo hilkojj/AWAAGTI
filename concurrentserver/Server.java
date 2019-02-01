@@ -15,16 +15,18 @@ public class Server {
 		lastTime = time;
 	}
 
-	// public static Map<Integer, Float> data = new ConcurrentHashMap<Integer, Float>();
 	public static int[] revStation = new int[8010];
-	public static String[][] data = new String[8000][60];
 	public static Map<Integer, Integer> stations = new ConcurrentHashMap<Integer, Integer>();
 	public static VMDB db;
-	public static FixedRingArray[] queues = new FixedRingArray[8010];
+	public static FixedRingArray[] temperatures = new FixedRingArray[8010];
+	public static FixedRingArray[] windSpeeds = new FixedRingArray[8010];
 
 	public static void main(String[] args) {
 		for (int i = 0; i < 8010; i++) {
-			queues[i] = new FixedRingArray();
+			windSpeeds[i] = new FixedRingArray();
+		}
+		for (int i = 0; i < 8010; i++) {
+			temperatures[i] = new FixedRingArray();
 		}
 		Socket connection;
 		try {
