@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.stream.Stream;
 
-public class SpeedTest
+class SpeedTest
 {
     public static void main(String[] args)
     {

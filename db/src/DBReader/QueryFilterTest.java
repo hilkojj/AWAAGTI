@@ -5,7 +5,7 @@ package DBReader;
  * 
  * @author remi
  */
-public class QueryFilterTest
+class QueryFilterTest
 {
 	public static void main(String[] args) throws Exception
 	{

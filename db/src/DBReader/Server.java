@@ -3,6 +3,18 @@ package DBReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+
+/**
+ * This is the DBReader:
+ * It is responsible for answering queries from the user.
+ * For every query request a new connection has to be setup.
+ * You can not trust that the connection will still be up when this code has finished a export.
+ *
+ * The database data is provided by the shared.DBFile and shared.DataPoint
+ *
+ * @author Timo
+ *
+ */
 public class Server
 {
     public static final int PORT = 12345;

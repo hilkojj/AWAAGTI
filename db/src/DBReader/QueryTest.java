@@ -14,7 +14,7 @@ import java.util.Iterator;
  * @author Timo
  *
  */
-public class QueryTest
+class QueryTest
 {
     private static boolean assertQuery(Iterable it, boolean print, int value)
     {
@@ -45,6 +45,9 @@ public class QueryTest
 
             new Query("stations=1234,1356;from=23423423;to=3453454353;interval=1;what=temp,wind;sortBy=32432432;limit=10;filter=temp,<,10\n");
             Logger.log("Syntax: 3");
+
+            new Query("stations=1234,1356; \t from=23423423;to=3453454353; \n interval=1;what=temp,wind;sortBy= 32432432; limit=10;filter=temp, <, 10\n");
+            Logger.log("Syntax: 4");
 
 
             Query q1 = new Query("stations=1234,1356;\n");

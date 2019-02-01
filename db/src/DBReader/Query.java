@@ -32,18 +32,18 @@ public class Query
     private ArrayList<DBValue> what = new ArrayList<>();
     private String sortBy = "";
     private int limit = -1;
-    private QueryFilter filter;
+    private QueryFilter filter = new QueryFilter();
 
 
     public Query(String options) throws Exception
     {
         try {
-//            hash = Arrays.hashCode(options.toCharArray());  // stupid hash
+            options = options.replace("\t","").replace("\n","").replace(" ", "");
             for (String line : options.split(";")) {
                 if(line.length() < 3)
                     continue;
 
-                String data = line.substring(line.indexOf("=") + 1).replace("\n", "" );
+                String data = line.substring(line.indexOf("=") + 1);
 
                 switch (line.substring(0, line.indexOf("="))) {
                     case "stations":    stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).sorted().toArray(); break;
@@ -57,7 +57,7 @@ public class Query
                         if (data.equals("*"))
                             what.addAll(Arrays.asList(DBValue.values()));
                         else
-                            for (String s : Arrays.asList(data.split(",")))
+                            for (String s : data.split(","))
                                 what.add(DBValue.valueOf(s.toUpperCase()));
                         break;
                     default:
@@ -399,6 +399,7 @@ public class Query
     }
 
     /**
+     * The percentage that is returned may have windows like behavior.
      * @return [1-100] as a percentage
      */
     public int progress()

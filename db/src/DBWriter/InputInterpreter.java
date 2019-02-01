@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import shared.DBFile;
 import shared.DataPoint;
+import shared.Logger;
 import shared.Settings;
 
 /**
@@ -26,8 +27,7 @@ public class InputInterpreter
 	
 	private ArrayList<DataPoint> list;
 			
-	private DateTimeFormatter dateTimeFormatter =
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private LocalDateTime dateTime;
 	
@@ -118,8 +118,7 @@ public class InputInterpreter
 			dbFile.setDataPoints(this.list);
 			dbFile.write();
 		} catch (IOException e) {
-			System.out.println("ERROR: cannot write to database file");
-			System.out.println(e);
+			Logger.log("ERROR: cannot write to database file: " + e.getMessage());
 		}
 		this.state = 0;
 	}

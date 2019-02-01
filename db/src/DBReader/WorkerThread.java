@@ -5,8 +5,15 @@ import shared.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+/**
+ * Every request gets a Thread.
+ *
+ * @author Timo
+ *
+ */
 public class WorkerThread implements Runnable
 {
     private Socket connection;
@@ -71,8 +78,8 @@ public class WorkerThread implements Runnable
         String fileName = query.getFileName();
         Logger.log("Creating file: "+fileName);
         try {
-            return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "utf-8"));
-        } catch (UnsupportedEncodingException | FileNotFoundException e) {
+            return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;

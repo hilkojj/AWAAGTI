@@ -1,10 +1,6 @@
 package shared;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
-public class DataPointTest
+class DataPointTest
 {
 	public static void main(String[] args) throws Exception
 	{

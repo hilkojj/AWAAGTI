@@ -50,6 +50,8 @@ public class QueryFilter
 	private Operand operand;
 	private int b;
 
+
+	public QueryFilter() { }
     /**
      * @param input the comma separated String that will get parsed to a filter
      * @throws Exception
@@ -71,6 +73,9 @@ public class QueryFilter
 	 */
 	public boolean execute(DataPoint dp)
 	{
+		if(originalInput.equals(""))
+			return true;
+
 		int a = 0;
 		switch (this.variable) {
 		case TEMP:
@@ -90,11 +95,14 @@ public class QueryFilter
 	 */
 	public boolean execute(int a)
 	{
+		if(originalInput.equals(""))
+			return true;
+
 		switch (this.operand) {
             case EQUALS:                    return a == this.b;
-            case LESS_THAN:                 return a < this.b;
+            case LESS_THAN:                 return a <  this.b;
             case LESS_THAN_OR_EQUALS:       return a <= this.b;
-            case GREATER_THAN:              return a > this.b;
+            case GREATER_THAN:              return a >  this.b;
             case GREATER_THAN_OR_EQUALS:    return a >= this.b;
             case NOT_EQUALS:                return a != this.b;
 		}
@@ -102,7 +110,7 @@ public class QueryFilter
 		return false;
 	}
 
-	private void parseFilter(String filter) throws Exception
+	public void parseFilter(String filter) throws Exception
 	{
 		String[] items = filter.split(",");
 		
@@ -123,13 +131,8 @@ public class QueryFilter
 		this.b = Integer.parseInt(items[2]);
 	}
 	
-	private DBValue parseVariable(String str) // TODO: use ToStrating() on DBValue
+	private DBValue parseVariable(String str)
 	{
-		switch (str) {
-		case "temp":
-			return DBValue.TEMP;
-		}
-		
-		return null;
+		return DBValue.valueOf(str.toUpperCase());
 	}
 }

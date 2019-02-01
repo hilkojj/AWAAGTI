@@ -2,6 +2,7 @@ package shared;
 
 
 import java.text.DecimalFormat;
+import java.util.Map;
 
 /**
  * DataPoint is a single state of a specific weather station.
@@ -14,6 +15,8 @@ public class DataPoint implements Comparable<DataPoint>
 {
 	public int clientID;
 	public int temp;
+	public int wind; // TODO: we should have wind too
+	public Map<DBValue, Integer> dataStore = null; // new HashMap<>(); // TODO: or we should have something like this
 	
 	public DBValue summaryType;
 	public long summaryDateTime;
