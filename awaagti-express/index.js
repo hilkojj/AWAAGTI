@@ -17,7 +17,7 @@ const port = 8080
 const http = require("http").Server(app)
 const io = require("socket.io")(http)
 
-const exportsFolder = __dirname + "/../../vmdb/db/db_exports/"
+const exportsFolder = __dirname + "/../../vmdb/db_exports/"
 module.exports.exportsFolder = exportsFolder
 
 require("./socket.js")(io)
