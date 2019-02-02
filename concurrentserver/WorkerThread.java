@@ -83,7 +83,7 @@ class WorkerThread implements Runnable {
 								Server.temperatures[mappedStationID].put(temperature);
 							}
 							int currTime = Integer.parseInt(input[2].replaceAll(":", ""));
-							if (currTime > Server.lastTime && input[2] != null) {
+							if ((currTime > Server.lastTime || currTime == 0) && input[2] != null) {
 								Server.updateTime(currTime);
 								for (int i = 0; i < Server.stations.size(); i++) {
 									windSpeedSecond[i] = Server.windSpeeds[i].get(0);
