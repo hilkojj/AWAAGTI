@@ -266,7 +266,10 @@ export class ExportComponent implements OnInit, DoCheck {
     setToTime(current: boolean) {
         if (current)
             this.config.timeFrame.to = -1
-        else this.dateChanged()
+        else {
+            this.config.timeFrame.to = 0
+            this.dateChanged()
+        }
     }
 
     dateChanged() {

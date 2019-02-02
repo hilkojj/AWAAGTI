@@ -1,3 +1,40 @@
-<p>
-  export-table works!
-</p>
+<h2 class="mat-h2" *ngIf="table?.timestamp">
+    {{table.timestamp | timestamp:"seconds"}}
+</h2>
+
+<table *ngIf="table" mat-table [dataSource]="table.rows"
+    class="mat-elevation-z8">
+
+    <ng-container matColumnDef="nr">
+        <th mat-header-cell *matHeaderCellDef> No. </th>
+        <td mat-cell *matCellDef="let row; let i = index">
+            {{i + 1}}
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="station">
+        <th mat-header-cell *matHeaderCellDef> Station </th>
+        <td mat-cell *matCellDef="let row" style="text-transform: capitalize">
+            {{stations.get(row.stationId)?.name.toLowerCase()}}
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="country">
+        <th mat-header-cell *matHeaderCellDef> Country </th>
+        <td mat-cell *matCellDef="let row" style="text-transform: capitalize">
+            {{stations.get(row.stationId)?.country.toLowerCase()}}
+        </td>
+    </ng-container>
+
+    <ng-container [matColumnDef]="col" *ngFor="let col of table.showColumns">
+        <th mat-header-cell *matHeaderCellDef>
+            {{columns[col].name}} </th>
+        <td mat-cell *matCellDef="let row">
+            {{columns[col].readableValue(row.values[col])}}
+        </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayColumns;"></tr>
+</table>
