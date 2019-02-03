@@ -32,7 +32,9 @@ public class WorkerThread implements Runnable
             conWriter = new ConWriter(new OutputStreamWriter(connection.getOutputStream()));
 
             try {
-                process(new Query(conReader.readLine()));
+                String options = conReader.readLine();
+                Logger.log(options);
+                process(new Query(options));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 e.printStackTrace();

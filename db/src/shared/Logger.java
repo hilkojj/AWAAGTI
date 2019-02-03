@@ -24,4 +24,12 @@ public class Logger {
             System.err.println(stackTrace[2]);
         }
     }
+
+    public static void printStacktrace() {
+        if (Settings.SHOW_DEBUG) {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            for (StackTraceElement ste : stackTrace)
+                System.err.println(ste);
+        }
+    }
 }

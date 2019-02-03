@@ -47,12 +47,12 @@ public class Query
 
                 switch (line.substring(0, line.indexOf("="))) {
                     case "stations":    stations = Stream.of( data.split(",") ).map(Integer::parseInt).mapToInt(i->i).sorted().toArray(); break;
-                    case "from":        from = Long.parseLong(data); cur = from; break;
-                    case "to":          to = Long.parseLong(data); break;
-                    case "interval":    interval = Integer.parseInt(data); break;
-                    case "sortBy":      sortBy = data; break;
-                    case "limit":       limit = Integer.parseInt(data); break;
-                    case "filter":      filter = new QueryFilter(data); break;
+                    case "from":        from     = correctTime(data, 0); cur = from; break;
+                    case "to":          to       = correctTime(data, System.currentTimeMillis() / 1000); break;
+                    case "interval":    interval = Integer.parseInt(data) ; break;
+                    case "sortBy":      sortBy   = data; break;
+                    case "limit":       limit    = Integer.parseInt(data); break;
+                    case "filter":      filter   = new QueryFilter(data); break;
                     case "what":
                         if (data.equals("*"))
                             what.addAll(Arrays.asList(DBValue.values()));
@@ -65,7 +65,7 @@ public class Query
                         Logger.log(parseWarnings.get(parseWarnings.size() -1));
                 }
             }
-            hash = Arrays.hashCode( (Arrays.toString(stations) + from + to + interval + sortBy + limit + filter.originalInput + Arrays.toString(what.toArray()) ).toCharArray());
+            hash = Arrays.hashCode( (Arrays.toString(stations) + from + to + interval + sortBy + limit + filter.getOriginalInput() + Arrays.toString(what.toArray()) ).toCharArray());
         }
         catch (Exception e) {
             Logger.error(e.getMessage());
@@ -73,13 +73,20 @@ public class Query
         }
 
 
-        // Correct -1 inputs to there meaning
+        // Programming mistakes
+        if (sortBy.length() > 0 && !sortBy.contains("_"))
+            throw new Exception("You are testing sortby wrong");
+
+
+        // Corrections
         if (to == -1)
             to = System.currentTimeMillis() / 1000;
 
         if (limit == -1)
             limit = Integer.MAX_VALUE;
 
+
+        // Not what the user is expecting
         if (what.size() == 0)
             parseWarnings.add("You did not select what data you would like back from the query. By default you only select the ID.");
 
@@ -95,7 +102,15 @@ public class Query
             throw new Exception("Interval > 1 does not have any meaning when processing a sorted query.");
 
         if(to < from)
-            throw new Exception("to < from does not have any meaning.");
+            throw new Exception("to < from does not have any meaning." + to + " < " + from);
+    }
+
+    private long correctTime(String dataStr, long orDefault) {
+        long data = Long.parseLong(dataStr);
+        if (dataStr.length() > 10)
+            data /= 1000;
+
+        return (data <= -1)? orDefault : data;
     }
 
     public ArrayList<DBValue> getWhat() {
@@ -148,7 +163,7 @@ public class Query
                     if (!findDir()) return false;
 
                     String filename = (timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION).replace("//","/" );
-                    Logger.log("_FOUND_:" + filename);
+//                    Logger.log("_FOUND_:" + filename);
 
                     nextVal = new File(filename);
                     cur += interval;
@@ -181,7 +196,7 @@ public class Query
                         if (timestampStr.startsWith(currentPath)) {
 
                             String currentPathWithSlashes = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/");
-//                            Logger.log(currentPathWithSlashes);
+                            Logger.log(currentPathWithSlashes);
 
                             String[] directories = new File(currentPathWithSlashes).list();
 
@@ -263,7 +278,7 @@ public class Query
                 String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
                 filename = filename.replace("//", "/");
                 File file = new File(filename);
-//                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
+                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
                 cur += distanceToNextCur(n);
 
@@ -311,19 +326,23 @@ public class Query
                 try {
                     if (type == null) {
                         DBFile dbFile = DBFile.read(file);
+                        Logger.error(dbFile.getDataPoints().size());
                         ArrayList<DataPoint> list = dbFile.getDataPoints();
                         for (DataPoint dp : list) {
                             dp.setSummaryType(summaryType);
+                            Logger.log(summaryType +" ==== "+ cur);
                             dp.setSummaryDateTime(cur);
                         }
                     } else {
                         DBFile dbFile = DBFile.read(file, type);
+                        Logger.error(dbFile.getDataPoints().size());
                         return dbFile.getDataPoints();
                     }
                 } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
 
                 return new ArrayList<>();
             }
+
 
             @Override
             public boolean hasNext()
@@ -350,8 +369,11 @@ public class Query
 //                else
 //                    return new File(fileName); //TODO: NO DATA WAS FOUND
 
-//                Logger.error(fileName);
-//                Logger.error(dps.size());
+                Logger.error(fileName);
+                Logger.error(dps.size());
+
+//                for (DataPoint dp : dps)
+//                    Logger.log(dp.getClientID() + " " + dp.getTemp() + " " + dp.getSummaryDateTime());
 
                 try {
                     dbFile.write();
@@ -376,6 +398,7 @@ public class Query
         try {
 //            Logger.error(Arrays.toString(this.stations));
             DBFile dbFile = DBFile.read(file, null, stations, this.filter);
+            Logger.log(dbFile.getDataPoints().size());
             return dbFile.getDataPoints();
         } catch (IOException e) {
             e.printStackTrace();

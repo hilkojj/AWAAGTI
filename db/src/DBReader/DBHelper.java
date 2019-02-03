@@ -1,9 +1,11 @@
 package DBReader;
 
+import shared.Logger;
 import shared.Settings;
 
 public class DBHelper
 {
+    private static int TIMESTAMP_LENGTH = 10;
     /**
      * @param s String to pad from the right
      * @param n mow much to pad
@@ -26,20 +28,35 @@ public class DBHelper
 
     /**
      * @param timestamp timestamp as a number
-     * @return /ab/cd/ef/gh/ij/
+     * @return /ab/cd/ef/gh/
      */
     static String timestampToFolder(long timestamp)
     {
-        return timestampToFolder( padLeft(""+timestamp, 8).replace(' ', '0' ) );
+        return timestampToFolder( padLeft(""+timestamp, TIMESTAMP_LENGTH).replace(' ', '0' ) );
+    }
+
+    /**
+     * @param timestamp timestamp as a number
+     * @return /ab/cd/ef/gh/
+     */
+    static String timestampToFolder(String timestamp)
+    {
+        String path = padRight(timestamp, TIMESTAMP_LENGTH).substring(0, TIMESTAMP_LENGTH).replace(" ", "0"); // we correct any timestamp to the length of 10
+
+        if (path.length() != 10)
+            Logger.error("WARNING: We correct any timestampPath to length 10 : " + path + " => " + timestamp);
+
+        String pathWithSlashes  = slashify(path);
+        return Settings.DATA_PATH + "/" + pathWithSlashes.substring(0, pathWithSlashes.length() -3); // -3 because the last 2 numbers form the file not the folder
     }
 
     /**
      * @param path timestamp
-     * @return /ab/cd/ef/gh/ij/
+     * @return /ab/cd/ef/gh/
      */
-    static String timestampToFolder(String path)
+    static String slashify(String path)
     {
-        return Settings.DATA_PATH + "/" + path.replaceAll("(.{2})", "$1/").replace("/00", "/").replace("//", "/");
+        return path.replaceAll("(.{2})", "$1/");
     }
 
     /**
