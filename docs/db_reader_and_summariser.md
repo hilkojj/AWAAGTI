@@ -40,7 +40,7 @@ The data format allows for adding more variables received from weather stations,
 This has been particularly useful during development.
 A new variable can be added by adding an extra comma after the station data, with the new value after it.
 
-DB Writer allows for multiple Pi's to connect simultaneously.
+DB Writer allows for multiple Pi's to connect simultaneously. Every TCP connection is on its on thread. No extra threading is used, as the production server that will be used has only got one core.
 
 ## Usage
 
@@ -87,6 +87,8 @@ DB Summariser makes summary files in the format described in the documentation o
 The program will not summarise data which is already summarised, as database files should be immutable.
 
 Documentation regarding the code can be found by reading the comments of the source code, and the comments in the version control systemd which was used during development.
+
+No threading is used, as the production server that will be used has only got one core.
 
 ## Usage
 
@@ -146,6 +148,3 @@ java -jar ../db_summariser/db_summariser.jar $(date -d "10 minutes ago" +%s) $(d
 This requests db_summariser to create summary files for every 100th database files or directories, in the last 10 minutes.
 This 10 minutes, instead of 100 seconds, is a safety measure to allow a bit of down time.
 If down time greater than 10 minutes happens, db_summariser can be started manually and be configured to summarise the period of down time manually.
-
-
-
