@@ -2,6 +2,12 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Every new connection is handled by one WorkerThread instance.
+ *
+ * @author Chris
+ *
+ */
 class WorkerThread implements Runnable {
 	private Socket connection;
 
@@ -12,6 +18,11 @@ class WorkerThread implements Runnable {
 
 	public boolean debug = false;
 
+	/**
+	 * WorkerThread is run by Server, this sets the correct socket for the worker.
+	 *
+	 * @param connection The socket that is used by the rest of the class
+	 */
 	public WorkerThread(Socket connection) {
 		this.connection = connection;
 	}
