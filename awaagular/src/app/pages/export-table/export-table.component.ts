@@ -19,6 +19,8 @@ type Column = {
     readableValue: (str: string) => string
 }
 
+const maxRequestBytes = 1024 * 10
+
 @Component({
     selector: 'app-export-table',
     templateUrl: './export-table.component.html',
@@ -27,8 +29,6 @@ type Column = {
 export class ExportTableComponent {
 
     fileName: string
-    private _page = -1
-    private pageSize = 1024 * 5
 
     tables = [] as Table[]
     tableI = 0
@@ -56,30 +56,30 @@ export class ExportTableComponent {
         return ["nr", "station", "country", ...this.table.showColumns]
     }
 
-    get page(): number {
-        return this._page
-    }
+    private bytesLoaded = [0, 0]
+    private canLoadMore = true
 
-    set page(p: number) {
-        if (this._page == p) return
-        this._page = p
-        this.loadPage(p)
-    }
-
-    async loadPage(p: number) {
+    async loadPartOfXML(startByte: number, endByte: number): Promise<boolean> {
 
         let res = await this.http.get(environment.socketUrl + 'exports/' + this.fileName, {
             headers: {
-                "Range": `bytes=${p * this.pageSize}-${(p + 1) * this.pageSize}`
+                "Range": `bytes=${startByte}-${endByte}`
             },
             responseType: "text"
         }).toPromise()
 
-        let endTag = "</datepoint>"
-        let lastEndTagI = res.lastIndexOf("</datepoint>")
-        res = res.slice(0, lastEndTagI) + endTag + "</export>"
+        this.canLoadMore = res.indexOf("</export>") == -1
 
-        console.log(res)
+        let endTag = "</datepoint>"
+        let lastEndTagI = res.lastIndexOf(endTag)
+        if (lastEndTagI == -1) return false // no datepoints in response.
+
+        res = res.slice(0, lastEndTagI)
+        let resLength = res.length
+        res += endTag + "</export>"
+        res = "<export>" + res.slice(res.indexOf("<datepoint"))
+
+        console.log(res, startByte, endByte)
 
         let parser = new DOMParser()
         let xml = parser.parseFromString(res, "text/xml")
@@ -89,7 +89,7 @@ export class ExportTableComponent {
         datepoints = datepoints.filter(dp => dp.getElementsByTagName("stations").length)
         let showColumns = []
 
-        this.tables = datepoints.map(dp => ({
+        let newTables = datepoints.map(dp => ({
             timestamp: Number(dp.getAttribute("time")),
             rows: Array.from(dp.getElementsByTagName("stations").item(0).children).map(stNode => {
                 let row = {
@@ -109,7 +109,43 @@ export class ExportTableComponent {
             }),
             showColumns
         }))
-        console.log(this.tables)
+        if (newTables.length) {
+            this.tables = newTables
+            this.bytesLoaded = [startByte, startByte + resLength]
+        }
+
+        console.log(newTables)
+        return !!newTables.length
+    }
+
+    get canNavigateBack(): boolean {
+        return this.tableI > 0 || this.bytesLoaded[0] > 0
+    }
+
+    get canNavigateForward(): boolean {
+        return this.tableI < this.tables.length - 1 || this.canLoadMore
+    }
+
+    async navigate(forward: boolean) {
+        if (!forward) {
+            if (this.tableI > 0)
+                this.tableI--
+
+            else if (await this.loadPartOfXML(
+                Math.max(0, this.bytesLoaded[0] - maxRequestBytes),
+                this.bytesLoaded[0])
+            )
+                this.tableI = this.tables.length - 1
+
+        } else {
+            if (this.tableI < this.tables.length - 1)
+                this.tableI++
+            else if (await this.loadPartOfXML(
+                this.bytesLoaded[1],
+                this.bytesLoaded[1] + maxRequestBytes)
+            )
+                this.tableI = 0
+        }
     }
 
     constructor(
@@ -120,7 +156,7 @@ export class ExportTableComponent {
         route: ActivatedRoute
     ) {
         this.fileName = route.snapshot.params["exportFile"]
-        this.page = 0
+        this.loadPartOfXML(0, maxRequestBytes)
     }
 
 }
