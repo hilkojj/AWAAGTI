@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
+/**
+ * DBFile represents an .awaagti database file, containg DataPoints.
+ * It allows for reading and writing an .awaagti file.
+ * 
+ * @author remi
+ */
 public class DBFile
 {
 	private ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
@@ -17,6 +23,13 @@ public class DBFile
 	private String fileName;
 	private long dateTime;
 	
+	/**
+	 * Read an .awaagti file and the datapoints within it.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static DBFile read(File file) throws IOException
 	{
 		DBFile dbFile = new DBFile();
@@ -24,6 +37,13 @@ public class DBFile
 		return dbFile;
 	}
 	
+	/**
+	 * Read an .awaagti file and the datapoints within it.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static DBFile read(File file, DBValue summaryType) throws IOException
 	{
 		DBFile dbFile = new DBFile();
@@ -31,6 +51,13 @@ public class DBFile
 		return dbFile;
 	}
 	
+	/**
+	 * Read an .awaagti file and the datapoints within it.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static DBFile read(File file, DBValue summaryType, int[] filterClientIDs, QueryFilter filter) throws IOException
 	{
 		DBFile dbFile = new DBFile();
@@ -52,15 +79,12 @@ public class DBFile
         int read;
 
     	while (true) {
-        	read = inputStream.read(byteRead, 0, length); // OLD
+        	read = inputStream.read(byteRead, 0, length);
         	if (read == -1 || read == 0) {
 				break;
 			}
 
-//			Logger.error(read);
-        	
         	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
-
 
 			IntStream clientIDs = null;
 			if (filterClientIDs != null) {
@@ -69,7 +93,6 @@ public class DBFile
 
 			if (clientIDs != null) {
 				boolean match = clientIDs.anyMatch(x -> x == dp.getClientID());
-//				Logger.error("MATCH: " + match);
 				if (!match) {
 					continue;
 				}
@@ -143,11 +166,18 @@ public class DBFile
 		this.dataPoints = dps;
 	}
 	
+	/**
+	 * dirForUTS determines the directory in which a UnixTimeStamp
+	 * database file should be stored.
+	 * It formats the numeric type aabbccddee into the string
+	 * aa/bb/cc/dd/.
+	 * 
+	 * @param uts UnixTimeStamp
+	 * @return the directory.
+	 */
 	public static String dirForUTS(long uts)
 	{
 		String[] items = (uts + "").split("(?<=\\G..)");
 		return String.join("/", Arrays.copyOf(items, items.length-1)) + "/";
 	}
-	
-	
 }
