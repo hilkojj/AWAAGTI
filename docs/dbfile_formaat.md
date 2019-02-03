@@ -13,24 +13,29 @@ Following the chunk length byte are the chunks, until the end of the file.
 
 The reason for having separated files is to make it faster to read specific data.
 We have experimented with larger files and having a read method that only reads specific bytes instead of the whole file, with the help of indexes so the reader knows where the requested data is located in a file.
-We have learned that, in Java, this doesn't provide a speed boost overal, when executing the queries our customer desires.
+We have learned that, in Java, this doesn't provide a speed boost overall, when executing the queries our customer desires.
 The effectiveness of this method is also dependant on the Java version, and the method to read the data, as the standard Java library has multiple competing libraries for opening files and reading the contents.
 One advantage of having larger database files is that less storage space is required, as in the chosen method of data storage, every database file also contains the weather station number.
+
+Once a .awaagti file it stored, it should not be modified.
+Therefore it is required to store a .awaagti file only after all required data to save in the file has been received.
 
 ## Data format
 
 There are two kind of data formats supported by the .awaagti files.
-In a reguler weather data database file, one chunk is composed of 6 bytes per chunk, in the format:
+In a regular weather data database file, one chunk is composed of 6 bytes per chunk, in the format:
 
  - 3 bytes for the ID of the weather station. This allows for station IDs from 0 to 16777215.
- - 2 bytes for the temperature, measured by the weather station. This is a positive number in tenths degrees celcius, on which 1000 is added. This allows for temperatures from -100.0 to 6543.5 degrees celcius.
+ - 2 bytes for the temperature, measured by the weather station. This is a positive number in tenths degrees Celsius, on which 1000 is added. This allows for temperatures from -100.0 to 6543.5 degrees Celsius.
  - 1 byte for the wind speed, in meters per second. This is a positive number in tenths of m/s, which allows to store wind speeds from 0 to 25.5 meters per second.
 
 The usage of chunks, and having specified a chunk length in every database file, makes it possible to extend the chunk data to store more variables, while keeping it backwards compatible on both sides.
 For instance; the .awaagti database file reader does not only support the chunk scheme as shown above, but also chunks which do not contain the wind speed, and are therefore 5 bytes in size.
-The software will ignore chunk data after after the expected 6 bytes, so new variables can be added without breaking the current behaivour of the current version of the software.
+The software will ignore chunk data after after the expected 6 bytes, so new variables can be added without breaking the current behaviour of the current version of the software.
 
-Regulur .awaagti files have the time in seconds in unix format as the file name.
+The chunks in the database file are sorted ascendantly on the client ID.
+
+Regular .awaagti files have the time in seconds in unix format as the file name, which is the amount of seconds since the start of 1970 in the Universal Coordinated Time.
 For example 1549055732.awaagti, which contains data measured at the time 1549055732.
 
 ### Summaries
@@ -51,14 +56,14 @@ The chunk format of a summary file is as follows:
    - The min or max wind speed uses only the first byte, in the same way as in a regular chunk.
  - 3 bytes for the unix time in seconds, of which the value of the station was measured.
 
-Like with regular database files, the file name of summray files are also standardised.
-Ther are in the format: '{variable}_{type summary}_sum.awaagti', for example 'temp_max_sum.awaagti'.
+Like with regular database files, the file name of summary files are also standardised.
+There are in the format: '{variable}_{type summary}_sum.awaagti', for example 'temp_max_sum.awaagti'.
 
-It is the responsibility of the reader to know if the file contains regulur chunks, or summary chunks, and also what the summary types are.
+It is the responsibility of the reader to know if the file contains regular chunks, or summary chunks, and also what the summary types are.
 
 ## Directory structure
 
-The database is stored in the file system of the operating systemd kernel, and it known to work on the ext4 file system.
+The database is stored in the file system of the operating system kernel, and it known to work on the ext4 file system.
 In the database, the files are stored in groups of (maximum) hundred.
 Because of this, there are a maximum of 100 database files in a directory, or 100 directories in a directory.
 This is to make it faster to request a directory listing from the operating system, which makes it faster to read data from the database.
@@ -113,7 +118,7 @@ That could be done by compressing the directories containing (a maximum of) 100 
 If the reader needs to read the data in the compressed directory, it could decompress the compressed file into /tmp.
 The directory '15/48/01/54/' would be replaced by '15/48/01/54.zstd', but only after the unix time 1548015500 is reached.
 
-Compressing directories of summary files, instead of compressing the files seperately would allow to compression algorithm to cut down on more redundant data.
+Compressing directories of summary files, instead of compressing the files separately would allow to compression algorithm to cut down on more redundant data.
 
 If this idea would be realised, the compression algorithm to be chosen should comply with a few goals.
  - The compressed file should be reasonably smaller than the contents of the directory which is compressed, to make it worthwhile.
