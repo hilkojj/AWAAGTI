@@ -2,6 +2,11 @@ package DBSummariser;
 
 import shared.DBValue;
 
+/**
+ * Refer the documentation for information on db_summariser.
+ * 
+ * @author remi
+ */
 public class Main
 {
 	public static void main(String[] args)

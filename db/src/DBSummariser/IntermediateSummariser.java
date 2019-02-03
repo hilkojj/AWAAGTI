@@ -1,5 +1,11 @@
 package DBSummariser;
 
+/**
+ * IntermediateSummariser extends Summariser to add functionality for
+ * summarising existing summary files, instead of regular database files.
+ * 
+ * @author remi
+ */
 public class IntermediateSummariser extends Summariser
 {
 	public IntermediateSummariser(long unixTime, long dir)

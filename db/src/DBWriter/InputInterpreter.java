@@ -15,7 +15,9 @@ import shared.Settings;
 
 /**
  * InputInterpreter interprets the stream of data from the weather
- * station machine.
+ * station machine. It stores the weather data from the stream, to the
+ * database.
+ * 
  * This class is a semi state machine, as in, it keeps track of what
  * part of the stream is expected and interprets the bytes accordantly.
  * 
@@ -27,10 +29,10 @@ public class InputInterpreter
 	
 	private ArrayList<DataPoint> list;
 			
-	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter dateTimeFormatter =
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private LocalDateTime dateTime;
-	
 	
 	private int state;
 
