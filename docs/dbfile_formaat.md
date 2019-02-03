@@ -1,57 +1,69 @@
-# .awaagti database formaat
+# .awaagti database format
 
 
-## Introductie
+## Introduction
 
-Het .awaagti database formaat wordt gebruikt om weerdata op te slaan.
-Het is een binair formaat.
-Een .awaagti bestand representeerd 1 seconde aan weerdata.
-In zo'n bestand staat voor die seconde de weerdata van elk station waarvoor voor die seconde data is gerapporteerd.
-Het binair bestand is verdeelt in chunks, 1 chunk per weer station.
-Het eerste byte in het bestand geeft aan hoeveel bytes elke chunk is.
+The .awaagti database format is used in to store weather data in a binary form.
+One .awaagti file represents one second of weather data of all stations that reported data for that second.
+Stations that do not report data for that specific second are not included in the file.
 
-De reden dat we losse bestanden hebben is om het sneller te maken om data op te vragen.
-We hebben ge-experimenteerd met grotere bestanden waarbij niet het hele bestand ingelezen hoefde te worden, maar waarbij de lezer door indexes wist waar de benodigde data zich in het bestand bevind.
-We hebben geleerd dat dit in Java geen merkbare snelheidswinst opleverd en dat het hebben van kleine bestanden de voorkeur heeft voor de snelheid van het lezen.
-Hierbij ging het om queries waarbij een groot deel van de weerstations opgevraagd werd.
-Het voordeel van zo'n systeem is wel dat minder schijfruimte benodigd is.
+The binary format is divided into chunks, one chunk per weather station.
+In the first byte of the file, the chunk length in bytes is specified.
+Following the chunk length byte are the chunks, until the end of the file.
 
-## Data formaat
+The reason for having separated files is to make it faster to read specific data.
+We have experimented with larger files and having a read method that only reads specific bytes instead of the whole file, with the help of indexes so the reader knows where the requested data is located in a file.
+We have learned that, in Java, this doesn't provide a speed boost overal, when executing the queries our customer desires.
+The effectiveness of this method is also dependant on the Java version, and the method to read the data, as the standard Java library has multiple competing libraries for opening files and reading the contents.
+One advantage of having larger database files is that less storage space is required, as in the chosen method of data storage, every database file also contains the weather station number.
 
-Er zijn twee soorten manieren om weerdata op te slaan.
-In een regulier weerdata database bestand bestaat een chunk uit:
+## Data format
 
- - 3 bytes voor de ID van het weerstation. Dit staat station IDs van 0 tot en met 16777215 toe.
- - 2 bytes aan temperatuur gemeten bij het weerstation. Dit is een positief geheel getal dat in tienden de graden celcius is opgeslagen, bij deze waarde is 1000 opgetelt waardoor van temperaturen van -100 tot 65435 graden celcius opgeslagen kunnen worden.
- - 1 byte aan wind snelheid in meter per seconde. Dit is een positief getal dat in tienden in m/s is opgeslagen, waardoor minimaal 0 en maximaal 25.5 meter per seconde kan worden opgeslagen. (optioneel)
+There are two kind of data formats supported by the .awaagti files.
+In a reguler weather data database file, one chunk is composed of 6 bytes per chunk, in the format:
 
-Reguliere .awaagti bestanden hebben de tijd van de weerdata als bestandsnaam, in unix time.
-Bijvoorbeeld 1549055732.awaagti, dat de gemeten weerdata bevat gemeten op die seconde.
+ - 3 bytes for the ID of the weather station. This allows for station IDs from 0 to 16777215.
+ - 2 bytes for the temperature, measured by the weather station. This is a positive number in tenths degrees celcius, on which 1000 is added. This allows for temperatures from -100.0 to 6543.5 degrees celcius.
+ - 1 byte for the wind speed, in meters per second. This is a positive number in tenths of m/s, which allows to store wind speeds from 0 to 25.5 meters per second.
+
+The usage of chunks, and having specified a chunk length in every database file, makes it possible to extend the chunk data to store more variables, while keeping it backwards compatible on both sides.
+For instance; the .awaagti database file reader does not only support the chunk scheme as shown above, but also chunks which do not contain the wind speed, and are therefore 5 bytes in size.
+The software will ignore chunk data after after the expected 6 bytes, so new variables can be added without breaking the current behaivour of the current version of the software.
+
+Regulur .awaagti files have the time in seconds in unix format as the file name.
+For example 1549055732.awaagti, which contains data measured at the time 1549055732.
 
 ### Summaries
 
-Naast reguliere database bestanden zijn er zogenaamde summaries, waarbij een variable van elk weerstation in een tijdseenheid worden samenvat in 1 nieuwe waarde.
-Summaries van de maximale en minimale waarde van de temperatuur en wind snelheid worden ondersteund.
-Er zijn dus 4 verschillende summary files.
+A second chunk format supported.
+This format stores summaries, in which a variable of every weather station in a given time frame is stored as one value.
+Currently, summaries are supported for the minimum and maximum value of the temperature and wind speed.
+Meaning, there are four different summary files supported.
 
-Een summary file wordt gegenereerd voor elke 100 seconden, en van elke honderd summary files wordt een nieuwe summary file genereerd, recursief.
-De summary file 15490557 gaat over de (maximaal) honderd database files 1549055700 tot 1549055799.
+A summary file is generated for every 100 seconds, and of every 100 summary files, a new summary file is generated, recursively..
+The summary file 15490557 summarises the 100 or less (if data is missing) database files from 1549055700 to 1549055799..
 
-In een summary file bestaat een chunk uit:
+The chunk format of a summary file is as follows:
 
- - 3 bytes voor de ID van het weerstation.
- - 2 bytes voor de gegroepeerde waarde (bijvoorbeeld de max temperatuur).
- - 3 bytes voor de unix time stamp waarbij de waarde voor het station is gemeten.
+ - 3 bytes for the ID of the weather station.
+ - 2 bytes for the grouped value.
+   - The min or max temperature uses both these bytes, in the same way as in a regular chunk.
+   - The min or max wind speed uses only the first byte, in the same way as in a regular chunk.
+ - 3 bytes for the unix time in seconds, of which the value of the station was measured.
 
-Summary files hebben een bestandsnaam in het formaat '{variable}_{type summary}_sum.awaagti', bijvoorbeeld 'temp_max_sum.awaagti'.
+Like with regular database files, the file name of summray files are also standardised.
+Ther are in the format: '{variable}_{type summary}_sum.awaagti', for example 'temp_max_sum.awaagti'.
 
-## Directory structuur
+It is the responsibility of the reader to know if the file contains regulur chunks, or summary chunks, and also what the summary types are.
 
-In de database zijn de bestanden opgesplitst per honderd.
-Hierdoor zijn er maximaal 100 database bestanden in een map, of 100 mappen in een map.
-Hier is voor gekozen om het opvragen van de directory inhoud aan de file system van de kernel te versnellen.
+## Directory structure
 
-Hier volgt als voorbeeld een schematische tekening van de directory inhoud:
+The database is stored in the file system of the operating systemd kernel, and it known to work on the ext4 file system.
+In the database, the files are stored in groups of (maximum) hundred.
+Because of this, there are a maximum of 100 database files in a directory, or 100 directories in a directory.
+This is to make it faster to request a directory listing from the operating system, which makes it faster to read data from the database.
+
+Following is an example of a schematic drawing of the directory structure:
 
 ```
 15
@@ -86,20 +98,27 @@ Hier volgt als voorbeeld een schematische tekening van de directory inhoud:
         wind_min_sum.awaagti
 ```
 
-## Alternatieven
+You can see how each directory contains either a maximum of 100 database files, or a maximum of 100 directories.
+Every directory which time frame is in the past may contain summary files.
+It is not required that every directory contains 100 files or directories, if the time frame is in the past.
+Missing data is allowed.
 
-### Het comprimeren van een directory
+## Alternatives
 
-We hebben gezocht naar manieren om schijfruimte te besparen.
-De meest voor de hand liggende optie is om database bestanden te comprimeren.
-Dat zou gedaan kunnen worden door de directory die 100 database bestanden bevat te comprimeren, en de originele directory te verwijderen.
-Wanneer db_reader de directory nodig zou hebben, zou deze ge-oncomprimeerd kunnen worden in /tmp.
-De directory '15/48/01/54/' zou dan worden vervangen met een bestand '15/48/01/54.zstd'.
+### Compressing directories
 
-In het geval dat dit idee wordt toegepast zal de compression methode aan een aantal eisen moeten voldoen.
- 
- - Het gecomprimeerde bestand moet merkbaar kleiner zijn dan inhoud van de directory met database bestanden.
- - Het oncomprimeren moet ontzettend snel zijn, zodat het beantwoorden van queries van db_reader niet extra vertraging oploopt.
+We have done research on measured to save on storage space.
+One method is to compress database files.
+That could be done by compressing the directories containing (a maximum of) 100 database files, and to delete the original directory.
+If the reader needs to read the data in the compressed directory, it could decompress the compressed file into /tmp.
+The directory '15/48/01/54/' would be replaced by '15/48/01/54.zstd', but only after the unix time 1548015500 is reached.
 
-Er is gekozen om dit idee niet toe te passen in dit project.
-We zijn niet tegen schijfruimte problemen aangelopen en het zou teveel tijd kosten om het idee uit te voeren.
+Compressing directories of summary files, instead of compressing the files seperately would allow to compression algorithm to cut down on more redundant data.
+
+If this idea would be realised, the compression algorithm to be chosen should comply with a few goals.
+ - The compressed file should be reasonably smaller than the contents of the directory which is compressed, to make it worthwhile.
+ - The decompression progress needs to be really fast, to not slow down the reader which is executing a query from the client.
+
+We have chosen not to implement compression in the database.
+Our binary format is already efficient enough to meet the requirement of the client.
+We have not come across issues regarding storage space, and it would take too much development time to implement compression and decompression.
