@@ -24,15 +24,16 @@ public class Query
     private int hash = -1;
     ArrayList<String> parseWarnings = new ArrayList<>(); // Package private
 
-    private int[] stations = {};
-    private long from = 0;
-    private long cur = from;
-    private long to = -1;
-    private int interval = 1;
-    private ArrayList<DBValue> what = new ArrayList<>();
-    private String sortBy = "";
-    private int limit = -1;
-    private QueryFilter filter = new QueryFilter();
+    // FOR TESTING PURPOSES THESE VARIABLES ARE PUBLIC TO THIS PACKAGE
+    int[] stations = {};
+    long from = 0;
+    long cur = from;
+    long to = -1;
+    int interval = 1;
+    ArrayList<DBValue> what = new ArrayList<>();
+    String sortBy = "";
+    int limit = -1;
+    QueryFilter filter = new QueryFilter();
 
 
     public Query(String options) throws Exception
@@ -90,8 +91,8 @@ public class Query
         if (what.size() == 0)
             parseWarnings.add("You did not select what data you would like back from the query. By default you only select the ID.");
 
-        if ((sortBy.length() > 0 && what.size() > 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
-            throw new Exception("Sorted Index Queries do not support non indexed selections yet"); // TODO: implement
+        if ((sortBy.length() > 0 && what.size() >= 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
+            throw new Exception("Sorted Index Queries do not support non indexed selections yet");
 
 
         // Tell the client about wrong queries
@@ -147,22 +148,20 @@ public class Query
      */
     private Iterable<File> getDataFilesNormal()
     {
-        return () -> new Iterator<File>()
-        {
+        return () -> new Iterator<>() {
             long iteration = 0;
             File nextVal = null;
             String currentPath = "";
 
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 if (iteration >= limit)
                     return false;
 
                 while (cur < to) {
                     if (!findDir()) return false;
 
-                    String filename = (timestampToFolder(currentPath) +"/"+ cur +"."+ Settings.DATA_EXTENSION).replace("//","/" );
+                    String filename = (timestampToFolder(currentPath) + "/" + cur + "." + Settings.DATA_EXTENSION).replace("//", "/");
 //                    Logger.log("_FOUND_:" + filename);
 
                     nextVal = new File(filename);
@@ -174,20 +173,18 @@ public class Query
             }
 
             @Override
-            public File next()
-            {
-                if(nextVal == null)
+            public File next() {
+                if (nextVal == null)
                     throw new NoSuchElementException();
 
-                iteration ++;
+                iteration++;
                 return nextVal;
             }
 
-            private boolean findDir()
-            {
+            private boolean findDir() {
                 searchForTheDir:
                 while (true) {
-                      
+
                     String timestampStr = "" + cur;
                     if (currentPath.length() == 8 && timestampStr.startsWith(currentPath)) return true;
                     goDeeper:
@@ -196,7 +193,7 @@ public class Query
                         if (timestampStr.startsWith(currentPath)) {
 
                             String currentPathWithSlashes = Settings.DATA_PATH + "/" + currentPath.replaceAll("(.{2})", "$1/");
-                            Logger.log(currentPathWithSlashes);
+//                            Logger.log(currentPathWithSlashes);
 
                             String[] directories = new File(currentPathWithSlashes).list();
 
@@ -205,7 +202,8 @@ public class Query
                                 if (timestampStr.startsWith(path)) {
                                     currentPath = path;
 
-                                    if (currentPath.length() == 8) return true; // dir was found, cannot go any deeper ;-(
+                                    if (currentPath.length() == 8)
+                                        return true; // dir was found, cannot go any deeper ;-(
 
                                     continue goDeeper; // dir was found, eg: 15/48 was found, now find 15/48/34
                                 }
@@ -214,16 +212,16 @@ public class Query
 
                             int antiDeepness = 4 - currentPath.length() / 2;
                             long minimalTimestamp = cur + (int) Math.pow(100, antiDeepness);
-                            
-                           
+
+
                             if (cur < minimalTimestamp)
                                 cur += Math.ceil((minimalTimestamp - cur) / (float) interval) * interval;
-                              
+
                             if (cur > to)
                                 return false;
 
                             continue searchForTheDir;
-                            
+
                         } else currentPath = currentPath.substring(0, currentPath.length() - 2);
                     }
                 }
@@ -275,10 +273,14 @@ public class Query
                 Get the current file or summary based on the cur variable and process it based on the depth given
              */
             private void processCurPosition(int n, Map<Integer, DataPoint> indexResultMap) {
-                String filename = (n == 4) ? timestampToFolder(cur/100) + cur +"."+ Settings.DATA_EXTENSION : timestampToFolder(cur/100) + summaryFileName +"."+Settings.DATA_EXTENSION;
+                String filename = timestampToFolder(cur);
+                while (filename.endsWith("00/"))
+                    filename = filename.substring(0, filename.length() - 3);
+
+                filename = (n == 4) ? filename + cur +"."+ Settings.DATA_EXTENSION : filename + summaryFileName +"."+Settings.DATA_EXTENSION;
                 filename = filename.replace("//", "/");
                 File file = new File(filename);
-                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
+//                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
 
                 cur += distanceToNextCur(n);
 
@@ -335,7 +337,7 @@ public class Query
                         }
                     } else {
                         DBFile dbFile = DBFile.read(file, type);
-                        Logger.error(dbFile.getDataPoints().size());
+//                        dbFile.getDataPoints().forEach(x -> System.out.print(x.getTemp() + " "));
                         return dbFile.getDataPoints();
                     }
                 } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
@@ -369,8 +371,7 @@ public class Query
 //                else
 //                    return new File(fileName); //TODO: NO DATA WAS FOUND
 
-                Logger.error(fileName);
-                Logger.error(dps.size());
+                Logger.log("SAVED: " + fileName + " \t rows:" + dps.size());
 
 //                for (DataPoint dp : dps)
 //                    Logger.log(dp.getClientID() + " " + dp.getTemp() + " " + dp.getSummaryDateTime());
