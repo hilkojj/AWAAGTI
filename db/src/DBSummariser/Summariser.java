@@ -9,6 +9,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Summariser can summarise database files.
+ * It is responbile for:
+ *  - Reading the required database files to summarise.
+ *  - Summarising them, based on the given summary types
+ *  	(min or max or etc, and temperature or wind speed or etc)
+ *  - Writing the summary to the database.
+ *  
+ * @author remi
+ */
 public class Summariser
 {
 	enum SummaryType
@@ -60,6 +70,12 @@ public class Summariser
 		return sumFileName;
 	}
 
+	/**
+	 * summariser make a summary based on the given SummaryType and
+	 * DBValue.
+	 * It uses the files read by readFiles, and writes the resulting
+	 * summary to the database.
+	 */
 	public void summarise()
 	{
 		ArrayList<DataPoint> dps = this.summariseActually();
@@ -85,6 +101,12 @@ public class Summariser
 		}
 	}
 	
+	/**
+	 * readFiles finds and reads the required database files,
+	 * based on the given SummaryType and DBValue.
+	 * 
+	 * @return the amount of found and read files.
+	 */
 	public int readFiles()
 	{
 		DBFile[] files = new DBFile[100];
@@ -99,7 +121,7 @@ public class Summariser
 			dbFile = null;
 			try {
 				File f = new File(fileName);
-				dbFile = DBFile.read(f);
+				dbFile = DBFile.read(f, this.s2Type);
 				// TODO: check why this is needed.
 				dbFile.setDateTime(this.unixTime+second);
 				exists++;
@@ -115,6 +137,12 @@ public class Summariser
 		return exists;
 	}
 	
+	/**
+	 * summariseActually makes the summary.
+	 * It depends on the files read by readFile.
+	 * 
+	 * @return the datapoints containing the summarised values.
+	 */
 	protected ArrayList<DataPoint> summariseActually()
 	{
 		ArrayList<DataPoint> dps = new ArrayList<DataPoint>(); // TODO: pre allocate.
@@ -201,7 +229,7 @@ public class Summariser
 			dp.setClientID(clientID);
 			
 			if (maxDateTime != 0) {
-				dp.setTemp(val);
+				dp.setVal(val, this.s2Type);
 				dp.setSummaryDateTime(maxDateTime);
 			}
 			
@@ -211,7 +239,19 @@ public class Summariser
 		return dps;
 	}
 
-	
+	/**
+	 * check returns the given val2 if it best meets the SummaryType.
+	 * For instance, if the SummaryType is MAX and val2 is higher than
+	 * val1, val2 is returned. If val2 does not meet the SummaryType
+	 * better than val1, null is returned.
+	 * 
+	 * @param sType
+	 * @param val1
+	 * @param val2
+	 * 
+	 * @return val1 of val2, depending on which best meets the SummaryType.
+	 * 	null if 
+	 */
 	private static Integer check(Summariser.SummaryType sType, Integer val1, int val2)
 	{
 		if (val1 == null) {

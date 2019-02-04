@@ -26,6 +26,11 @@ export class StationsService {
         return Object.keys(this.byCountry)
     }
 
+    get(id: any) {
+        id = Number(id)
+        return this.array.find(s => s.id == id)
+    }
+
     constructor(
         private http: HttpClient
     ) {

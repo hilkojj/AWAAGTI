@@ -26,10 +26,10 @@
             Download XML
         </a>
 
-        <button mat-button [routerLink]="'/show-in-table/' + export.downloadUrl.split('/')[1]">
+        <a mat-button [routerLink]="'/show-in-table/' + export.downloadUrl.split('exports/')[1]">
             <mat-icon>table_chart</mat-icon>
             Show in table
-        </button>
+        </a>
     </span>
 
     <button mat-icon-button class="close" (click)="configs.closeExport(export)">

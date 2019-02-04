@@ -2,6 +2,12 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Every new connection is handled by one WorkerThread instance.
+ *
+ * @author Chris
+ *
+ */
 class WorkerThread implements Runnable {
 	private Socket connection;
 
@@ -12,6 +18,11 @@ class WorkerThread implements Runnable {
 
 	public boolean debug = false;
 
+	/**
+	 * WorkerThread is run by Server, this sets the correct socket for the worker.
+	 *
+	 * @param connection The socket that is used by the rest of the class
+	 */
 	public WorkerThread(Socket connection) {
 		this.connection = connection;
 	}
@@ -83,7 +94,7 @@ class WorkerThread implements Runnable {
 								Server.temperatures[mappedStationID].put(temperature);
 							}
 							int currTime = Integer.parseInt(input[2].replaceAll(":", ""));
-							if (currTime > Server.lastTime && input[2] != null) {
+							if ((currTime > Server.lastTime || currTime == 0) && input[2] != null) {
 								Server.updateTime(currTime);
 								for (int i = 0; i < Server.stations.size(); i++) {
 									windSpeedSecond[i] = Server.windSpeeds[i].get(0);

@@ -1,0 +1,4 @@
+# pimock
+
+Program used to generate mock data to sent to db_writer, useful during development.
+Ignore for grading.

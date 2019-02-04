@@ -18,7 +18,7 @@ public class QueryFilter
 	 * // NOT allowed
 	 * Operand.valueOf("==")
 	 */
-    enum Operand
+	enum Operand
 	{
 		EQUALS("=="),
 		LESS_THAN("<"),
@@ -29,24 +29,27 @@ public class QueryFilter
 		BETWEEN("between");
 
 		String key;
-		Operand(String key) {
+		Operand(String key)
+		{
 			this.key = key;
 		}
-        public String getKey() {
-        	return key;
-        }
 
-        public static Operand fromString(String str)
-        {
-            for (Operand type : Operand.values()) {
-                if (!type.getKey().equals(str)) { 
-                	continue;
-                }
-                return type;
-            }
-            return null;
-        }
-    }
+		public String getKey()
+		{
+			return key;
+		}
+
+		public static Operand fromString(String str)
+		{
+			for (Operand type : Operand.values()) {
+				if (!type.getKey().equals(str)) {
+					continue;
+				}
+				return type;
+			}
+			return null;
+		}
+	}
 
 	private String originalInput = "";
 
@@ -61,13 +64,13 @@ public class QueryFilter
 
 	public QueryFilter() { }
 
-    /**
-     * @param input the comma separated String that will get parsed to a filter
-     * @throws Exception
-     */
+	/**
+	 * @param input the comma separated String that will get parsed to a filter
+	 * @throws Exception
+	 */
 	public QueryFilter(String input) throws Exception
 	{
-        this.originalInput = input;
+		this.originalInput = input;
 		this.parseFilter(input);
 	}
 	
@@ -91,7 +94,11 @@ public class QueryFilter
 		case TEMP:
 			a = dp.getTemp();
 			break;
+		case WIND:
+			a = dp.getWindSpeed();
+			break;
 		default:
+			System.out.println("ERROR: unimplemented DataPoint variable in QueryFilter");
 		}
 
 		return this.execute(a);
@@ -111,13 +118,20 @@ public class QueryFilter
 		}
 
 		switch (this.operand) {
-            case EQUALS:                    return a == this.b;
-            case LESS_THAN:                 return a <  this.b;
-            case LESS_THAN_OR_EQUALS:       return a <= this.b;
-            case GREATER_THAN:              return a >  this.b;
-            case GREATER_THAN_OR_EQUALS:    return a >= this.b;
-			case NOT_EQUALS:                return a != this.b;
-			case BETWEEN:                   return a >  this.b && a < this.c;
+		case EQUALS:
+			return a == this.b;
+		case LESS_THAN:
+			return a <  this.b;
+		case LESS_THAN_OR_EQUALS:
+			return a <= this.b;
+		case GREATER_THAN:
+			return a >  this.b;
+		case GREATER_THAN_OR_EQUALS:
+			return a >= this.b;
+		case NOT_EQUALS:
+			return a != this.b;
+		case BETWEEN:
+			return a > this.b && a < this.c;
 		}
 
 		return false;
@@ -142,7 +156,7 @@ public class QueryFilter
 		}
 
 		this.b = Integer.parseInt(items[2]);
-		if (items.length == 4) {
+		if (this.operand == Operand.BETWEEN && items.length == 4) {
 			this.c = Integer.parseInt(items[3]);
 		}
 	}

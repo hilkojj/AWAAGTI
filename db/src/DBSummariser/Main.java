@@ -2,11 +2,15 @@ package DBSummariser;
 
 import shared.DBValue;
 
+/**
+ * Refer the documentation for information on db_summariser.
+ * 
+ * @author remi
+ */
 public class Main
 {
 	public static void main(String[] args)
 	{
-
 		long fromUTS;
 		long toUTS;
 
@@ -74,8 +78,10 @@ public class Main
 
 		if (!needs) {
 			return;
-
 		}
+		
+		sum.sType = null;
+		sum.s2Type = null;
 		
 		int read = sum.readFiles();
 		if (read == 0) {

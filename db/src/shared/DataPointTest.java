@@ -6,7 +6,7 @@ class DataPointTest
 	{
 		DataPoint dp = new DataPoint();
 		dp.setClientID(13377);
-		dp.setTemp(-19);
+		dp.setTemp(-1050);
 		
 		byte[] dbLine = dp.makeDBLine();
 		
@@ -18,6 +18,8 @@ class DataPointTest
 		
 		System.out.println(dp.getClientID());
 		System.out.println(dp2.getClientID());
+		System.out.println(dp.getTemp());
+		System.out.println(dp2.getTemp());
 		a(dp.getClientID() == dp2.getClientID());
 		a(dp.getTemp() == dp2.getTemp());
 		

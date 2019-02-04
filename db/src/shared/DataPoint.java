@@ -1,14 +1,16 @@
 package shared;
 
-
-import java.text.DecimalFormat;
-
 /**
  * DataPoint is a single state of a specific weather station.
  * It stores the weather station ID and the measured values.
  * 
+ * Both regular and summary (from summary files) DataPoints are supported.
+ * Refer to the documentation regarding the .awaagti file format.
+ * 
+ * It implements Comparable to sort a collection of DataPoints on the
+ * client (=weather station) ID.
+ * 
  * @author remi
- *
  */
 public class DataPoint implements Comparable<DataPoint>
 {
@@ -16,6 +18,7 @@ public class DataPoint implements Comparable<DataPoint>
 	private int temp = -1;
 	private int windSpeed = -1;
 
+	// Only if summary.
 	private DBValue summaryType;
 	private long summaryDateTime;
 
@@ -32,6 +35,13 @@ public class DataPoint implements Comparable<DataPoint>
 		} else { Logger.error("This is just for testing"); }
 	}
 
+	/**
+	 * fromLine interprets a chunk in a regular (non-summary) DBFile
+	 * and gives the resulting DataPoint.
+	 * 
+	 * @param line
+	 * @return
+	 */
 	public static DataPoint fromLine(byte[] line)
 	{
 		return fromDBLine(line, null);
@@ -60,7 +70,10 @@ public class DataPoint implements Comparable<DataPoint>
 			this.dbLine = new byte[5+8];
 			switch (this.summaryType) {
 			case TEMP:
-				int temp = (this.temp+100);
+				int temp = (this.temp+1000);
+				if (temp < 0) {
+					temp = 0;
+				}
 				
 				this.dbLine[3] = (byte)(temp >> 8);
 				this.dbLine[4] = (byte)(temp);
@@ -84,7 +97,10 @@ public class DataPoint implements Comparable<DataPoint>
 		} else {
 			this.dbLine = new byte[6];
 			
-			int temp = this.temp+100;
+			int temp = this.temp+1000;
+			if (temp < 0) {
+				temp = 0;
+			}
 			
 			this.dbLine[3] = (byte)(temp >> 8);
 			this.dbLine[4] = (byte)(temp);
@@ -99,6 +115,15 @@ public class DataPoint implements Comparable<DataPoint>
 		return this.dbLine;
 	}
 	
+	/**
+	 * fromDBLine interprets a chunk in a DBFile and gives the resulting DataPoint.
+	 * Optionally, a summaryType can be specified if the chunk is of a summary file,
+	 * and not a regular dbfile.
+	 * 
+	 * @param line
+	 * @param summaryType optional
+	 * @return
+	 */
 	public static DataPoint fromDBLine(byte[] line, DBValue summaryType)
 	{
 		DataPoint dp = new DataPoint();
@@ -122,7 +147,8 @@ public class DataPoint implements Comparable<DataPoint>
 				return null;
 			}
 			// Regular DB file, not a summary file.
-			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			//dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			dp.temp = (((line[3]) << 8) | (line[4] & 0xff))-1000;
 			
 			if (line.length < 6) {
 				return dp;
@@ -135,7 +161,7 @@ public class DataPoint implements Comparable<DataPoint>
 		
 		switch (summaryType) {
 		case TEMP:
-			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-100;
+			dp.temp = (((line[3] & 0xff) << 8) | (line[4] & 0xff))-1000;
 			break;
 		case WIND:
 			dp.windSpeed = line[3] & 0xff;
@@ -153,6 +179,13 @@ public class DataPoint implements Comparable<DataPoint>
 		return dp;
 	}
 	
+	/**
+	 * getVal returns a measured weather station value of this
+	 * DataPoint for the given DBValue.
+	 * 
+	 * @param sType
+	 * @return
+	 */
 	public int getVal(DBValue sType)
 	{
 		switch(sType) {
@@ -162,6 +195,26 @@ public class DataPoint implements Comparable<DataPoint>
 			return this.windSpeed;
 		default:
 			return 0;
+		}
+	}
+	
+	/**
+	 * setVal sets the value of the given DBValue to the given int.
+	 * 
+	 * @param val
+	 * @param sType
+	 */
+	public void setVal(int val, DBValue sType)
+	{
+		switch (sType) {
+		case TEMP:
+			this.temp = val;
+			break;
+		case WIND:
+			this.windSpeed = val;
+			break;
+		default:
+			Logger.error("DBValue not implemented");
 		}
 	}
 

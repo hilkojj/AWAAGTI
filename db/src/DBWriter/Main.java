@@ -6,6 +6,14 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Refer the documentation for information on db_writer.
+ * 
+ * db_writer is a TCP server which allows weather station Pi's to send
+ * their data. db_writer receives the data, and stores it in the database.
+ * 
+ * @author remi
+ */
 public class Main
 {
 	public static void main(String[] args) throws Exception
@@ -15,6 +23,7 @@ public class Main
 			return;
 		}
 
+		@SuppressWarnings("resource")
 		ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]), 100,
 				InetAddress.getByName("0.0.0.0"));
 		System.out.println("Server started	at:	" + serverSocket);
@@ -41,11 +50,6 @@ public class Main
 			String inMsg = null;
 			while ((inMsg = socketReader.readLine()) != null) {
 				inp.interpretLine(inMsg);
-			
-				/*String outMsg = inMsg;
-				socketWriter.write(outMsg);
-				socketWriter.write("\n");
-				socketWriter.flush();*/
 			}
 			socket.close();
 		} catch(Exception e) {

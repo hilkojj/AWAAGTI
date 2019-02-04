@@ -1,3 +1,14 @@
+/**
+ * This file is responsible for 
+ * setting up WebSockets with the users and
+ * registering event listeners.
+ * 
+ * WebSockets need to be authenticated by JSON Web Token which are created when a user signs in using "/api/login". 
+ * 
+ * The code in all these event listeners basically
+ * makes it possible for the user to call the functions in "./export.js"
+ */
+
 const jwt = require('jsonwebtoken')
 const auth = require("./auth")
 const exportConfig = require("./export")

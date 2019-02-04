@@ -3,6 +3,11 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
+/**
+ * The server handles all incoming connections and creates one outgoing connection to the database.
+ *
+ * @author Chris
+ */
 public class Server {
 	public static final int PORT = 7789;
 
@@ -10,6 +15,11 @@ public class Server {
 	private static int tail = 0;
 	public static int lastTime;
 
+	/**
+	 * updateTime is used by all worker threads to keep track of the most recent time.
+	 *
+	 * @param time
+	 */
 	public static synchronized void updateTime(int time) {
 		lastTime = time;
 	}
