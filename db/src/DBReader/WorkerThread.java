@@ -32,7 +32,9 @@ public class WorkerThread implements Runnable
             conWriter = new ConWriter(new OutputStreamWriter(connection.getOutputStream()));
 
             try {
-                process(new Query(conReader.readLine()));
+                String options = conReader.readLine();
+                Logger.log(options);
+                process(new Query(options));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
                 e.printStackTrace();
@@ -115,7 +117,7 @@ public class WorkerThread implements Runnable
                     conWriter.write(ConWriter.Types.progress, ""+newProgress);
                 }
 
-//                Logger.log("Collecting from: " +file.getName());
+                Logger.log("Collecting from: " +file.getName());
                 collectDatePoint(file, xmlWriter, query);
             }
 
@@ -134,8 +136,9 @@ public class WorkerThread implements Runnable
     {
         ArrayList<DataPoint> stations = query.getStations(file);
         if (stations.size() > 0) {
+            String timestamp = file.getName().replace("sortedQuery_cache_", "" ).split("\\.")[0];
 
-            xmlWriter.write("\t<datepoint time=\""+file.getName().split("\\.")[0]+"\">\n"); // TODO: date=”???” time=”???”
+            xmlWriter.write("\t<datepoint time=\""+timestamp+"\" >\n"); // TODO: date=”???” time=”???”
             xmlWriter.write("\t\t<stations>\n");
 
             for (DataPoint station : stations) {
@@ -156,13 +159,11 @@ public class WorkerThread implements Runnable
 
         for (DBValue e : query.getWhat())
             if (query.inSelect(e))
-                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.getTemp()+"</"+e.toString()+">\n"); // TODO: get selected
+                xmlWriter.write("\t\t\t\t<"+e.toString().toLowerCase()+">"+station.getValFormatted(e)+"</"+e.toString().toLowerCase()+">\n");
 
         if(query.isIndexedQuery())
             xmlWriter.write("\t\t\t\t<when>"+station.getSummaryDateTime()+"</when>\n");
 
         xmlWriter.write("\t\t\t</station>\n");
     }
-
-
 }
