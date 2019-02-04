@@ -2,6 +2,18 @@
     {{table.timestamp | timestamp:"seconds"}}
 </h2>
 
+<button mat-button [disabled]="!canNavigateBack" (click)="navigate(false)">
+    <mat-icon>arrow_back</mat-icon>
+    Previous datepoint
+</button>
+
+<button mat-button [disabled]="!canNavigateForward" (click)="navigate(true)">
+    <mat-icon>arrow_forward</mat-icon>
+    Next datepoint
+</button>
+
+<br><br>
+
 <table *ngIf="table" mat-table [dataSource]="table.rows"
     class="mat-elevation-z8">
 

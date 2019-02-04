@@ -1,14 +1,16 @@
 package shared;
 
-
-import java.text.DecimalFormat;
-
 /**
  * DataPoint is a single state of a specific weather station.
  * It stores the weather station ID and the measured values.
  * 
+ * Both regular and summary (from summary files) DataPoints are supported.
+ * Refer to the documentation regarding the .awaagti file format.
+ * 
+ * It implements Comparable to sort a collection of DataPoints on the
+ * client (=weather station) ID.
+ * 
  * @author remi
- *
  */
 public class DataPoint implements Comparable<DataPoint>
 {
@@ -16,6 +18,7 @@ public class DataPoint implements Comparable<DataPoint>
 	private int temp = -1;
 	private int windSpeed = -1;
 
+	// Only if summary.
 	private DBValue summaryType;
 	private long summaryDateTime;
 
@@ -32,6 +35,13 @@ public class DataPoint implements Comparable<DataPoint>
 		} else { Logger.error("This is just for testing"); }
 	}
 
+	/**
+	 * fromLine interprets a chunk in a regular (non-summary) DBFile
+	 * and gives the resulting DataPoint.
+	 * 
+	 * @param line
+	 * @return
+	 */
 	public static DataPoint fromLine(byte[] line)
 	{
 		return fromDBLine(line, null);
@@ -105,6 +115,15 @@ public class DataPoint implements Comparable<DataPoint>
 		return this.dbLine;
 	}
 	
+	/**
+	 * fromDBLine interprets a chunk in a DBFile and gives the resulting DataPoint.
+	 * Optionally, a summaryType can be specified if the chunk is of a summary file,
+	 * and not a regular dbfile.
+	 * 
+	 * @param line
+	 * @param summaryType optional
+	 * @return
+	 */
 	public static DataPoint fromDBLine(byte[] line, DBValue summaryType)
 	{
 		DataPoint dp = new DataPoint();
@@ -160,6 +179,13 @@ public class DataPoint implements Comparable<DataPoint>
 		return dp;
 	}
 	
+	/**
+	 * getVal returns a measured weather station value of this
+	 * DataPoint for the given DBValue.
+	 * 
+	 * @param sType
+	 * @return
+	 */
 	public int getVal(DBValue sType)
 	{
 		switch(sType) {
@@ -172,6 +198,12 @@ public class DataPoint implements Comparable<DataPoint>
 		}
 	}
 	
+	/**
+	 * setVal sets the value of the given DBValue to the given int.
+	 * 
+	 * @param val
+	 * @param sType
+	 */
 	public void setVal(int val, DBValue sType)
 	{
 		switch (sType) {
