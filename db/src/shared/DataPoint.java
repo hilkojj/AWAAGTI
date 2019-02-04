@@ -197,6 +197,25 @@ public class DataPoint implements Comparable<DataPoint>
 			return 0;
 		}
 	}
+
+	/**
+	 * getValFormatted formats and returns a measured weather station
+	 * value of this DataPoint for the given DBValue.
+	 * 
+	 * @param sType
+	 * @return
+	 */
+	public String getValFormatted(DBValue sType)
+	{
+		switch(sType) {
+		case TEMP:
+			return String.format("%.01f", (float)(this.temp)/10);
+		case WIND:
+			return String.format("%.01f", (float)(this.windSpeed)/10);
+		default:
+			return "";
+		}
+	}
 	
 	/**
 	 * setVal sets the value of the given DBValue to the given int.

@@ -19,7 +19,7 @@ type Column = {
     readableValue: (str: string) => string
 }
 
-const maxRequestBytes = 1024 * 10
+const maxRequestBytes = 1024 * 512
 
 @Component({
     selector: 'app-export-table',
