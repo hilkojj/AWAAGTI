@@ -92,10 +92,10 @@ public class QueryFilter
 		int a = 0;
 		switch (this.variable) {
 		case TEMP:
-			a = dp.getTemp();
+			a = dp.getTemp() / 10;
 			break;
 		case WIND:
-			a = dp.getWindSpeed();
+			a = dp.getWindSpeed() / 10;
 			break;
 		default:
 			System.out.println("ERROR: unimplemented DataPoint variable in QueryFilter");

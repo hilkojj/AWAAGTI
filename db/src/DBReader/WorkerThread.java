@@ -33,7 +33,7 @@ public class WorkerThread implements Runnable
 
             try {
                 String options = conReader.readLine();
-                Logger.log(options);
+                Logger.error(options);
                 process(new Query(options));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
