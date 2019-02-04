@@ -65,7 +65,7 @@ const configToQuery = config => {
  * @param {(warning: string) => void}   onWarning 
  * @param {(error: string) => void}     onError 
  */
-const exportData = (config, onProgress, onDone, onWarning, onError) => {
+const exportConfig = (config, onProgress, onDone, onWarning, onError) => {
 
     let client = new net.Socket()
     let file = null
@@ -137,3 +137,5 @@ const exportData = (config, onProgress, onDone, onWarning, onError) => {
         }
     }
 }
+
+module.exports = exportConfig
