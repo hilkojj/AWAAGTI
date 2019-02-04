@@ -14,6 +14,10 @@ import java.util.stream.IntStream;
  * DBFile represents an .awaagti database file, containg DataPoints.
  * It allows for reading and writing an .awaagti file.
  * 
+ * Both regular files, and summary files are supported for reading and
+ * writing.
+ * Refer to the documentation regarding the .awaagti file format.
+ * 
  * @author remi
  */
 public class DBFile
@@ -69,43 +73,43 @@ public class DBFile
 	{
 		this.dataPoints = new ArrayList<DataPoint>();
 
-        InputStream inputStream = new FileInputStream(file);
+		InputStream inputStream = new FileInputStream(file);
 
+		// Determine the chunk length, which is contained in the first byte in the file.
 		byte[] lengths = new byte[1];
 		inputStream.read(lengths, 0, 1);
 		byte length = lengths[0];
 
-        byte[] byteRead = new byte[length];
-        int read;
+		byte[] byteRead = new byte[length];
+		int read;
 
-    	while (true) {
-        	read = inputStream.read(byteRead, 0, length);
-        	if (read == -1 || read == 0) {
+		while (true) {
+			read = inputStream.read(byteRead, 0, length);
+			if (read == -1 || read == 0) {
 				break;
 			}
 
-        	DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
+			DataPoint dp = DataPoint.fromDBLine(byteRead, summaryType);
 
+			// Do optional filtering.
 			IntStream clientIDs = null;
 			if (filterClientIDs != null) {
 				clientIDs = IntStream.of(filterClientIDs);
 			}
-
 			if (clientIDs != null) {
 				boolean match = clientIDs.anyMatch(x -> x == dp.getClientID());
 				if (!match) {
 					continue;
 				}
 			}
+			if (filter != null && !filter.execute(dp)) {
+				continue;
+			}
 
-        	if (filter != null && !filter.execute(dp)) {
-        		continue;
-        	}
-
-        	this.dataPoints.add(dp);
+			this.dataPoints.add(dp);
 		}
-    	
-    	inputStream.close();
+		
+		inputStream.close();
 	}
 	
 	/**
@@ -116,6 +120,9 @@ public class DBFile
 	public void write() throws IOException {
 		FileOutputStream writer = new FileOutputStream(this.fileName);
 
+		// Determine and write the chunk size.
+		// (It is assumed all data points are of the same type/version,
+		//  and are therefore the same length)
 		byte lineLength = 0;
 		if (this.dataPoints != null && this.dataPoints.size() > 0) {
 			lineLength = (byte)this.dataPoints.get(0).makeDBLine().length;
@@ -126,7 +133,7 @@ public class DBFile
 		for (DataPoint dp : this.dataPoints) {
 			byte[] data = dp.makeDBLine();
 			if (data.length != lineLength) {
-				Logger.error("HAHAHAAHHAHA DIT IS KUT " + data.length + " : " + lineLength);
+				Logger.error("");
 			}
 			
 			//writer.write(padRight(dp.makeDBLine(), highest) + "\n");

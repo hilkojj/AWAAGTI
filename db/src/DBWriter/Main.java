@@ -23,6 +23,7 @@ public class Main
 			return;
 		}
 
+		@SuppressWarnings("resource")
 		ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]), 100,
 				InetAddress.getByName("0.0.0.0"));
 		System.out.println("Server started	at:	" + serverSocket);
@@ -49,11 +50,6 @@ public class Main
 			String inMsg = null;
 			while ((inMsg = socketReader.readLine()) != null) {
 				inp.interpretLine(inMsg);
-			
-				/*String outMsg = inMsg;
-				socketWriter.write(outMsg);
-				socketWriter.write("\n");
-				socketWriter.flush();*/
 			}
 			socket.close();
 		} catch(Exception e) {

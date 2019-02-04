@@ -4,6 +4,12 @@ package shared;
  * DataPoint is a single state of a specific weather station.
  * It stores the weather station ID and the measured values.
  * 
+ * Both regular and summary (from summary files) DataPoints are supported.
+ * Refer to the documentation regarding the .awaagti file format.
+ * 
+ * It implements Comparable to sort a collection of DataPoints on the
+ * client (=weather station) ID.
+ * 
  * @author remi
  */
 public class DataPoint implements Comparable<DataPoint>
@@ -12,6 +18,7 @@ public class DataPoint implements Comparable<DataPoint>
 	private int temp = -1;
 	private int windSpeed = -1;
 
+	// Only if summary.
 	private DBValue summaryType;
 	private long summaryDateTime;
 
