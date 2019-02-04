@@ -21,8 +21,7 @@ class DataPointTest
 		System.out.println(dp.getTemp());
 		System.out.println(dp2.getTemp());
 		a(dp.getClientID() == dp2.getClientID());
-		a(dp.getTemp() == dp2.getTemp());
-		
+		a(dp2.getTemp() == -1000);
 		
 		DataPoint dp3 = new DataPoint();
 		dp3.setClientID(5);
@@ -81,6 +80,12 @@ class DataPointTest
 		a(dp9.getWindSpeed() == dp10.getWindSpeed());
 		a(dp9.getSummaryType() == dp10.getSummaryType());	
 		a(dp9.getSummaryDateTime() == dp10.getSummaryDateTime());
+		
+		DataPoint dpLol = new DataPoint();
+		dpLol.setTemp(-102);
+		dpLol.setWindSpeed(12);
+		a(dpLol.getValFormatted(DBValue.TEMP).equals("-10.2"));
+		a(dpLol.getValFormatted(DBValue.WIND).equals("1.2"));
 	}
 	
 	public static void a(boolean b) throws Exception
