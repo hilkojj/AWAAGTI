@@ -31,7 +31,7 @@ const configToQuery = config => {
     if (typeof config.stationIds == "object" && config.stationIds.length)
         q += `stations=${config.stationIds.join(",")};`
 
-    if (typeof config.sortBy == "object")
+    if (typeof config.sortBy == "object" && config.sortBy)
         q += `sortBy=${config.sortBy[0].slice(0, 4)}_${config.sortBy[1] == 'min' ? 'min' : 'max'};`
 
     if (config.limit)
