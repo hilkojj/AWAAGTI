@@ -5,6 +5,7 @@ import shared.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static DBReader.DBHelper.getNth2pair;
@@ -28,6 +29,7 @@ public class Query
     int[] stations = {};
     long from = 0;
     long cur = from;
+    long first = -1;
     long to = -1;
     int interval = 1;
     ArrayList<DBValue> what = new ArrayList<>();
@@ -91,8 +93,11 @@ public class Query
         if (what.size() == 0)
             parseWarnings.add("You did not select what data you would like back from the query. By default you only select the ID.");
 
+        if (isIndexedQuery() && limit > stations.length)
+            parseWarnings.add("Please note that all Indexed sortby queries are distinct.");
+
         if ((sortBy.length() > 0 && what.size() >= 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
-            throw new Exception("Sorted Index Queries do not support non indexed selections yet");
+            throw new Exception("Sorted Index Queries do not support non indexed selections");
 
 
         // Tell the client about wrong queries
@@ -166,6 +171,7 @@ public class Query
 
                     nextVal = new File(filename);
                     cur += interval;
+                    if (first == -1) first = cur;
                     if (nextVal.exists()) return true;
                 }
 
@@ -237,17 +243,15 @@ public class Query
      */
     private Iterable<File> getDataFilesSorted()
     {
-        return () -> new Iterator<File>()
-        {
-            String summaryFileName = sortBy+"_sum";
+        return () -> new Iterator<>() {
+            String summaryFileName = sortBy + "_sum";
             Boolean hasExported = false;
             DBValue summaryType = DBValue.TEMP;
 
             /*
                 Get the query answer by combining index files
              */
-            private ArrayList<DataPoint> getIndexResults()
-            {
+            private ArrayList<DataPoint> getIndexResults() {
                 hasExported = true;
                 Map<Integer, DataPoint> indexResultMap = new HashMap<>();
 
@@ -277,7 +281,7 @@ public class Query
                 while (filename.endsWith("00/"))
                     filename = filename.substring(0, filename.length() - 3);
 
-                filename = (n == 4) ? filename + cur +"."+ Settings.DATA_EXTENSION : filename + summaryFileName +"."+Settings.DATA_EXTENSION;
+                filename = (n == 4) ? filename + cur + "." + Settings.DATA_EXTENSION : filename + summaryFileName + "." + Settings.DATA_EXTENSION;
                 filename = filename.replace("//", "/");
                 File file = new File(filename);
 //                Logger.log(n + " " + from + " " + cur + " " + to + " - " + filename);
@@ -286,6 +290,8 @@ public class Query
 
                 if (file.exists()) {
                     Logger.log("_FOUND_:" + filename);
+                    if (first == -1)
+                        first = cur;
                     if (cur <= to)
                         updateIndexResult(indexResultMap, getAllDataPointsFromFile(file, (n == 4) ? null : summaryType));
                 }
@@ -295,7 +301,7 @@ public class Query
                 How far do we need to increment based on the depth
              */
             private long distanceToNextCur(int n) {
-                return (long) Math.pow(10, (4-n) * 2);
+                return (long) Math.pow(10, (4 - n) * 2);
             }
 
             /*
@@ -332,7 +338,7 @@ public class Query
                         ArrayList<DataPoint> list = dbFile.getDataPoints();
                         for (DataPoint dp : list) {
                             dp.setSummaryType(summaryType);
-                            Logger.log(summaryType +" ==== "+ cur);
+                            Logger.log(summaryType + " ==== " + cur);
                             dp.setSummaryDateTime(cur);
                         }
                     } else {
@@ -340,36 +346,37 @@ public class Query
 //                        dbFile.getDataPoints().forEach(x -> System.out.print(x.getTemp() + " "));
                         return dbFile.getDataPoints();
                     }
-                } catch (IOException e) { Logger.error(e.getMessage()); e.printStackTrace(); }
+                } catch (IOException e) {
+                    Logger.error(e.getMessage());
+                    e.printStackTrace();
+                }
 
                 return new ArrayList<>();
             }
 
 
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 return !hasExported;
             }
 
-            public File next()
-            {
+            public File next() {
                 if (hasExported)
                     throw new NoSuchElementException();
 
-                ArrayList<DataPoint> dps = getIndexResults();
+                ArrayList<DataPoint> dps = filterResult(sortResult(getIndexResults()));
                 hasExported = true;
 
                 DBFile dbFile = new DBFile();
-                String fileName = Settings.DATA_PATH+"/sortedQuery_cache_" + hash +"."+Settings.DATA_EXTENSION;
-                dbFile.setFileName(fileName.replace("//", "/")); // todo: file trick
+                String fileName = Settings.DATA_PATH + "/sortedQuery_cache_" + hash + "." + Settings.DATA_EXTENSION;
+                dbFile.setFileName(fileName.replace("//", "/"));
 
                 if (dps.size() > limit)
                     dbFile.setDataPoints(new ArrayList<>(dps.subList(0, limit)));
                 else if (dps.size() != 0)
                     dbFile.setDataPoints(dps);
 //                else
-//                    return new File(fileName); //TODO: NO DATA WAS FOUND
+//                    throw new Exception("No data was found.");   // TODO: NO DATA WAS FOUND
 
                 Logger.log("SAVED: " + fileName + " \t rows:" + dps.size());
 
@@ -385,6 +392,30 @@ public class Query
 
                 return new File(fileName);
             }
+
+            private ArrayList<DataPoint> sortResult(ArrayList<DataPoint> dps) {
+                if (sortBy.contains("temp"))
+                    dps.sort(Comparator.comparingInt(DataPoint::getTemp));
+                else if (sortBy.contains("wind"))
+                    dps.sort(Comparator.comparingInt(DataPoint::getWindSpeed));
+                else
+                    Logger.error("We have made a parsing error.");
+
+                if (sortBy.contains("max"))
+                    Collections.reverse(dps);
+
+                return dps;
+            }
+
+            private ArrayList<DataPoint> filterResult(ArrayList<DataPoint> dps) {
+                List<Integer> stationsList = Arrays.stream(stations).boxed().collect(Collectors.toList());
+                ArrayList<DataPoint> newList = new ArrayList<>();
+                for (DataPoint dp : dps)
+                    if (stationsList.contains(dp.getClientID()))
+                        newList.add(dp);
+
+                return newList;
+            }
         };
     }
 
@@ -397,9 +428,8 @@ public class Query
         ArrayList<DataPoint> list = new ArrayList<>();
 
         try {
-//            Logger.error(Arrays.toString(this.stations));
-            DBFile dbFile = DBFile.read(file, null, stations, this.filter);
-            Logger.log(dbFile.getDataPoints().size());
+            DBValue summaryType = isIndexedQuery()? DBValue.TEMP : null;
+            DBFile dbFile = DBFile.read(file, summaryType, stations, this.filter);
             return dbFile.getDataPoints();
         } catch (IOException e) {
             e.printStackTrace();
@@ -430,8 +460,11 @@ public class Query
      */
     public int progress()
     {
-        long diffFromStart = cur - from;
-        long total = to - from;
+        if(first == -1)
+            return 1;
+
+        long diffFromStart = cur - first;
+        long total = to - first;
         float proc = ((diffFromStart / (float)total) * 100);
 //        Logger.log(from + " " + cur + " " + to + " = "+proc);
 //        Logger.log(diffFromStart + " " + total + " = "+proc);

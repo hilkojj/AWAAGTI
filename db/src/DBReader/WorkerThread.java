@@ -117,7 +117,7 @@ public class WorkerThread implements Runnable
                     conWriter.write(ConWriter.Types.progress, ""+newProgress);
                 }
 
-//                Logger.log("Collecting from: " +file.getName());
+                Logger.log("Collecting from: " +file.getName());
                 collectDatePoint(file, xmlWriter, query);
             }
 
@@ -158,13 +158,11 @@ public class WorkerThread implements Runnable
 
         for (DBValue e : query.getWhat())
             if (query.inSelect(e))
-                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.getTemp()+"</"+e.toString()+">\n"); // TODO: get selected
+                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.getTemp()+"</"+e.toString()+">\n");
 
         if(query.isIndexedQuery())
             xmlWriter.write("\t\t\t\t<when>"+station.getSummaryDateTime()+"</when>\n");
 
         xmlWriter.write("\t\t\t</station>\n");
     }
-
-
 }
