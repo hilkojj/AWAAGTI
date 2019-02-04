@@ -79,7 +79,12 @@ public class DataPoint implements Comparable<DataPoint>
 				this.dbLine[4] = (byte)(temp);
 				break;
 			case WIND:
-				this.dbLine[3] = (byte)this.windSpeed;
+				int windSpeed = this.windSpeed;
+				if (windSpeed >= 255) {
+					windSpeed = 255;
+				}
+
+				this.dbLine[3] = (byte)windSpeed;
 				break;
 			default:
 				System.out.println("ERROR: invalid summaryType: " + this.summaryType);
@@ -105,7 +110,12 @@ public class DataPoint implements Comparable<DataPoint>
 			this.dbLine[3] = (byte)(temp >> 8);
 			this.dbLine[4] = (byte)(temp);
 			
-			this.dbLine[5] = (byte)this.windSpeed;
+			int windSpeed = this.windSpeed;
+			if (windSpeed >= 255) {
+				windSpeed = 255;
+			}
+			
+			this.dbLine[5] = (byte)windSpeed;
 		}
 		
 		this.dbLine[0] = (byte)(this.clientID >> 16);
