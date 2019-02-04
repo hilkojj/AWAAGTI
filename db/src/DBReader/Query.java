@@ -341,7 +341,7 @@ public class Query
                         ArrayList<DataPoint> list = dbFile.getDataPoints();
                         for (DataPoint dp : list) {
                             dp.setSummaryType(summaryType);
-                            Logger.log(summaryType + " ==== " + cur);
+//                            Logger.log(summaryType + " ==== " + cur);
                             dp.setSummaryDateTime(cur);
                         }
                         return list;

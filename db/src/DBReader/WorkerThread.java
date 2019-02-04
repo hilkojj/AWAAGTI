@@ -33,7 +33,7 @@ public class WorkerThread implements Runnable
 
             try {
                 String options = conReader.readLine();
-                Logger.log(options);
+                Logger.error(options);
                 process(new Query(options));
             } catch (Exception e) {
                 Logger.error(e.getMessage());
@@ -136,9 +136,13 @@ public class WorkerThread implements Runnable
     {
         ArrayList<DataPoint> stations = query.getStations(file);
         if (stations.size() > 0) {
-            String timestamp = file.getName().replace("sortedQuery_cache_", "" ).split("\\.")[0];
+            String timestamp = file.getName().split("\\.")[0];
 
-            xmlWriter.write("\t<datepoint time=\""+timestamp+"\" >\n"); // TODO: date=”???” time=”???”
+            if (timestamp.contains("sortedQuery_cache_"))
+                xmlWriter.write("\t<datepoint>\n");
+            else
+                xmlWriter.write("\t<datepoint time=\""+timestamp+"\" >\n"); // TODO: date=”???” time=”???”
+
             xmlWriter.write("\t\t<stations>\n");
 
             for (DataPoint station : stations) {
