@@ -96,8 +96,11 @@ public class Query
         if (isIndexedQuery() && limit > stations.length)
             parseWarnings.add("Please note that all Indexed sortby queries are distinct.");
 
-        if ((sortBy.length() > 0 && what.size() >= 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what))
-            throw new Exception("Sorted Index Queries do not support non indexed selections");
+        if ((sortBy.length() > 0 && what.size() >= 2) || !Collections.disjoint(Arrays.asList(sortBy.split("_")), what)) {
+            parseWarnings.add("Sorted Index Queries do not support non indexed selections");
+            what.clear();
+            what.add(DBValue.valueOf(sortBy.split("_")[0].toUpperCase()));
+        }
 
 
         // Tell the client about wrong queries
@@ -341,6 +344,7 @@ public class Query
                             Logger.log(summaryType + " ==== " + cur);
                             dp.setSummaryDateTime(cur);
                         }
+                        return list;
                     } else {
                         DBFile dbFile = DBFile.read(file, type);
 //                        dbFile.getDataPoints().forEach(x -> System.out.print(x.getTemp() + " "));
@@ -376,7 +380,7 @@ public class Query
                 else if (dps.size() != 0)
                     dbFile.setDataPoints(dps);
 //                else
-//                    throw new Exception("No data was found.");   // TODO: NO DATA WAS FOUND
+//                    throw new Exception("No data was found.");   // TODO: NO DATA WAS FOUND, a nice warning or error to the user would be nice
 
                 Logger.log("SAVED: " + fileName + " \t rows:" + dps.size());
 

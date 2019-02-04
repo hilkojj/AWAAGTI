@@ -158,7 +158,7 @@ public class WorkerThread implements Runnable
 
         for (DBValue e : query.getWhat())
             if (query.inSelect(e))
-                xmlWriter.write("\t\t\t\t<"+e.toString()+">"+station.getTemp()+"</"+e.toString()+">\n");
+                xmlWriter.write("\t\t\t\t<"+e.toString().toLowerCase()+">"+station.getVal(e)+"</"+e.toString().toLowerCase()+">\n");
 
         if(query.isIndexedQuery())
             xmlWriter.write("\t\t\t\t<when>"+station.getSummaryDateTime()+"</when>\n");
